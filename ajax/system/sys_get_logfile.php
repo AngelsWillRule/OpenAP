@@ -6,7 +6,7 @@ require_once '../../includes/config.php';
 require_once '../../includes/authenticate.php';
 
 $tempDir = sys_get_temp_dir();
-$filePath = $tempDir . DIRECTORY_SEPARATOR . RASPI_DEBUG_LOG;
+$filePath = $tempDir . DIRECTORY_SEPARATOR . OPENAP_DEBUG_LOG;
 
 if (isset($filePath)) {
     header('Content-Type: application/octet-stream');

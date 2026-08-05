@@ -7,7 +7,7 @@ require_once '../../includes/authenticate.php';
 
 header('Content-Type: application/json');
 
-use RaspAP\Networking\Hotspot\HotspotService;
+use OpenAP\Networking\Hotspot\HotspotService;
 
 $interface = $_POST['interface'] ?? '';
 
@@ -116,4 +116,3 @@ function supportedModes(string $highestMode, bool $incl = true): array {
 }
 
 echo json_encode($data, JSON_PRETTY_PRINT);
-

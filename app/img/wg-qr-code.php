@@ -10,7 +10,7 @@ if (!isset($_SERVER['HTTP_REFERER'])) {
     exit;
 }
 
-exec("sudo cat " .RASPI_WIREGUARD_PATH.'client.conf', $return);
+exec("sudo cat " .OPENAP_WIREGUARD_PATH.'client.conf', $return);
 $peer_conf = implode(PHP_EOL,$return);
 $peer_conf.= PHP_EOL;
 $peer_conf_sanitized = str_replace(["\r", "\n"], '', $peer_conf);
@@ -26,4 +26,3 @@ header("Last-Modified: $last_modified");
 header("ETag: \"$etag\"");
 header("X-QR-Code-Content: $peer_conf_sanitized");
 echo shell_exec($command);
-

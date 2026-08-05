@@ -1,856 +1,4779 @@
-/*
-Name: base.css
-Author: @billz
-Author URI: https://github.com/billz
-Description: Base classes with minimal theming for the application
-License: GNU General Public License v3.0
-*/
+/* OpenAP V3 — Clean Light Theme */
+:root{--bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--border-light:#f1f5f9;--primary:#1e3a8a;--primary-dark:#1e40af;--primary-soft:rgba(30,58,138,0.06);--primary-light:#e8edf5;--accent:#d97706;--accent-soft:rgba(217,119,6,0.08);--text:#0f172a;--text-muted:#64748b;--text-light:#94a3b8;--success:#059669;--danger:#dc2626;--radius:16px;--radius-sm:10px;--shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow-lg:0 4px 20px rgba(0,0,0,0.07)}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+a{--bs-link-color:var(--primary);--bs-link-hover-color:var(--primary-dark);text-decoration:none}
 
-:root {
-  --raspap-brand-color: #2b8080;
-  --raspap-content-main: #495057;
-  --raspap-text-muted: #858796;
-  --raspap-text-light: #999999;
-  --raspap-offwhite: #faf9f6;
-}
+/* ===== TOPBAR ===== */
+.sb-topnav{position:fixed;top:0;left:0;right:0;z-index:1030;background:#307f7f;height:52px;display:flex;align-items:center;padding:0 16px;justify-content:space-between;box-shadow:0 2px 8px rgba(48,127,127,0.2)}
+.topbar-left{display:flex;align-items:center;gap:6px}
+.sidebar-toggle-btn{background:none;border:none;color:rgba(255,255,255,0.7);font-size:18px;padding:6px 8px;cursor:pointer;border-radius:6px;transition:all .15s;display:flex;align-items:center}
+.sidebar-toggle-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
+.topbar-brand{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;cursor:pointer}
+.topbar-brand:hover{color:#fff}
+.topbar-brand-logo-frame{position:relative;display:block;width:190px;height:44px;overflow:hidden;flex:0 0 190px}
+.topbar-brand-logo{position:absolute;top:50%;left:50%;width:auto;max-width:none;height:38px;transform:translate(-50%,-50%);filter:brightness(0) invert(1);opacity:.96}
+.brand-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700}
+.brand-text{font-size:16px;font-weight:600;letter-spacing:-0.3px;color:#fff}
+.topbar-center{flex:1}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;transition:all .15s}
+.mode-badge{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.1)}
+.mode-badge i{font-size:11px}
+.health-badge{background:rgba(5,150,105,0.2);color:#fff}
+.health-badge i{font-size:11px}
+.health-badge.degraded{background:rgba(217,119,6,0.25);color:#fff}
+.health-badge.degraded i{color:#fbbf24}
+.topbar-divider{width:1px;height:20px;background:rgba(255,255,255,0.2)}
+.topbar-icon-btn{background:none;border:none;color:rgba(255,255,255,0.7);font-size:14px;padding:6px;cursor:pointer;border-radius:6px;transition:all .15s;display:flex;align-items:center}
+.topbar-icon-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
+.topbar-dark-switch .form-check-input{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.3);cursor:pointer}
+.topbar-dark-switch .form-check-input:checked{background-color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.6)}
+.topbar-dark-switch .form-check-label{color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer}
+.topbar-dark-switch .text-white-50{color:rgba(255,255,255,0.6)!important}
+.admin-avatar-link{text-decoration:none;display:flex;align-items:center}
+.admin-avatar{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;letter-spacing:0.3px}
+.admin-avatar:hover{background:rgba(255,255,255,0.3);color:#fff}
+.admin-avatar-link:hover .admin-avatar{background:rgba(255,255,255,0.3);color:#fff}
+.admin-avatar i{font-size:16px;line-height:1;color:#fff}
 
-body {
-  color: #212529;
-  background-color: var(--raspap-offwhite);
-}
-
-/* Typography */
-a {
-  --bs-link-color: var(--raspap-brand-color);
-  --bs-link-hover-color: var(--raspap-brand-color);
-  text-decoration: none;
-}
-
-.info-item {
-  text-transform: uppercase;
-  flex-basis: 125px;
-  color: var(--raspap-text-muted);
-}
-
-.info-item, .info-value {
-  font-size: 0.9rem;
-}
-
-.info-item-xs {
-  font-size: 0.7rem;
-  margin-left: 0.75rem;
-}
-
-.page-card-header, .modal-title {
-  font-size: 16px;
-}
-
-.text-offwhite {
-  color: var(--raspap-offwhite);
-}
-
-/* Elements */
-.table {
-  margin-bottom: 0rem;
-}
-
-.logoutput {
-  width: 100%;
-  height: 20rem;
-  border: 1px solid #d1d3e2;
-  border-radius: .35rem;
-  font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace;
-  font-size: 0.8rem;
-}
-
-pre.unstyled {
-  border-width: 0;
-  background-color: transparent;
-  padding: 0;
-}
-
-figcaption.figure-caption a {
-  color: var(--raspap-text-muted);
-}
-
-/* Icons */
-.fa-reddit {
-  color: #ff4500;
-}
-.fa-twitter {
-  color: #55acee
-}
-.fa-discord {
-  color: #7289da
-}
-.fa-github {
-  color: #151b23
-}
-
-.fa-check {
-  color: #90ee90;
-}
-
-.fa-times {
-  color: #ff4500;
-}
-
-button > i.fas {
-  pointer-events: none;
-}
-
-.heart {
-  color: #e63946;
-  animation: heart 1000ms infinite;
-}
-@keyframes heart {
-  0%, 40%, 80%, 100% {
-    transform: scale(1);
+/* Mobile-only primary navigation. */
+.openap-mobile-bottom-nav{display:none}
+@media(max-width:767.98px){
+  .openap-mobile-bottom-nav{
+    position:fixed;
+    left:50%;
+    bottom:max(8px,env(safe-area-inset-bottom));
+    z-index:1028;
+    width:calc(100% - 40px);
+    max-width:430px;
+    min-height:64px;
+    padding:5px;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:4px;
+    transform:translateX(-50%);
+    border:1px solid rgba(18,104,105,.42);
+    border-radius:16px;
+    background:rgba(255,255,255,.94);
+    box-shadow:0 12px 32px rgba(15,65,68,.24);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
   }
-  20%, 60% {
-    transform: scale(1.15);
+  .openap-mobile-bottom-link{
+    position:relative;
+    z-index:1;
+    min-width:0;
+    min-height:52px;
+    padding:6px 4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:3px;
+    border:1px solid transparent;
+    border-radius:11px;
+    color:#647b7e;
+    font-size:9px;
+    font-weight:750;
+    line-height:1.1;
+    text-align:center;
+    text-decoration:none;
+    transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease;
   }
-}
-
-/* Buttons */
-button.btn.btn-light.js-toggle-password {
-  border: 1px solid lightgrey;
-}
-
-button.btn i:not([class*="service-status"]) {
-  color: inherit !important;
-}
-
-/* Forms */
-.was-validated .form-control:valid,
-.was-validated .form-control:invalid {
-  background-position: center right calc(.375em + .4875rem);
-}
-
-.was-validated .form-control:invalid {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-.was-validated .form-control:valid {
-  background-size: calc(0.6em + 0.375rem) calc(0.6em + 0.375rem);
-}
-
-.input-group > .btn {
-  border: 1px solid #ced4da;
-}
-
-.input-group > .input-group-append:not(:last-child) > .btn {
-  border-top-right-radius: 0.35rem;
-  border-bottom-right-radius: 0.35rem;
-}
-
-.check-hidden {
-  visibility: hidden;
-}
-.check-progress {
-  color: var(--raspap-text-light);
-}
-
-/* Layout */
-.sb-sidenav .sb-sidenav-menu .nav .nav-link {
-  padding-top: 0.6rem;
-  padding-bottom: 0.6rem;
-  font-size: 16px;
-}
-.sidebar .nav-item .nav-link {
-  padding: 0.6rem 0.6rem 0.6rem 1.0rem;
-}
-
-.sidebar.toggled .nav-item .nav-link span {
-  display: none;
-}
-.sidebar .nav-item .nav-link i,
-.sidebar .nav-item .nav-link span {
-    font-size: 1.0rem;
-}
-
-.sb-sidenav .sb-nav-link-icon.active .nav-link {
-  font-weight: bolder;
-  color: var(--raspap-brand-color);
-}
-.sb-sidenav .sb-nav-link-icon.active i.sb-nav-link-icon {
-  color: var(--raspap-brand-color);
-}
-
-.sidebar-brand-text {
-  text-transform: none;
-  font-size: 2.0rem;
-  font-weight: 500;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-.h-underlined {
-  border-bottom: 1px solid #e3e6f0;
-  padding-bottom: 0.3rem;
-}
-
-.navbar-logo {
-  margin-top: 0.2em;
-  margin-left: 0.7em;
-}
-
-#navbar-system-mode {
-  color: var(--raspap-text-muted);
-}
-#navbar-system-mode.active {
-  color: var(--raspap-brand-color);
-}
-
-.login-logo {
-  width: 70px;
-  height: 70px;
-  margin-left: 1.2rem;
-  margin-bottom: -0.5rem;
-}
-
-.nav-item {
-  font-size: 0.85rem;
-}
-
-.nav-user {
-  position: relative;
-  bottom: 11px;
-  right: 3px;
-}
-
-.topbar-avatar {
-  width: 38.4px!important;
-  height: 38.4px!important;
-}
-@media (min-width: 641px) {
-  .topbar-avatar {
-    width: 48px!important;
-    height: 48px!important;
+  .openap-mobile-bottom-link i{font-size:17px}
+  .openap-mobile-bottom-link:hover,
+  .openap-mobile-bottom-link:focus-visible{
+    border-color:rgba(18,104,105,.2);
+    background:#edf7f6;
+    color:#0b6462;
+    outline:0;
+  }
+  .openap-mobile-bottom-link:active{transform:translateY(1px)}
+  .openap-mobile-bottom-link.active{
+    border-color:rgba(22,132,127,.28);
+    background:transparent;
+    color:#0b6462;
+    box-shadow:none;
+  }
+  .openap-mobile-bottom-link.active::before{
+    content:"";
+    position:absolute;
+    top:3px;
+    width:20px;
+    height:3px;
+    border-radius:999px;
+    background:#16847f;
+  }
+  .openap-mobile-bottom-indicator{
+    position:absolute;
+    top:5px;
+    bottom:5px;
+    left:5px;
+    z-index:0;
+    width:calc((100% - 18px)/3);
+    transform:translateX(calc(var(--openap-mobile-active,0)*(100% + 4px)));
+    border:1px solid rgba(22,132,127,.28);
+    border-radius:11px;
+    background:linear-gradient(135deg,#e8f6f4,#dcedeb);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+    pointer-events:none;
+  }
+  .openap-mobile-bottom-nav.is-sliding .openap-mobile-bottom-indicator{
+    transition:transform .32s cubic-bezier(.22,1,.36,1);
+  }
+  .sb-nav-fixed #layoutSidenav #layoutSidenav_content{
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  }
+  html[data-bs-theme="dark"] .openap-mobile-bottom-nav{
+    border-color:#45666a;
+    background:rgba(16,35,38,.95);
+    box-shadow:0 14px 36px rgba(0,0,0,.5);
+  }
+  html[data-bs-theme="dark"] .openap-mobile-bottom-link{color:#9fb6b9}
+  html[data-bs-theme="dark"] .openap-mobile-bottom-link:hover,
+  html[data-bs-theme="dark"] .openap-mobile-bottom-link:focus-visible{
+    border-color:#36575b;
+    background:#193136;
+    color:#dff5f2;
+  }
+  html[data-bs-theme="dark"] .openap-mobile-bottom-link.active{
+    border-color:#3e7775;
+    background:transparent;
+    color:#e5fbf8;
+    box-shadow:none;
+  }
+  html[data-bs-theme="dark"] .openap-mobile-bottom-link.active::before{background:#79ddd5}
+  html[data-bs-theme="dark"] .openap-mobile-bottom-indicator{
+    border-color:#3e7775;
+    background:linear-gradient(135deg,#17403f,#143332);
+    box-shadow:inset 0 0 0 1px rgba(121,221,213,.08);
   }
 }
+@media(max-width:767.98px) and (prefers-reduced-motion:reduce){
+  .openap-mobile-bottom-nav.is-sliding .openap-mobile-bottom-indicator{transition:none}
+}
+.openap-theme-toggle{display:flex;align-items:center}
+.openap-theme-toggle-button{height:32px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 11px;border:1px solid rgba(255,255,255,.24);border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:600;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease;user-select:none}
+.openap-theme-toggle-button:hover{background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.36);color:#fff}
+.openap-theme-toggle-button:active{transform:translateY(1px)}
+.openap-theme-toggle .dark-mode-toggle:focus-visible + .openap-theme-toggle-button{outline:2px solid #fff;outline-offset:2px}
+.openap-theme-toggle-button .openap-theme-mode-icon{min-width:16px;color:#fff;font-size:15px;text-align:center}
 
-.page-header {
-  font-size: 26pt;
-  margin: 20px 0 20px;
+/* ===== SIDEBAR ===== */
+.sb-sidenav{background:var(--surface)!important;border-right:1px solid var(--border)}
+.sb-sidenav-menu .nav-link{color:var(--text-muted)!important;font-size:13px;padding:8px 16px!important;border-left:3px solid transparent;transition:all .12s}
+.sb-sidenav-menu .nav-link:hover{background:var(--primary-soft);color:var(--primary)!important}
+.sb-sidenav-menu .nav-link.active{background:var(--primary-soft);color:var(--primary)!important;border-left-color:var(--primary);font-weight:500}
+.sb-sidenav-menu .nav-link i{color:var(--text-muted);width:18px;margin-right:8px}
+.sb-sidenav-menu .nav-link.active i,.sb-sidenav-menu .nav-link:hover i{color:var(--primary)}
+.sb-sidenav .sidenav-menu-heading{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);opacity:.6;padding:12px 16px 4px!important}
+.sb-sidenav .sidebar-brand-text{display:none}
+.sb-sidenav .navbar-logo{width:50px;height:50px}.sb-sidenav .sb-status{font-size:11px;color:var(--text-muted)}.sb-sidenav .info-item-xs{font-size:11px;color:var(--text-muted)}.sb-sidenav .info-item-xs i.fa-circle{font-size:8px}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-header{background:transparent;border-bottom:1px solid var(--border);color:var(--text);padding:12px 20px;font-size:13px;font-weight:600}
+.card-header i.fa-fw{color:var(--primary)}.card-body{padding:20px}.card-footer{background:transparent;border-top:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:10px 20px}
+
+/* ===== DASHBOARD ===== */
+.dashboard-container{gap:16px}
+.center-device{text-align:center;padding:16px 0}
+.device-illustration{max-width:80px;margin-bottom:8px}
+.device-label{font-size:13px;font-weight:500}.device-label a{color:var(--text)}
+.ip-info-toggle{display:flex;justify-content:center;gap:4px}
+.ip-info-toggle button{background:var(--bg);border:1px solid var(--border);padding:4px 16px;font-size:12px;border-radius:20px;cursor:pointer;color:var(--text-muted);transition:all .12s}
+.ip-info-toggle button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.ip-info-toggle button:hover:not(.active){background:var(--primary-soft);color:var(--primary)}
+
+.connection-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;text-align:center}
+.connection-item a{color:var(--text-muted)}.connection-item a.on{color:var(--primary)}.connection-item a.off{opacity:.35}
+.connection-item i.fa-2xl{font-size:26px;color:var(--text-muted)}.connection-item a.on i.fa-2xl{color:var(--primary)}
+.connection-item span{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:500;color:var(--text-muted)}
+.connection-item a.on span{color:var(--primary)}
+.clients-mobile{display:flex;justify-content:center;gap:24px;margin-top:12px}
+.client-type{display:inline-flex;align-items:center;gap:8px;color:var(--text-muted)}
+.client-type .client-count{font-size:14px;font-weight:600;color:var(--text)}
+.client-type i.fa-globe{color:var(--primary)}
+
+.device-status{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.status-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;text-align:center;min-width:60px;transition:all .12s}
+.status-item:hover{border-color:var(--primary)}
+.status-item span{display:block;font-size:10px;margin-top:4px;text-transform:uppercase;color:var(--text-muted)}
+.status-item i.fa-2x{font-size:18px;color:var(--text-muted)}
+.service-status-up,.service-status-up i{color:var(--success)!important}.service-status-warn,.service-status-warn i{color:var(--accent)!important}.service-status-down,.service-status-down i{color:var(--danger)!important}
+
+.wifi-bands{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.wifi-bands .band{padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg);border:1px solid var(--border);color:var(--text-muted)}
+.wifi-bands .band.active{background:var(--primary-light);color:var(--primary);border-color:rgba(30,58,138,0.15)}
+
+/* ===== BUTTONS ===== */
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn-outline-primary{color:var(--primary);border-color:var(--primary)}
+.btn-outline-primary:hover{background:var(--primary);color:#fff}
+
+/* ===== FORMS ===== */
+.form-control{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 14px}
+.form-control:focus{background:var(--surface);border-color:var(--primary);color:var(--text);box-shadow:0 0 0 3px var(--primary-soft)}
+.form-check-input:checked{background-color:var(--primary);border-color:var(--primary)}
+.input-group-text{background:var(--bg);border:2px solid var(--border);color:var(--text-muted);border-radius:0 var(--radius-sm) var(--radius-sm) 0!important;border-left:none}
+
+/* ===== LOGIN ===== */
+#modal-admin-login .modal-content{background:var(--surface);border:none;border-radius:var(--radius);box-shadow:var(--shadow-lg)}
+#modal-admin-login .login-logo{max-width:72px}
+#modal-admin-login .login-brand{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px}
+#modal-admin-login .admin-login{color:var(--text-muted);font-size:14px}
+#modal-admin-login .btn-primary{border-radius:var(--radius-sm)!important;padding:12px;font-weight:600}
+#modal-admin-login .form-control{border:2px solid var(--border);border-radius:var(--radius-sm)}
+#modal-admin-login .input-group .form-control{border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm)!important}
+
+/* ===== ALERTS ===== */
+.alert-success{background:rgba(5,150,105,0.06);border-color:rgba(5,150,105,0.15);color:var(--success)}
+.alert-danger{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.15);color:var(--danger)}
+.alert-info{background:var(--primary-soft);border-color:rgba(30,58,138,0.1);color:var(--primary)}
+.alert-warning{background:var(--accent-soft);border-color:rgba(217,119,6,0.15);color:var(--accent)}
+
+/* ===== TABLES ===== */
+.table{--bs-table-bg:transparent;--bs-table-color:var(--text);--bs-table-hover-bg:var(--primary-soft)}
+.table thead{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.table thead th{border-bottom:1px solid var(--border)!important;color:var(--text-muted);font-weight:500;padding:8px 12px}
+.table td{border-color:var(--border-light)!important;padding:8px 12px;font-size:13px}
+
+/* ===== MODAL ===== */
+.modal-content{background:var(--surface);border:none;box-shadow:var(--shadow-lg);border-radius:var(--radius)}
+.modal-header{background:transparent;border-bottom:1px solid var(--border);color:var(--text)}
+.modal-header .btn-close{filter:none;opacity:.5}
+.modal-footer{border-top:1px solid var(--border)}
+
+/* ===== DROPDOWN ===== */
+.dropdown-menu{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg)}
+.dropdown-item{color:var(--text)}.dropdown-item:hover{background:var(--primary-soft);color:var(--primary)}
+
+/* ===== BADGE ===== */
+.badge.bg-success{background:rgba(5,150,105,0.08)!important;color:var(--success)!important;font-weight:500}
+.badge.bg-warning{background:var(--accent-soft)!important;color:var(--accent)!important;font-weight:500}
+.badge.bg-danger{background:rgba(220,38,38,0.08)!important;color:var(--danger)!important;font-weight:500}
+.badge.bg-info{background:var(--primary-soft)!important;color:var(--primary)!important;font-weight:500}
+
+/* ===== FOOTER ===== */
+footer.py-4{background:var(--surface)!important;border-top:1px solid var(--border);font-size:12px!important;padding:12px 24px!important}
+footer .text-muted{color:var(--text-muted)!important}
+
+/* ===== MISC ===== */
+.text-muted{color:var(--text-muted)!important}.modal-backdrop.show{opacity:.4}.dashed-lines,.solid-lines{opacity:.1}
+@media(max-width:992px){.sb-sidenav{width:225px!important}}
+
+/* SB ADMIN OVERRIDES */
+
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav{padding-top:52px}
+.sb-nav-fixed #layoutSidenav #layoutSidenav_content{top:52px}
+
+/* Desktop experiment: 225px + 20% = 270px. Mobile remains 225px. */
+@media (min-width: 992px) {
+  #layoutSidenav #layoutSidenav_nav {
+    width: 270px;
+    flex-basis: 270px;
+  }
+
+  #layoutSidenav #layoutSidenav_nav .sb-sidenav,
+  #layoutSidenav #layoutSidenav_nav .sb-sidenav-menu {
+    width: 270px!important;
+    min-width: 270px;
+  }
+
+  .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+    padding-left: 270px;
+  }
+
+  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+    transform: translateX(-270px);
+  }
+
+  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
+    margin-left: -270px;
+  }
 }
 
-.close {
-  font-weight: 400;
-  font-size: 1.3rem;
+/* Connected-clients dashboard action and details modal */
+.openap-clients-view { display:flex; justify-content:center; padding:9px 12px; border-top:1px solid var(--border,#e2e8f0); background:var(--bg,#f8fafc); }
+.openap-clients-view-button { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border:1px solid rgba(30,58,138,.22); border-radius:7px; background:var(--surface,#fff); color:var(--primary,#1e3a8a); font-size:12px; font-weight:600; line-height:1; transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease; }
+.openap-clients-view-button:hover,.openap-clients-view-button:focus-visible { border-color:var(--primary,#1e3a8a); background:var(--primary,#1e3a8a); color:#fff; transform:translateY(-1px); }
+.openap-clients-modal { overflow:hidden; border:1px solid var(--border,#e2e8f0); border-radius:10px; background:var(--surface,#fff); }
+.openap-clients-modal .modal-header { border-bottom-color:var(--border,#e2e8f0); }
+.openap-clients-modal-list { padding:6px 10px 8px; background:var(--surface,#fff); }
+.openap-clients-modal-list .openap-clients-modal-table { min-width:790px; border-collapse:separate; border-spacing:0 6px; }
+.openap-clients-modal-list .openap-clients-modal-table td { padding:8px 10px; border-top:1px solid rgba(18,104,105,.18); border-bottom:1px solid rgba(18,104,105,.18); background:#edf4f6; color:var(--text,#0f172a); font-size:12px; white-space:nowrap; }
+.openap-clients-modal-list .openap-clients-modal-table td:first-child { border-left:1px solid rgba(18,104,105,.18); border-radius:9px 0 0 9px; }
+.openap-clients-modal-list .openap-clients-modal-table td:last-child { border-right:1px solid rgba(18,104,105,.18); border-radius:0 9px 9px 0; text-align:right; }
+.openap-clients-modal-list .openap-clients-modal-table tbody tr:hover td { background:#e4f0f2; }
+.openap-clients-modal-title,.openap-client-device,.openap-client-modal-signal,.openap-client-modal-traffic { display:flex; align-items:center; }
+.openap-clients-modal-title { gap:11px; }
+.openap-clients-modal-title h5 { color:var(--text,#0f172a); font-weight:700; }
+.openap-clients-modal-title small { color:var(--text-muted,#64748b); }
+.openap-clients-modal-icon,.openap-client-device-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; border-radius:7px; background:var(--primary-soft,rgba(30,58,138,.08)); color:var(--primary,#1e3a8a); }
+.openap-clients-modal-icon { width:38px; height:38px; font-size:16px; }
+.openap-client-device { gap:8px; }
+.openap-client-device-icon { width:28px; height:28px; font-size:11px; }
+.openap-clients-modal-table th { padding:9px 12px; border-bottom-width:1px; background:var(--bg,#f8fafc); color:var(--text-muted,#64748b); font-size:10px; letter-spacing:.35px; text-transform:uppercase; white-space:nowrap; }
+.openap-clients-modal-table td { padding:10px 12px; border-color:var(--border,#e2e8f0); color:var(--text,#0f172a); font-size:12px; white-space:nowrap; }
+.openap-client-modal-signal { gap:6px; }
+.openap-client-modal-traffic { align-items:flex-start; flex-direction:column; gap:2px; font-size:11px; }
+.openap-client-modal-traffic .download { color:#2563eb; }
+.openap-client-modal-traffic .upload { color:#d97706; }
+.openap-client-online { display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border-radius:999px; background:rgba(5,150,105,.08); color:#059669; font-size:10px; font-weight:600; }
+.openap-client-online i { font-size:6px; }
+.openap-clients-modal-empty { display:flex; align-items:center; flex-direction:column; gap:5px; padding:48px 20px; color:var(--text-muted,#64748b); text-align:center; }
+.openap-clients-modal-empty > span { margin-bottom:5px; color:#cbd5e1; font-size:28px; }
+.openap-clients-modal-empty strong { color:var(--text,#0f172a); }
+.openap-clients-modal-empty small { color:var(--text-muted,#64748b); }
+.openap-clients-modal .modal-footer { justify-content:space-between; border-top-color:var(--border,#e2e8f0); }
+.openap-clients-modal-count { color:var(--text-muted,#64748b); font-size:11px; }
+.openap-clients-modal-count i { margin-right:4px; color:var(--primary,#1e3a8a); }
+html[data-bs-theme="dark"] .openap-clients-modal-list { background:#132123; }
+html[data-bs-theme="dark"] .openap-clients-modal-list .openap-clients-modal-table td { border-color:rgba(68,170,164,.24); background:#182a2d; color:var(--text); }
+html[data-bs-theme="dark"] .openap-clients-modal-list .openap-clients-modal-table tbody tr:hover td { background:#203539; }
+@media (max-width:767.98px) {
+  .openap-clients-modal-list .openap-clients-modal-table { min-width:700px; }
+  .openap-clients-modal-table th,.openap-clients-modal-table td { padding:9px; }
+  .openap-clients-modal .modal-dialog { margin:10px; }
 }
 
-/* Improved progress bar */
-.progress.progress-improved {
-  position: relative;
+
+/* ===== DASHBOARD V3 COMPONENTS ===== */
+
+/* Stat cards */
+.stat-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
   overflow: hidden;
+  transition: all .2s;
+  background: var(--surface);
 }
-.progress.progress-improved .progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  clip-path: inset(0 calc(100% - var(--progress)) 0 0);
+.stat-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
 }
-.progress.progress-improved .progress-bar span {
-  position: relative;
-  z-index: 2;
-  color: white;
+.stat-card .stat-top {
+  padding: 16px 18px 10px;
 }
-.progress.progress-improved[data-text]::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: black;
-  z-index: 0;
+.stat-card .stat-bottom {
+  padding: 8px 18px;
+  border-top: 1px solid var(--border-light);
+  font-size: 11px;
+  color: var(--text-light);
+  display: flex;
+  justify-content: space-between;
 }
+.stat-card.border-top-blue { border-top: 3px solid var(--primary); }
+.stat-card.border-top-green { border-top: 3px solid var(--success); }
+.stat-card.border-top-gold { border-top: 3px solid var(--accent); }
+.stat-card.border-top-purple { border-top: 3px solid #7c3aed; }
+.stat-card.border-top-cyan { border-top: 3px solid #0891b2; }
+.stat-card.border-top-rose { border-top: 3px solid #e11d48; }
 
-/* --- Page Specific --- */
-.nav-tabs-wrapper {
-  width: 100%;
-  overflow-x: auto;
+.openap-traffic-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.nav-tabs-wrapper::-webkit-scrollbar {
-  display: none;
+.openap-widget-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.nav-tabs-wrapper > .nav-tabs {
-  flex-wrap: nowrap;
-  min-width: 100%;
-  width: min-content;
+.openap-widget-heading {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
 }
-.nav-tabs .nav-link.active,
-.nav-tabs .nav-link {
-  font-size: 1.0rem;
+.openap-widget-title {
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .45px;
+  text-transform: uppercase;
 }
-.nav-tabs a.nav-link {
-  color: #6e707e;
+.openap-widget-caption {
+  color: #94a3b8;
+  font-size: 9px;
+  line-height: 1.25;
+  margin-top: 1px;
+}
+.openap-widget-icon {
+  align-items: center;
+  border-radius: 9px;
+  display: flex;
+  flex: 0 0 30px;
+  font-size: 13px;
+  height: 30px;
+  justify-content: center;
+}
+.openap-widget-icon-blue { background: rgba(30, 58, 138, .1); color: #1e3a8a; }
+.openap-widget-icon-green { background: rgba(5, 150, 105, .08); color: #059669; }
+.openap-widget-icon-gold { background: rgba(217, 119, 6, .1); color: #d97706; }
+.openap-widget-icon-purple { background: rgba(124, 58, 237, .1); color: #7c3aed; }
+.openap-widget-metric {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 25px minmax(0, 1fr) auto;
+  min-height: 34px;
+  padding: 5px 7px;
+}
+.openap-widget-direction {
+  align-items: center;
+  border-radius: 7px;
+  display: flex;
+  font-size: 11px;
+  height: 25px;
+  justify-content: center;
+  width: 25px;
+}
+.openap-widget-direction-blue { background: rgba(30, 58, 138, .1); color: #1e3a8a; }
+.openap-widget-direction-gold { background: rgba(217, 119, 6, .1); color: #d97706; }
+.openap-widget-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+.openap-widget-copy span {
+  color: #334155;
+  font-size: 10px;
+  font-weight: 600;
+}
+.openap-widget-copy small {
+  color: #94a3b8;
+  font-size: 8px;
+  margin-top: 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* Service Status */
-.service-status {
-  border-width: 0;
-  align-items: center;
-}
-
-.service-status-up {
-  color: #a1ec38 !important;
-}
-
-.service-status-warn {
-  color: #ffbf00 !important;
-}
-
-.service-status-down {
-  color: #f80107 !important;
-}
-
-.led-pulse {
-  opacity: 0.3 !important;
-}
-
-.hostapd-led {
-  color: #28a745;
-  opacity: 1;
-  transition: opacity 0.05s;
-}
-
-.sb-status {
-  margin-left: 0.75rem!important;
-}
-
-/* Login */
-#modal-admin-login .modal-content {
-  background: radial-gradient(circle at 120% -20%, #032626, #052c2c, #073232, #0a3838, #0d3f3f, #114545, #144c4c);
-  align-items: center;
-}
-
-#modal-admin-login .modal-body {
-  min-width: 330px;
-}
-
-.login-brand {
-  color: var(--raspap-brand-color);
-  filter: brightness(150%);
-}
-
-.admin-login {
-  color: var(--raspap-offwhite);
-  font-size: 1.2em
-}
-
-.btn-admin-login {
-  color: var(--raspap-offwhite);
-  background-color: var(--raspap-brand-color);
-}
-
-.btn-admin-login:hover {
-  color: var(--raspap-offwhite);
-  background-color: #236969;
-}
-
-.no-right-radius {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
-
-.btn-passwd-append {
-  border: 1px solid #ced4da;
-}
-
-/* Dashboard */
-.dashboard-container {
-  display: flex;
-  position: relative;
-  width: 100%;
-  max-width: 1230px;
-  min-height: 400px;
-  padding: 2rem;
-  margin: 0 auto;
-}
-
-/* Dashboard -- Connections */
-.connections-left,
-.connections-right {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.openap-widget-value {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.connection-item {
+.openap-widget-value-compact {
+  font-size: 11px;
+  max-width: 92px;
+}
+.openap-widget-metric-uplink {
+  grid-template-columns: 25px minmax(42px, .65fr) minmax(0, 1.35fr);
+}
+.openap-widget-metric-uplink .openap-widget-value {
+  max-width: 100%;
+  text-align: right;
+  width: 100%;
+}
+.openap-widget-resource-grid {
+  display: grid;
+  gap: 7px 12px;
+  grid-template-columns: 1fr 1fr;
+}
+.openap-widget-resource-grid div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+.openap-widget-resource-grid span {
+  color: #64748b;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.openap-widget-resource-grid strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.openap-traffic-heading {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  z-index: 5;
+  justify-content: space-between;
+  gap: 8px;
 }
-
-.connection-item .fa-stack {
-  min-width: 2.5em;
+.openap-traffic-title {
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .45px;
+  text-transform: uppercase;
 }
-
-.connections-left > .connection-item > span {
-  margin-right: 0.5rem;
+.openap-traffic-caption {
+  color: #94a3b8;
+  font-size: 9px;
+  line-height: 1.25;
+  margin-top: 1px;
 }
-
-.connection-right {
+.openap-traffic-main-icon {
   align-items: center;
-  margin-left: 10rem;
-}
-
-.connections-left i {
-  height: 40px;
+  background: rgba(5, 150, 105, .08);
+  border-radius: 9px;
+  color: #059669;
   display: flex;
+  flex: 0 0 30px;
+  font-size: 13px;
+  height: 30px;
+  justify-content: center;
+}
+.openap-traffic-metric {
   align-items: center;
-  justify-content: left;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 25px minmax(0, 1fr) auto;
+  min-height: 34px;
+  padding: 5px 7px;
+}
+.openap-traffic-direction {
+  align-items: center;
+  border-radius: 7px;
+  display: flex;
+  font-size: 11px;
+  height: 25px;
+  justify-content: center;
+  width: 25px;
+}
+.openap-traffic-tx .openap-traffic-direction {
+  background: rgba(30, 58, 138, .1);
+  color: #1e3a8a;
+}
+.openap-traffic-rx .openap-traffic-direction {
+  background: rgba(5, 150, 105, .1);
+  color: #059669;
+}
+.openap-traffic-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.openap-traffic-copy span {
+  color: #334155;
+  font-size: 10px;
+  font-weight: 600;
+}
+.openap-traffic-copy strong {
+  color: #64748b;
+  font-size: 9px;
+}
+.openap-traffic-copy small {
+  color: #94a3b8;
+  font-size: 8px;
+  margin-top: 2px;
+}
+.openap-traffic-value {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+}
+.stat-card .stat-bottom.openap-traffic-uplink {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.2;
+}
+.openap-traffic-uplink span {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  width: 100%;
+}
+.openap-traffic-uplink .fa-arrow-up { color: #1e3a8a; }
+.openap-traffic-uplink .fa-arrow-down { color: #059669; }
+.openap-traffic-uplink strong {
+  color: #475569;
+  font-weight: 700;
+  margin-left: auto;
 }
 
-.connections-left i:first-child {
-  margin-top: 0;
+/* Device chips */
+.device-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text);
 }
 
-.connections-left i:last-child {
-  margin-bottom: 0;
-  margin-left: 0.5rem;
-}
-
-.connection-item.active > span {
-  color: var(--bs-primary) !important;
-}
-.connection-item.active > i {
-  color: var(--bs-primary) !important;
-}
-
-.center-device {
+/* Quick action buttons */
+.quick-action {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  position: relative;
-  z-index: 10;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .15s;
+  min-width: 80px;
+  color: var(--text-muted);
 }
+.quick-action:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  text-decoration: none;
+}
+.quick-action i { font-size: 20px; color: var(--primary); }
+.quick-action span { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .3px; }
 
-.center-device-top {
-  margin-bottom: 30px;
-}
-
-.ip-info-toggle {
-  display: inline-block;
-  background: #e3e3e3;
-  padding: 0.29rem;
-  border-radius: 0.375rem;
-  font-size: 0.8rem;
-}
-.ip-info-toggle button {
-  padding: 0.1rem 0.75rem;
-  border-radius: 0.275rem;
-  transition: background 0.15s linear;
-  background: transparent;
-  font-weight: 600;
-  color: var(--raspap-brand-color);
-  border: none;
-}
-.ip-info-toggle button.active {
-  background: var(--raspap-brand-color);
-  color: white;
-}
-
-.client-group {
+/* Traffic bars */
+.traffic-row {
   display: flex;
   align-items: center;
-  flex-direction: row-reverse;
-  gap: 0.5rem;
+  gap: 8px;
+  padding: 6px 0;
+}
+.traffic-row .label { font-size: 11px; color: var(--text-muted); min-width: 28px; }
+.traffic-row .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.traffic-row .bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+
+/* Live interface traffic */
+.openap-traffic-live {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 22px;
+  row-gap: 5px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light);
+}
+.openap-traffic-speed > span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+.openap-traffic-speed.download i { color: #10b981; }
+.openap-traffic-speed.upload i { color: #3b82f6; }
+.openap-traffic-speed strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.openap-traffic-share {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.openap-traffic-share-track {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--bg);
+}
+.openap-traffic-share-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  transition: width .45s ease;
+}
+.openap-traffic-share.download .openap-traffic-share-track span { background: #10b981; }
+.openap-traffic-share.upload .openap-traffic-share-track span { background: #3b82f6; }
+.openap-traffic-share > span {
+  flex: 0 0 28px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.openap-traffic-total-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 3px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.openap-traffic-total-row > span:first-child {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.openap-traffic-total-row strong {
+  color: var(--text);
+  font-size: 13px;
+}
+.openap-traffic-total-row .openap-traffic-since {
+  margin-left: auto;
+  font-size: 10px;
 }
 
-.client-count {
+/* Named network-traffic section, aligned with OpenAP summary components. */
+.openap-network-traffic-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(18, 104, 105, .24);
+}
+.openap-network-traffic-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+.openap-network-traffic-heading-icon,
+.openap-traffic-interface-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .24);
+  background: #fff;
+  color: #1e3a8a;
+}
+.openap-network-traffic-heading-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.openap-network-traffic-heading strong,
+.openap-network-traffic-heading small {
+  display: block;
+}
+.openap-network-traffic-heading strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.openap-network-traffic-heading small {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.iface-card.openap-traffic-card {
+  height: 100%;
+  border: 1px solid rgba(18, 104, 105, .42);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(18, 104, 105, .08);
+}
+.openap-traffic-card-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.openap-traffic-interface-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.openap-traffic-interface-copy {
+  min-width: 0;
+  line-height: 1.15;
+}
+.openap-traffic-interface-copy .iface-name {
+  display: block;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+}
+.openap-traffic-interface-copy .iface-ip {
+  margin-top: 3px;
+  font-size: 10px;
+}
+.openap-traffic-interface-state {
+  min-width: 0;
+  margin-left: auto;
+}
+.openap-traffic-interface-state .iface-stat {
+  font-size: 10px;
+}
+.openap-traffic-interface-state .iface-led {
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+}
+@media (max-width: 480px) {
+  .openap-network-traffic-heading {
+    margin-bottom: 7px;
+  }
+  .iface-card.openap-traffic-card {
+    padding: 10px;
+  }
+  .openap-traffic-live {
+    column-gap: 14px;
+  }
+  .openap-traffic-speed strong {
+    font-size: 14px;
+  }
+}
+
+/* Dashboard side-column service and DHCP cards */
+.openap-service-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.openap-service-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.openap-service-led {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.08);
+}
+.openap-service-item strong,
+.openap-service-item small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-service-item strong {
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.15;
+}
+.openap-service-item small {
+  margin-top: 1px;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.15;
+}
+.openap-side-status .stat-bottom i { color: #10b981; }
+.openap-dhcp-summary {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 2px;
+}
+.openap-dhcp-lease-count strong,
+.openap-dhcp-lease-count small {
+  display: block;
+}
+.openap-dhcp-lease-count strong {
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.1;
+}
+.openap-dhcp-lease-count strong span {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.openap-dhcp-lease-count small {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.openap-dhcp-meta {
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.openap-dhcp-meta span { display: block; }
+.openap-dhcp-meta strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.openap-dhcp-track {
+  height: 6px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--bg);
+}
+.openap-dhcp-track span {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: #3b82f6;
+}
+.openap-side-dhcp .stat-bottom strong {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* AP Ethernet / Repeater transition */
+.openap-mode-selector {
+  --openap-mode-label-half: 45px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr);
+  align-items: stretch;
+}
+.openap-mode-option {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  transition: background-color .35s ease, color .35s ease;
+}
+.openap-mode-selector .openap-mode-option:first-of-type {
+  grid-column: 1;
+  grid-row: 1;
+}
+.openap-mode-selector .openap-repeater-mode-card {
+  grid-column: 3;
+  grid-row: 1;
+}
+.openap-mode-selector-indicator {
+  display: none;
+}
+.openap-mode-selector.is-ap-ethernet .openap-mode-option:first-of-type,
+.openap-mode-selector.is-repeater .openap-repeater-mode-card {
+  border-color: #2563eb;
+  box-shadow: inset 0 0 0 1px #2563eb;
+}
+.openap-mode-selector-label {
+  position: relative;
+  z-index: 3;
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .35px;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.openap-mode-selector-label::before,
+.openap-mode-selector-label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border);
+  transform: translateY(-50%);
+  transition: background-color .35s ease, box-shadow .35s ease;
+}
+.openap-mode-selector-label::before {
+  right: calc(50% + var(--openap-mode-label-half));
+  left: 0;
+}
+.openap-mode-selector-label::after {
+  right: 0;
+  left: calc(50% + var(--openap-mode-label-half));
+}
+.openap-mode-selector.is-ap-ethernet .openap-mode-selector-label::before,
+.openap-mode-selector.is-repeater .openap-mode-selector-label::after {
+  background: #2563eb;
+  box-shadow: 0 0 5px rgba(37, 99, 235, .28);
+}
+@media (max-width: 480px) {
+  .openap-mode-selector {
+    --openap-mode-label-half: 34px;
+    grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr);
+  }
+  .openap-mode-selector-label {
+    font-size: 7.5px;
+    letter-spacing: .2px;
+  }
+}
+
+/* AP Ethernet modal follows the compact uplink-card visual language. */
+.openap-ap-ethernet-dialog {
+  max-width: 430px;
+}
+.openap-ap-ethernet-modal {
+  overflow: hidden;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-top: 3px solid #126869;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(18, 104, 105, .18);
+}
+.openap-ap-ethernet-modal.is-resizing {
+  transition: width .34s cubic-bezier(.22,1,.36,1), height .34s cubic-bezier(.22,1,.36,1);
+  will-change: width, height;
+}
+@media (max-width:575.98px) {
+  .openap-ap-ethernet-modal.is-resizing { transition-property: height; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .openap-ap-ethernet-modal.is-resizing { transition: none; }
+}
+.openap-ap-ethernet-header {
+  min-height: 62px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+}
+.openap-ap-ethernet-title {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+.openap-ap-ethernet-subtitle {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-ap-ethernet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.openap-ap-ethernet-header-icon,
+.openap-ap-ethernet-setting-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: #fff;
+  color: #1e3a8a;
+}
+.openap-ap-ethernet-header-icon {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+}
+.openap-ap-ethernet-header .btn-close {
+  width: 12px;
+  height: 12px;
+  padding: 5px;
+  font-size: 10px;
+}
+.openap-ap-ethernet-body {
+  padding: 12px;
+}
+.openap-ap-ethernet-settings {
+  display: grid;
+  gap: 8px;
+}
+.openap-ap-ethernet-setting {
+  display: grid;
+  grid-template-columns: 34px minmax(86px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 7px 9px;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: var(--bg);
+}
+.openap-ap-ethernet-setting-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+}
+.openap-ap-ethernet-setting-copy {
+  min-width: 0;
+  line-height: 1.1;
+}
+.openap-ap-ethernet-setting-copy label {
+  display: block;
+  margin: 0;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}
+.openap-ap-ethernet-setting-copy small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-light);
+  font-size: 9px;
+}
+.openap-ap-ethernet-value {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+.openap-ap-ethernet-value.is-editable {
+  border-color: rgba(18, 104, 105, .48);
+  background: var(--surface);
+}
+.openap-ap-ethernet-value.is-editable:focus {
+  border-color: #126869;
+  box-shadow: 0 0 0 3px rgba(18, 104, 105, .12);
+}
+.openap-ap-ethernet-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px -12px 0;
+  padding: 9px 12px;
+  border-top: 1px solid var(--border-light);
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-ap-ethernet-status strong {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.openap-ap-ethernet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 0 -12px -12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-light);
+  background: var(--surface);
+}
+.openap-open-security-label {
+  margin: 1px 2px 7px;
+  color: var(--text-light);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+}
+.openap-open-security-warning {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(217, 119, 6, .3);
+  border-radius: 9px;
+  background: rgba(245, 158, 11, .08);
+}
+.openap-open-security-warning-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(217, 119, 6, .3);
+  border-radius: 8px;
+  background: var(--surface);
+  color: #d97706;
+  font-size: 12px;
+}
+.openap-open-security-warning strong {
+  display: block;
+  margin-top: 1px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.2;
+}
+.openap-open-security-warning p {
+  margin: 4px 0 0;
+  color: var(--text-light);
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+.openap-open-security-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 9px 2px 0;
+  color: var(--text-muted);
+  font-size: 9.5px;
+}
+.openap-open-security-note i { color: #16847f; }
+@media (max-width: 480px) {
+  .openap-ap-ethernet-setting {
+    grid-template-columns: 30px minmax(76px, auto) minmax(0, 1fr);
+    gap: 7px;
+  }
+  .openap-ap-ethernet-status {
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+/* Compact Repeater Mode modal, paired with AP Ethernet. */
+.openap-repeater-dialog {
+  width: calc(100% - 24px);
+  max-width: 610px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.openap-repeater-modal {
+  overflow: hidden;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-top: 3px solid #126869;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(18, 104, 105, .18);
+}
+.openap-repeater-modal.is-resizing {
+  transition: width .34s cubic-bezier(.22,1,.36,1), height .34s cubic-bezier(.22,1,.36,1);
+  will-change: width, height;
+}
+.openap-uplink-forget-confirm {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px 18px 22px;
+  color: var(--text);
+  text-align: center;
+}
+.openap-uplink-forget-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, .1);
+  color: #dc2626;
+  font-size: 18px;
+}
+.openap-uplink-forget-confirm h3 {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 750;
+}
+.openap-uplink-forget-ssid {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-uplink-forget-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+@media (max-width:575.98px) {
+  .openap-repeater-modal.is-resizing { transition-property: height; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .openap-repeater-modal.is-resizing { transition: none; }
+}
+.openap-repeater-header {
+  min-height: 62px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+}
+.openap-repeater-title {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+.openap-repeater-subtitle {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-repeater-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.openap-repeater-change-uplink {
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 9px;
+  display: inline-flex;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, .48);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.openap-repeater-change-uplink[hidden] {
+  display: none !important;
+}
+.openap-repeater-change-uplink:hover,
+.openap-repeater-change-uplink:focus-visible {
+  border-color: #fff;
+  background: #fff;
+  color: #0b6462;
+}
+.openap-repeater-change-uplink:disabled {
+  cursor: wait;
+  opacity: .72;
+}
+.openap-repeater-header-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: #fff;
+  color: #1e3a8a;
+  font-size: 14px;
+}
+.openap-repeater-header .btn-close {
+  width: 12px;
+  height: 12px;
+  padding: 5px;
+  font-size: 10px;
+}
+@media (max-width: 420px) {
+.openap-repeater-change-uplink span:not(.spinner-border) {
+    display: none;
+  }
+  .openap-repeater-change-uplink {
+    width: 30px;
+    padding: 5px;
+    justify-content: center;
+  }
+}
+
+/* Shared Repeater Mode uplink scanning state. */
+.openap-uplink-scan-state {
+  min-height: 250px;
+  padding: 42px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+}
+.openap-uplink-scan-visual {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+}
+.openap-uplink-scan-ring {
+  position: absolute;
+  inset: 0;
+  border: 4px solid rgba(22,132,127,.16);
+  border-top-color: #16847f;
+  border-right-color: #55c3bb;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(22,132,127,.14);
+  animation: openap-uplink-scan-spin .9s linear infinite;
+}
+.openap-uplink-scan-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(30,94,184,.2);
+  border-radius: 50%;
+  background: linear-gradient(145deg,#fff,#edf6f5);
+  color: #1e5eb8;
+  box-shadow: 0 8px 22px rgba(15,65,68,.13);
+  font-size: 24px;
+}
+.openap-uplink-scan-label {
+  color: #244f52;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: .1px;
+}
+@keyframes openap-uplink-scan-spin { to { transform: rotate(360deg); } }
+html[data-bs-theme="dark"] .openap-uplink-scan-icon {
+  border-color: rgba(121,221,213,.24);
+  background: linear-gradient(145deg,#173134,#102326);
+  color: #79ddd5;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
+}
+html[data-bs-theme="dark"] .openap-uplink-scan-ring {
+  border-color: rgba(121,221,213,.14);
+  border-top-color: #79ddd5;
+  border-right-color: #16847f;
+}
+html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
+@media (max-width:575.98px) {
+  .openap-uplink-scan-state { min-height: 220px; padding: 34px 16px; gap: 15px; }
+  .openap-uplink-scan-visual { width: 78px; height: 78px; }
+  .openap-uplink-scan-icon { width: 52px; height: 52px; font-size: 21px; }
+  .openap-uplink-scan-label { font-size: 12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .openap-uplink-scan-ring { animation-duration: 1.8s; }
+}
+.openap-repeater-body {
+  min-height: 180px;
+  padding: 12px;
+}
+.openap-repeater-notice {
+  margin-bottom: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.openap-repeater-section-heading {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.openap-repeater-section-heading strong,
+.openap-repeater-section-heading small {
+  display: block;
+}
+.openap-repeater-section-heading strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+}
+.openap-repeater-section-heading small {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-repeater-section-heading .btn-ss {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.openap-repeater-networks {
+  max-height: 240px;
+  overflow-y: auto;
+}
+.openap-repeater-network-table {
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0 7px;
+  font-size: 11px;
+}
+.openap-repeater-network-table thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--surface);
+}
+.openap-repeater-network-table th {
+  padding: 3px 8px;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.openap-repeater-network-table td {
+  padding: 8px;
+  border-top: 1px solid rgba(18, 104, 105, .24);
+  border-bottom: 1px solid rgba(18, 104, 105, .24);
+  color: var(--text);
+  vertical-align: middle;
+}
+.openap-repeater-network-table td:first-child {
+  border-left: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px 0 0 9px;
+}
+.openap-repeater-network-table td:last-child {
+  border-right: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 0 9px 9px 0;
+}
+.openap-repeater-network-table tbody tr {
+  background: var(--bg);
+}
+.openap-repeater-network-table .btn {
+  min-height: 30px;
+  padding: 5px 9px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.openap-repeater-network-name {
+  display: flex;
+  min-width: 175px;
+  align-items: center;
+  gap: 8px;
+}
+.openap-repeater-network-name strong {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}
+.openap-repeater-network-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 8px;
+  background: #fff;
+  color: #1e3a8a;
+  font-size: 11px;
+}
+.openap-repeater-select {
+  min-width: 70px;
+}
+.openap-repeater-networks {
+  display: grid;
+  gap: 9px;
+  max-height: 330px;
+  overflow-y: auto;
+  padding: 2px 3px 2px 0;
+}
+.openap-uplink-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+  border: 1px solid rgba(18, 104, 105, .16);
+  border-radius: 11px;
+  background: rgba(18, 104, 105, .045);
+}
+.openap-uplink-card.is-active {
+  border-color: rgba(5, 150, 105, .42);
+  background: rgba(5, 150, 105, .075);
+}
+.openap-uplink-card-main { min-width: 0; }
+.openap-uplink-card-name { min-width: 0; }
+.openap-uplink-card-name strong { overflow-wrap: anywhere; }
+.openap-uplink-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 13px;
+  margin: 7px 0 0 39px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.openap-uplink-card-meta span:not(:last-child)::after {
+  margin-left: 13px;
+  color: rgba(100, 116, 139, .45);
+  content: "·";
+}
+.openap-uplink-signal { color: var(--signal-color); font-weight: 650; }
+.openap-uplink-card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+.openap-uplink-card-actions form { margin: 0; }
+.openap-uplink-forget { color: #dc2626; }
+.openap-repeater-credentials {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light);
+}
+.openap-repeater-form-grid {
+  display: grid;
+  grid-template-columns: 96px minmax(125px, 1fr) minmax(145px, 1fr) auto;
+  align-items: end;
+  gap: 7px;
+}
+.openap-repeater-field {
+  min-width: 0;
+}
+.openap-repeater-field .form-label {
+  margin: 0 0 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+.openap-repeater-field .form-control,
+.openap-repeater-field .input-group .btn {
+  height: 38px;
+  border-color: rgba(18, 104, 105, .28);
+  font-size: 12px;
+}
+.openap-repeater-field .form-control:focus {
+  border-color: #126869;
+  box-shadow: 0 0 0 3px rgba(18, 104, 105, .12);
+}
+.openap-repeater-interface-field .form-control {
+  background: var(--bg);
+}
+.openap-repeater-connect {
+  min-height: 38px;
+  padding-right: 12px;
+  padding-left: 12px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.openap-repeater-success {
+  padding: 4px 8px 0;
+}
+@media (max-width: 640px) {
+  .openap-repeater-dialog {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+  }
+  .openap-repeater-body {
+    max-height: calc(100dvh - 92px);
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .openap-repeater-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .openap-repeater-interface-field {
+    grid-column: 1 / -1;
+  }
+  .openap-repeater-connect {
+    width: 100%;
+  }
+  .openap-uplink-card { align-items: stretch; flex-direction: column; }
+  .openap-uplink-card-actions { justify-content: flex-end; }
+}
+@media (max-width: 420px) {
+  .openap-repeater-optional {
+    display: none;
+  }
+  .openap-repeater-network-table th,
+  .openap-repeater-network-table td {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+  .openap-repeater-network-name {
+    min-width: 138px;
+  }
+  .openap-repeater-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .openap-repeater-interface-field {
+    grid-column: auto;
+  }
+  .openap-repeater-header-icon {
+    display: none;
+  }
+}
+
+/* WiFi Hotspot summary shares the AP/Repeater component language. */
+.openap-dashboard-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  padding-bottom: 4px;
+  border-top: 1px solid rgba(18, 104, 105, .24);
+}
+.openap-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+.openap-section-heading-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: #fff;
+  color: #1e3a8a;
+  font-size: 13px;
+}
+.openap-section-heading strong,
+.openap-section-heading small {
+  display: block;
+}
+.openap-section-heading strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.openap-section-heading small {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-operating-mode-section .openap-section-heading,
+.openap-hotspot-section-heading,
+.openap-network-traffic-heading {
+  min-height: 26px;
+  padding: 0 6px;
+  border: 1px solid rgba(22, 132, 127, .5);
+  border-radius: 10px;
+  background: linear-gradient(90deg, #0b4e50, #16847f);
+  box-shadow: 0 7px 18px rgba(11, 78, 80, .16);
+}
+.openap-operating-mode-section .openap-section-heading .openap-section-heading-icon,
+.openap-hotspot-section-heading .openap-section-heading-icon,
+.openap-network-traffic-heading .openap-network-traffic-heading-icon {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+  border-radius: 5px;
+  font-size: 7px;
+}
+.openap-operating-mode-section .openap-section-heading strong,
+.openap-hotspot-section-heading strong,
+.openap-network-traffic-heading strong {
+  color: #fff;
+  font-size: 10px;
+  line-height: 10px;
+}
+.openap-operating-mode-section .openap-section-heading small,
+.openap-hotspot-section-heading small,
+.openap-network-traffic-heading small {
+  margin-top: 1px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 8px;
+  line-height: 8px;
+}
+.openap-operating-mode-section .openap-section-heading {
+  display: none;
+}
+.openap-hotspot-section-heading > div,
+.openap-network-traffic-heading > div,
+.openap-connected-clients-heading > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.openap-hotspot-section-heading small,
+.openap-network-traffic-heading small,
+.openap-connected-clients-heading small {
+  display: inline-flex !important;
+  align-items: center;
+  margin-top: 0 !important;
+}
+.openap-hotspot-section-heading small::before,
+.openap-network-traffic-heading small::before,
+.openap-connected-clients-heading small::before {
+  content: "—";
+  margin-right: 5px;
+  color: rgba(255, 255, 255, .5);
+}
+.openap-topology-header-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.openap-topology-header-title strong,
+.openap-topology-header-title small {
+  display: block;
+  color: inherit;
+}
+.openap-topology-header-title strong {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.openap-topology-header-title small {
+  margin-top: 2px;
+  font-size: 9px;
+  opacity: .72;
+}
+.openap-topology-header-title .openap-section-heading-icon {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+}
+.openap-topology-header-primary {
+  min-height: 62px;
+  padding: 9px 12px !important;
+  background: linear-gradient(90deg, #0b4e50, #16847f) !important;
+  color: #fff !important;
+}
+.openap-topology-header-primary .openap-topology-header-title strong {
+  color: #fff;
+  font-size: 13px;
+}
+.openap-topology-header-primary .openap-topology-header-title small {
+  color: rgba(255, 255, 255, .74);
+  font-size: 10px;
+  opacity: 1;
+}
+.openap-topology-header-primary .openap-section-heading-icon {
+  width: 36px;
+  height: 36px;
+  flex-basis: 36px;
+  border-radius: 9px;
+  border-color: rgba(255, 255, 255, .72) !important;
+  background: #fff !important;
+  color: #1e3a8a !important;
+  font-size: 14px;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.openap-topology-header-primary .openap-section-heading-icon i {
+  display: block !important;
+  color: #1e3a8a !important;
+  font-size: 14px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Connected Clients is a complete secondary dashboard section. */
+.openap-topology-clients {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top-color: rgba(18, 104, 105, .24);
+}
+.openap-topology-clients .openap-topology-clients-header {
+  min-height: 26px;
+  margin-bottom: 8px;
+  padding: 0 6px;
+  border: 1px solid rgba(22, 132, 127, .5);
+  border-radius: 10px;
+  background: linear-gradient(90deg, #0b4e50, #16847f);
+  color: #fff !important;
+  box-shadow: 0 7px 18px rgba(11, 78, 80, .16);
+}
+.openap-connected-clients-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+.openap-connected-clients-heading .openap-section-heading-icon {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+  border-radius: 5px;
+  font-size: 7px;
+}
+.openap-connected-clients-heading strong,
+.openap-connected-clients-heading small {
+  display: block;
+}
+.openap-connected-clients-heading strong {
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 10px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.openap-connected-clients-heading small {
+  margin-top: 1px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 8px;
+}
+.openap-connected-clients-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+}
+.openap-connected-clients-meta .badge-openap {
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+.openap-topology-clients .openap-topology-clients-body {
+  border-color: rgba(18, 104, 105, .42);
+  border-radius: 10px;
+}
+@media (max-width: 575px) {
+  .openap-topology-header-primary {
+    min-height: 58px;
+  }
+  .openap-topology-clients .openap-topology-clients-header {
+    align-items: center;
+    gap: 6px;
+  }
+  .openap-connected-clients-heading {
+    flex: 1 1 auto;
+  }
+  .openap-connected-clients-heading small {
+    display: none !important;
+  }
+  .openap-connected-clients-meta {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 3px;
+    padding-left: 0;
+  }
+  .openap-connected-clients-meta .badge-openap {
+    margin-right: 0 !important;
+    padding: .25em .45em;
+    font-size: 8px;
+  }
+}
+.hs-section.openap-hotspot-summary {
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid rgba(18, 104, 105, .48) !important;
+  border-top: 3px solid #126869 !important;
+  border-radius: 12px !important;
+  background: var(--surface) !important;
+  box-shadow: 0 10px 28px rgba(18, 104, 105, .1);
+}
+.hs-section.openap-hotspot-summary.is-contained {
+  margin-bottom: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none;
+}
+.openap-hotspot-identity {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-bottom: 1px solid rgba(18, 104, 105, .2);
+  background: var(--surface);
+}
+.openap-hotspot-identity-icon,
+.openap-hotspot-metric-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .24);
+  background: #fff;
+  color: #1e3a8a;
+}
+.openap-hotspot-identity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+.openap-hotspot-identity-icon.is-running {
+  color: #1e3a8a;
+}
+.openap-hotspot-identity-copy {
+  min-width: 0;
+  line-height: 1.15;
+}
+.openap-hotspot-identity-copy strong,
+.openap-hotspot-identity-copy small {
+  display: block;
+}
+.openap-hotspot-identity-copy strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-hotspot-identity-copy small {
+  margin-top: 3px;
+  color: var(--text-light);
+  font-size: 10px;
+}
+.openap-hotspot-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.openap-hotspot-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.openap-hotspot-status i {
+  font-size: 5px;
+}
+.openap-hotspot-status.is-running {
+  background: rgba(5, 150, 105, .1);
+  color: #059669;
+}
+.openap-hotspot-status.is-stopped {
+  background: rgba(220, 38, 38, .1);
+  color: #dc2626;
+}
+.openap-hotspot-status.is-hidden {
+  background: rgba(217, 119, 6, .1);
+  color: #d97706;
+}
+.openap-hotspot-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 9px;
+  background: var(--surface);
+}
+.openap-hotspot-metric {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  min-height: 50px;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: var(--bg);
+}
+.openap-hotspot-metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+.openap-hotspot-metric small,
+.openap-hotspot-metric strong {
+  display: block;
+}
+.openap-hotspot-metric small {
+  margin-bottom: 3px;
+  color: var(--text-light);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+}
+.openap-hotspot-metric strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-hotspot-metric strong span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+@media (max-width: 820px) {
+  .openap-hotspot-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .openap-hotspot-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+  }
+  .openap-hotspot-metric {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 7px;
+    padding: 6px 7px;
+  }
+  .openap-hotspot-metric-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .openap-hotspot-identity {
+    padding: 8px;
+  }
+  .openap-hotspot-status {
+    padding: 4px 6px;
+    font-size: 9px;
+  }
+}
+
+.openap-mode-switch-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  min-height: 100dvh;
+  z-index: 10080;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 20, 22, .78);
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.openap-mode-switch-overlay.show { opacity: 1; }
+.openap-mode-switch-card {
+  width: min(420px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(45, 212, 191, .25);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
+}
+.openap-mode-switch-eyebrow {
+  color: #2dd4bf;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .7px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.openap-mode-switch-title {
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+.openap-mode-switch-caption {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+.openap-mode-switch-path {
+  display: grid;
+  grid-template-columns: 74px 1fr 74px;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 12px 20px;
+}
+.openap-mode-node {
+  text-align: center;
+  color: var(--text-muted);
+}
+.openap-mode-node > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  margin: 0 auto 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  font-size: 18px;
+}
+.openap-mode-node small {
+  font-size: 9px;
+  font-weight: 600;
+}
+.openap-mode-node.source { opacity: .55; }
+.openap-mode-node.target > span {
+  border-color: rgba(45, 212, 191, .4);
+  color: #2dd4bf;
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, .06);
+}
+.openap-mode-node.target.complete > span {
+  background: rgba(16, 185, 129, .12);
+  color: #10b981;
+}
+.openap-mode-link {
+  position: relative;
+  height: 2px;
+  background: var(--border);
+}
+.openap-mode-link span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #2dd4bf, transparent);
+  animation: openapModeLinkPulse 1.25s ease-in-out infinite;
+}
+.openap-mode-link i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  color: #2dd4bf;
+  font-size: 7px;
+  transform: translate(-50%, -50%);
+  animation: openapModePacket 1.25s ease-in-out infinite;
+}
+.openap-mode-switch-steps {
+  display: grid;
+  gap: 7px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-light);
+}
+.openap-mode-switch-steps > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.openap-mode-switch-steps i { width: 14px; text-align: center; }
+.openap-mode-switch-steps .active { color: var(--text); }
+.openap-mode-switch-steps .active i { color: #2dd4bf; }
+.openap-mode-switch-steps .done i { color: #10b981; }
+.openap-mode-switch-overlay.failed .openap-mode-node.target > span,
+.openap-mode-switch-overlay.failed .openap-mode-switch-eyebrow { color: #ef4444; border-color: rgba(239,68,68,.35); }
+@keyframes openapModePacket {
+  from { left: 0; }
+  to { left: 100%; }
+}
+@keyframes openapModeLinkPulse {
+  0%, 100% { opacity: .2; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .openap-mode-selector-indicator { transition-duration: .01ms; }
+  .openap-mode-link span,
+  .openap-mode-link i { animation: none; }
+}
+
+/* Client table */
+.client-table { font-size: 12px; }
+.client-table thead th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  background: var(--bg);
+}
+.client-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.client-table tbody tr:hover { background: var(--primary-soft); }
+
+/* Signal dots */
+.signal-dots { display: inline-flex; gap: 2px; vertical-align: middle; }
+.signal-dots .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Channel pills */
+.channel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Metric labels */
+.metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); }
+.metric-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* Badge OpenAP */
+.badge-openap {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(30,58,138,0.1);
+  font-weight: 400;
+}
+
+/* Interface card */
+.iface-card {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  background: var(--surface);
+}
+.iface-card .iface-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.iface-card .iface-ip { font-size: 11px; color: var(--text-muted); }
+.iface-card .iface-stat { font-size: 11px; color: var(--text-muted); }
+.iface-led { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* Topology nodes */
+.topo-node { text-align: center; position: relative; }
+.topo-node .topo-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border: 2px solid var(--border);
+  background: #f8fafc;
+  color: var(--text-light);
+  transition: all .2s;
+}
+.topo-node.active .topo-icon {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: rgba(30,58,138,0.15);
+}
+.topo-node .topo-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.topo-node.active .topo-label { color: var(--success); }
+.topo-node .topo-sub { font-size: 10px; color: var(--text-light); }
+.topo-line {
+  flex: 0.6;
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  margin: 0 4px 26px;
+}
+.topo-line.active { background: linear-gradient(90deg, var(--primary), var(--text-muted)); }
+.topo-line .mid-dot {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+/* Helper */
+.bg-gray { background: #e2e8f0 !important; }
+
+/* Mode switcher */
+.hover-border { border-color: var(--border) !important; }
+.mode-switch-option:hover { border-color: var(--primary) !important; background: rgba(30,58,138,0.04) !important; }
+
+/* ===== HOTSPOT CONFIG CARD ===== */
+.hotspot-tabs { display: flex; background: var(--bg); margin: 0; padding: 3px 3px 0 3px; gap: 2px; }
+.hotspot-tabs .tab-btn { padding: 5px 12px; border-radius: 8px 8px 0 0; font-size: 11px; font-weight: 500; color: var(--text-muted); border: none; background: transparent; cursor: pointer; transition: all .12s; display: flex; align-items: center; gap: 4px; }
+.hotspot-tabs .tab-btn:hover { color: var(--primary); background: var(--primary-soft); }
+.hotspot-tabs .tab-btn.active { color: var(--primary); background: var(--surface); box-shadow: 0 -1px 3px rgba(0,0,0,0.04); font-weight: 600; }
+.hotspot-pane { display: none; padding: 12px 14px; }
+.hotspot-pane.active { display: block; }
+.hfield-row { display: flex; gap: 8px; margin-bottom: 7px; align-items: end; }
+.hfield-group { flex: 1; min-width: 0; }
+.hfield-group.wide { flex: 2; }
+.hfield-group.narrow { flex: 0 0 72px; }
+.hfield-label { font-size: 9px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); margin-bottom: 2px; font-weight: 500; display: flex; align-items: center; gap: 3px; }
+.hfield-input { width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 12px; color: var(--text); background: var(--bg); }
+.hfield-input:focus { outline: none; border-color: var(--primary); background: var(--surface); }
+.hfield-select { width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 4px 6px; font-size: 11px; color: var(--text); background: var(--bg); }
+.chip-cap { font-size: 9px; padding: 1px 6px; border-radius: 4px; background: var(--primary-soft); color: var(--primary); border: 1px solid rgba(30,58,138,0.1); white-space: nowrap; }
+.btn-ss { height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; font-size: 11px; transition: all .12s; }
+.btn-ss:hover { border-color: var(--primary); color: var(--primary); }
+.btn-ss.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-ss.success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-ss.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-icon-ss { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; transition: all .12s; }
+.btn-icon-ss:hover { border-color: var(--primary); color: var(--primary); }
+.btn-group-ss { display: flex; gap: 3px; }
+.qr-thumb { width: 38px; height: 38px; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface); cursor: pointer; }
+.log-preview { background: #1e293b; color: #e2e8f0; border-radius: 6px; padding: 6px 8px; font-family: monospace; font-size: 9px; line-height: 1.5; max-height: 72px; overflow-y: auto; }
+.unsupported-note { font-size: 11px; color: var(--text-light); text-align: center; padding: 10px; background: var(--bg); border-radius: 6px; border: 1px dashed var(--border); }
+
+.hs-btn:hover {
+  border-color: #1e3a8a !important;
+  color: #1e3a8a !important;
+}
+
+/* ===== SYSTEM STATUS ===== */
+.openap-system-page {
+  background: var(--bg, #f8fafc);
+}
+
+.openap-system-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(30,58,138,0.08), var(--surface, #fff));
+}
+
+.openap-system-hero h4 {
+  margin: 2px 0;
+  color: var(--text, #1e293b);
+  font-weight: 700;
+}
+
+.openap-system-kicker,
+.openap-system-mode span,
+.openap-system-list span {
+  color: var(--text-muted, #64748b);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.openap-system-mode {
+  min-width: 170px;
+  padding: 10px 12px;
+  border: 1px solid rgba(30,58,138,0.14);
+  border-radius: 8px;
+  background: var(--surface, #fff);
   text-align: right;
 }
 
-.clients-status {
+.openap-system-mode strong {
+  display: block;
+  color: var(--primary, #1e3a8a);
+  font-size: 16px;
+}
+
+.openap-system-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.openap-system-metric {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon label"
+    "icon value";
+  gap: 2px 10px;
+  align-items: center;
+  min-height: 78px;
+  padding: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+}
+
+.openap-system-metric i {
+  grid-area: icon;
+  color: var(--primary, #1e3a8a);
+  font-size: 20px;
+}
+
+.openap-system-metric span {
+  grid-area: label;
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+}
+
+.openap-system-metric strong {
+  grid-area: value;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.openap-system-panel {
   height: 100%;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  overflow: hidden;
+}
+
+.openap-system-panel-title {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  color: var(--text, #1e293b);
+  font-weight: 700;
+}
+
+.openap-system-panel-title i {
+  color: var(--primary, #1e3a8a);
+}
+
+.openap-system-list div {
+  display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding-right: 1rem;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
 }
 
-.dashed-lines,
-.solid-lines {
-  --connection-lines-offset: 112px;
-  position: absolute;
-  top: 0;
-  left: var(--connection-lines-offset);
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 1rem;
+.openap-system-list div:last-child {
+  border-bottom: 0;
 }
 
-.dashed-lines-right,
-.solid-lines-right {
-  left: calc(var(--connection-lines-offset) * -1);
+  .openap-system-list strong {
+  color: var(--text, #1e293b);
+  text-align: right;
+  word-break: break-word;
 }
 
-.solid-lines, .solid-lines-right {
-  z-index: 3;
+.openap-system-table th {
+  color: var(--text-muted, #64748b);
+  font-size: 10px;
+  text-transform: uppercase;
 }
 
-.dashed-lines, .dashed-lines-right {
-  z-index: 0;
+.openap-system-table td,
+.openap-system-table th {
+  vertical-align: middle;
+  padding: 10px 12px;
 }
 
-.device-status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.openap-system-badge {
+  display: inline-flex;
+  align-items: center;
+  min-width: 74px;
   justify-content: center;
-  margin: 0.8rem 0;
-}
-
-.wifi-bands {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.band {
-  padding: 0.25rem 1rem;
-  border: 2px solid var(--raspap-text-light);
+  padding: 2px 8px;
   border-radius: 4px;
-  background: transparent;
-  font-weight: 600;
-  color: var(--raspap-text-light);
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.band.active {
-  border-color: var(--bs-primary);
-  color: var(--bs-primary);
+.openap-system-badge-up {
+  background: rgba(5,150,105,0.12);
+  color: var(--success, #059669);
 }
 
-.device-label {
-  font-size: 1.3rem;
-  text-align: center;
-  margin-top: 1rem;
+.openap-system-badge-warn {
+  background: rgba(217,119,6,0.14);
+  color: var(--warning, #d97706);
 }
 
-.bottom {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.3rem;
-  width: 100%;
+.openap-system-badge-down {
+  background: rgba(220,38,38,0.12);
+  color: var(--danger, #dc2626);
 }
 
-.status-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--raspap-text-light);
-}
-
-.status-item .fa-stack {
-  height: 27.2px !important;
-}
-@media (min-width: 641px) {
-  .status-item .fa-stack {
-    height: 34px !important;
-  }
-}
-
-.status-item.active > span,
-.status-item.active > div > i {
-  color: var(--bs-primary)!important;
-}
-
-.inactive {
-    color: var(--raspap-text-light)!important;
-}
-
-a.inactive:hover,
-a.inactive:focus {
-    color: var(--raspap-text-light) !important;
-}
-
-@media (max-width: 1200px) {
-  .dashed-lines,
-  .solid-lines {
-    --connection-lines-offset: 70px;
-  }
-  .connections-right .connection-item {
-    margin-left: auto;
-  }
-  .connection-item a > span:not(.fa-stack) {
-    display: none!important;
-  }
+.openap-system-file-time {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-muted, #64748b);
+  font-size: 11px;
 }
 
 @media (max-width: 991px) {
-  .connections-right,
-  .connections-left {
-    display: none!important;
+  .openap-system-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .dashboard-container {
-    width: auto;
-    padding: 0;
 
-  }
-  .device-status {
-    gap: 0.5rem;
-  }
-  .clients-mobile {
-    display: flex!important;
-    flex-direction: row!important;
-  }
-}
-
-.clients-mobile {
-  display: none;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.client-type {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.client-type i {
-  font-size: 1.5rem;
-  /* color: var(--raspap-brand-color); */
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--raspap-brand-color);
-}
-
-.client-type i.badge-icon {
-  font-size: 0.7rem;
-  background: var(--raspap-brand-color);
-  color: var(--raspap-offwhite);
-  width: 20px;
-  height: 20px;
-  border: none;
-}
-
-.client-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: var(--raspap-brand-color);
-  color: var(--raspap-offwhite);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-}
-
-.device-illustration {
-  min-width: 220px;
-  max-width: 250px;
-}
-
-/* DHCP Server */
-.dhcp-static-leases {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.dhcp-static-lease-row {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}
-
-/* WiFi Client */
-.info-item-wifi {
-  width: 6rem;
-  float: left;
-}
-
-#wifiClientContent #wpaConf {
-  min-height: calc(100vh / 3);
-}
-
-.loading-spinner::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--raspap-text-muted);
-  content: "\f1ce";
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  font-size: 54px;
-  animation: loading-spin 1.2s linear infinite;
-}
-@keyframes loading-spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(292px, 3fr));
-  grid-gap: 1rem;
-}
-@media (max-width: 657px) {
-  .card-grid {
-    display: flex;
+  .openap-system-hero {
+    align-items: stretch;
     flex-direction: column;
-    gap: 1rem;
+  }
+
+  .openap-system-mode {
+    text-align: left;
   }
 }
 
-/* WiFi Client -- Signal Icon */
-.signal-icon {
-  margin-top: 2px;
-  height: 16px;
-  width: 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
+@media (max-width: 575px) {
+  .openap-system-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .openap-system-list div {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .openap-system-list strong {
+    text-align: left;
+  }
 }
-.signal-icon .signal-bar {
+
+/* ===== GEMINI DASHBOARD POLISH ===== */
+:root {
+  --bg: #eef3f5;
+  --surface: #ffffff;
+  --border: #d7e2e7;
+  --border-light: #edf3f5;
+  --primary: #126869;
+  --primary-dark: #0b575b;
+  --primary-soft: rgba(18,104,105,0.08);
+  --primary-light: #e5f2f1;
+  --accent: #d97706;
+  --accent-soft: rgba(217,119,6,0.09);
+  --text: #0f172a;
+  --text-muted: #607080;
+  --text-light: #91a1ad;
+  --success: #059669;
+  --danger: #dc2626;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(15,23,42,0.06), 0 10px 24px rgba(15,23,42,0.05);
+  --shadow-lg: 0 12px 32px rgba(15,23,42,0.12);
+}
+
+body {
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+}
+
+.sb-topnav {
+  height: 50px;
+  background: linear-gradient(90deg, #0a5559, #126869);
+  box-shadow: 0 2px 10px rgba(10,85,89,0.22);
+}
+
+.brand-icon,
+.admin-avatar {
+  border-radius: 8px;
+  background: rgba(255,255,255,0.18);
+}
+
+.brand-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.topbar-badge {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11px;
+  border-radius: 999px;
+}
+
+.mode-badge {
+  background: rgba(255,255,255,0.16);
+}
+
+.health-badge {
+  background: rgba(5,150,105,0.22);
+}
+
+.sb-sidenav {
+  background: rgba(255,255,255,0.92)!important;
+}
+
+.sb-sidenav-menu,
+.sb-sidenav-menu .nav {
+  min-height: calc(100vh - 52px);
+}
+
+.sb-sidenav-menu .nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+}
+
+.openap-sidebar-indicator {
+  position: absolute;
+  top: 0;
+  left: 3px;
+  z-index: 0;
   width: 4px;
-  border-radius: 1px;
-  opacity: 30%;
+  height: var(--openap-sidebar-height, 42px);
+  transform: translateY(var(--openap-sidebar-top, 12px));
+  border-radius: 999px;
+  background: #79ddd5;
+  box-shadow: 0 0 0 1px rgba(121,221,213,.14), 0 0 14px rgba(121,221,213,.4);
+  opacity: 0;
+  pointer-events: none;
+}
+.openap-sidebar-indicator.is-ready { opacity: 1; }
+.sb-sidenav-menu .nav.is-sliding .openap-sidebar-indicator {
+  transition: transform .32s cubic-bezier(.22,1,.36,1), height .22s ease, opacity .15s ease;
 }
 
-.signal-icon .signal-bar:nth-child(1) {
-  height: 40%;
-}
-.signal-icon .signal-bar:nth-child(2) {
-  height: 70%;
-}
-.signal-icon .signal-bar:nth-child(3) {
-  height: 100%;
+.sb-sidenav-menu .sb-nav-link-icon.px-2 {
+  position: relative;
+  z-index: 1;
+  padding-left: 0!important;
+  padding-right: 0!important;
 }
 
-.signal-icon.weak .signal-bar:nth-child(1),
-.signal-icon.medium .signal-bar:nth-child(1),
-.signal-icon.medium .signal-bar:nth-child(2),
-.signal-icon.strong .signal-bar:nth-child(1),
-.signal-icon.strong .signal-bar:nth-child(2),
-.signal-icon.strong .signal-bar:nth-child(3)
-{
-  opacity: 100%;
+.sb-sidenav-menu .nav-link {
+  min-height: 38px;
+  margin-bottom: 4px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  border-left: 0;
+  padding: 8px 10px!important;
+  color: var(--text-muted)!important;
+  font-size: 13px;
+  font-weight: 650;
 }
 
-/* Data Usage */
-canvas#divDBChartBandwidthhourly {
-  height: 509px!important;
+.sb-sidenav-menu .nav-link:hover,
+.sb-sidenav-menu .sb-nav-link-icon.active .nav-link {
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.14);
+  color: #fff!important;
 }
 
-.dbChart {
-  display: flex;
-  height: 80%;
-}
-
-/* System */
-/* System -- Plugin */
-textarea.plugin-log {
+.openap-sidebar-bottom-mark {
+  position: relative;
   width: 100%;
   height: 150px;
-  resize: none;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  background-color: #f8f9fa;
-  font-family: monospace;
-  font-size: 0.9rem;
-}
-
-/* About */
-#aboutsponsors img {
-  max-width: 100%;
-}
-
-#aboutsponsors table {
-  width: 100%;
-}
-
-#aboutsponsors table tbody {
-  display: grid;
-  width: 100%;
-  max-width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 3fr));
-  align-items: center;
-}
-
-#aboutsponsors table tr {
-  display: contents;
-}
-
-#aboutsponsors table td {
-  white-space: nowrap;
-  word-break: none;
-}
-
-/* Admin */
-.avatar-placeholder {
-  font-size: 13rem;
-  color: lightgrey;
-  position: absolute;
-  top: -3px;
-}
-
-.avatar {
-  display: inline-block;
-  position: relative;
+  margin-top: auto;
   overflow: hidden;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background-color: #f6f6f6;
-  cursor: pointer
 }
 
-.embed-avatar {
-  display: block;
-  width: 100%;
-  height: 100%;
+.openap-sidebar-bottom-mark img {
   position: absolute;
-  top: 0;
-  left: 0;
-  background-size: 100%;
+  top: 47%;
+  left: 50%;
+  width: 175%;
+  max-width: none;
+  height: auto;
+  transform: translate(-50%, -50%);
 }
 
-.camera {
-  width: 100%;
-  font-size: 2rem;
+.card {
+  border-radius: 8px;
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  min-height: 42px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  border-bottom-color: var(--border);
+}
+
+#layoutSidenav_content main > .container-fluid {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation: openap-page-leave 0.18s ease-out both;
+}
+
+::view-transition-new(root) {
+  animation: openap-page-reveal 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes openap-page-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes openap-page-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#layoutSidenav_content main > .container-fluid.openap-page-enter {
+  animation: openap-page-enter 0.25s ease both;
+}
+
+@keyframes openap-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #layoutSidenav_content main > .container-fluid.openap-page-enter {
+    animation: none;
+  }
+
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type {
+  align-items: stretch;
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type > [class*="col-"] > .card,
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type > [class*="col-"] > .row {
   height: 100%;
-  z-index: 9999;
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-9 > .card > .card-header,
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .card > .card-header {
+  background: linear-gradient(90deg, #126869, #2d8580);
+  color: #fff;
+  border-bottom: 0;
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-9 > .card > .card-header i,
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .card > .card-header i {
+  color: rgba(255,255,255,0.86);
+}
+
+.badge-openap {
+  background: rgba(255,255,255,0.82);
+  color: var(--primary);
+  border: 1px solid rgba(18,104,105,0.12);
+}
+
+.topo-node .topo-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border-width: 1px;
+  background: linear-gradient(180deg, #fff, #f5f9fa);
+}
+
+.topo-node .topo-label {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.topo-node .topo-sub {
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.openap-topology-hotspot-icon {
+  width: 78px;
+  height: 78px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 8px;
+  border: 1px solid rgba(18,104,105,0.22);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(237,247,246,0.98));
+  color: var(--primary);
+  box-shadow: 0 12px 26px rgba(15,23,42,0.10);
+}
+
+.openap-topology-hotspot-icon::before,
+.openap-topology-hotspot-icon::after {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border: 1px solid rgba(18,104,105,0.18);
+  border-radius: 12px;
+}
+
+.openap-topology-hotspot-icon::after {
+  inset: 23px;
+  border-color: rgba(18,104,105,0.12);
+}
+
+.openap-topology-hotspot-icon i {
+  position: relative;
+  z-index: 1;
+  font-size: 28px;
+}
+
+.openap-topology-hotspot-dot {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(5,150,105,0.14);
+}
+
+.openap-topology-hotspot-name {
+  max-width: 150px;
+  margin: 0 auto;
+  color: var(--text)!important;
+  font-size: 12px!important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topo-line.active {
+  background: linear-gradient(90deg, #0b1e49, var(--primary));
+}
+
+.stat-card {
+  border-radius: 8px;
+  min-height: 128px;
+}
+
+.stat-card .stat-top {
+  padding: 14px 12px 9px;
+}
+
+.stat-card .stat-bottom {
+  padding: 7px 12px;
+  font-size: 10px;
+}
+
+.stat-card [style*="font-size:28px"] {
+  font-size: 24px!important;
+}
+
+.stat-card [style*="width:40px"] {
+  width: 34px!important;
+  height: 34px!important;
+  border-radius: 8px!important;
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 > .row {
+  row-gap: 10px!important;
+}
+
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .col-6,
+.container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .col-12 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.device-chip,
+.channel-pill {
+  border-radius: 5px;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.iface-card {
+  border-radius: 8px;
+  padding: 11px;
+}
+
+.hs-section {
+  border-radius: 8px!important;
+}
+
+.openap-system-page .card-header {
+  background: transparent;
+  color: var(--text);
+}
+
+@media (min-width: 1200px) {
+  .container-fluid.p-0 > .row.g-3.mb-3:first-of-type > .col-xl-9 {
+    width: 74%;
+  }
+
+  .container-fluid.p-0 > .row.g-3.mb-3:first-of-type > .col-xl-3 {
+    width: 26%;
+  }
+}
+
+@media (max-width: 1199px) {
+  .container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .col-6 {
+    width: 50%;
+  }
+}
+
+/* ===== ADMIN ACCOUNT MODAL ===== */
+.openap-admin-trigger {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.openap-admin-trigger:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.78);
+  outline-offset: 3px;
+}
+
+.openap-admin-modal .modal-dialog {
+  max-width: 560px;
+}
+
+.openap-admin-modal .modal-content {
+  border: 1px solid rgba(18,104,105,0.18);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(16,48,50,0.24);
+  overflow: hidden;
+}
+
+.openap-admin-modal .modal-header {
+  align-items: center;
+  background: linear-gradient(135deg, #f7fbfa, #eef6f5);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 20px;
+}
+
+.openap-admin-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.openap-admin-modal-mark {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #126869, #0a5559);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(18,104,105,0.24);
+}
+
+.openap-admin-modal-kicker {
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.openap-admin-modal .modal-title {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.openap-admin-modal .modal-body {
+  padding: 20px;
+  background: #fbfdfc;
+}
+
+.openap-admin-panel {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.openap-admin-feedback:not(:empty) {
+  margin-bottom: 14px;
+}
+
+.openap-admin-feedback .alert {
+  margin-bottom: 0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.openap-admin-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.openap-admin-modal .form-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  margin-bottom: 6px;
+}
+
+.openap-admin-modal .form-control,
+.openap-admin-modal .input-group-text {
+  border-color: #d9e5e2;
+  border-radius: 8px;
+  min-height: 42px;
+}
+
+.openap-admin-modal .input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.openap-admin-modal .input-group-text {
+  color: #6e8584;
+  background: #f7faf9;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  cursor: pointer;
+}
+
+.openap-admin-modal .form-control:focus {
+  border-color: #2d8580;
+  box-shadow: 0 0 0 3px rgba(45,133,128,0.14);
+}
+
+.openap-admin-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(220,53,69,0.18);
+  border-radius: 8px;
+  background: #fffafa;
+}
+
+.openap-admin-session-title {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.openap-admin-session-copy {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.openap-admin-modal .modal-footer {
+  background: #fff;
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+}
+
+.openap-admin-save {
+  border: 0;
+  background: linear-gradient(135deg, #126869, #0a5559);
+  box-shadow: 0 10px 20px rgba(18,104,105,0.2);
+}
+
+.openap-admin-save:hover,
+.openap-admin-save:focus {
+  background: linear-gradient(135deg, #157678, #0b5f63);
+}
+
+@media (max-width: 575px) {
+  .openap-admin-modal .modal-dialog {
+    margin: 12px;
+  }
+
+  .openap-admin-session {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* ===== OPENAP DARK MODE POLISH ===== */
+html[data-bs-theme="dark"] {
+  --bg: #0d1719;
+  --surface: #132123;
+  --border: #263c40;
+  --border-light: #1b2d30;
+  --primary: #55c3bb;
+  --primary-dark: #7dd8d0;
+  --primary-soft: rgba(85,195,187,0.14);
+  --primary-light: rgba(85,195,187,0.18);
+  --accent: #f0b35a;
+  --accent-soft: rgba(240,179,90,0.16);
+  --text: #edf7f6;
+  --text-muted: #a8bdbc;
+  --text-light: #78908f;
+  --success: #42d392;
+  --danger: #ff7b8a;
+  --shadow: 0 1px 2px rgba(0,0,0,0.34), 0 14px 34px rgba(0,0,0,0.22);
+  --shadow-lg: 0 22px 70px rgba(0,0,0,0.36);
+  color-scheme: dark;
+}
+
+html[data-bs-theme="dark"],
+html[data-bs-theme="dark"] body {
+  background: var(--bg)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .sb-topnav {
+  background: linear-gradient(90deg, #071214, #0d4f50)!important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.34);
+}
+
+html[data-bs-theme="dark"] .topbar-dark-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.openap-theme-mode-icon {
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  min-width: 16px;
   text-align: center;
+}
+
+html[data-bs-theme="dark"] .openap-theme-mode-icon {
+  color: #a8fff7;
+}
+
+html[data-bs-theme="dark"] .topbar-dark-switch .form-check-input {
+  background-color: rgba(4,18,20,0.64);
+  border-color: rgba(168,255,247,0.36);
+}
+
+html[data-bs-theme="dark"] .topbar-dark-switch .form-check-input:checked {
+  background-color: #55c3bb;
+  border-color: #55c3bb;
+}
+
+html[data-bs-theme="dark"] .topbar-icon-btn,
+html[data-bs-theme="dark"] .sidebar-toggle-btn {
+  color: rgba(255,255,255,0.76);
+}
+
+html[data-bs-theme="dark"] .topbar-icon-btn:hover,
+html[data-bs-theme="dark"] .sidebar-toggle-btn:hover,
+html[data-bs-theme="dark"] .admin-avatar-link:hover .admin-avatar {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+html[data-bs-theme="dark"] .mode-badge,
+html[data-bs-theme="dark"] .brand-icon,
+html[data-bs-theme="dark"] .admin-avatar {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+html[data-bs-theme="dark"] .health-badge {
+  background: rgba(66,211,146,0.18);
+}
+
+html[data-bs-theme="dark"] .sb-sidenav {
+  background: rgba(13,23,25,0.96)!important;
+  border-right-color: var(--border);
+}
+
+html[data-bs-theme="dark"] .sb-sidenav-menu .nav-link {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .sb-sidenav-menu .nav-link i {
+  color: var(--text-light);
+}
+
+html[data-bs-theme="dark"] .sb-sidenav-menu .nav-link:hover,
+html[data-bs-theme="dark"] .sb-sidenav-menu .sb-nav-link-icon.active .nav-link {
+  background: rgba(85,195,187,0.11);
+  color: var(--primary)!important;
+  border-left-color: var(--primary);
+}
+
+html[data-bs-theme="dark"] .sb-sidenav-menu .nav-link:hover i,
+html[data-bs-theme="dark"] .sb-sidenav-menu .sb-nav-link-icon.active .nav-link i,
+html[data-bs-theme="dark"] .openap-sidebar-bottom-mark {
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] .card,
+html[data-bs-theme="dark"] .modal-content,
+html[data-bs-theme="dark"] .dropdown-menu,
+html[data-bs-theme="dark"] .iface-card,
+html[data-bs-theme="dark"] .hs-section,
+html[data-bs-theme="dark"] .openap-admin-panel {
+  background: var(--surface)!important;
+  border-color: var(--border)!important;
+  color: var(--text)!important;
+  box-shadow: var(--shadow);
+}
+
+html[data-bs-theme="dark"] .card-header,
+html[data-bs-theme="dark"] .modal-header,
+html[data-bs-theme="dark"] .modal-footer,
+html[data-bs-theme="dark"] .card-footer {
+  background: #101d1f!important;
+  border-color: var(--border)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-9 > .card > .card-header,
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type .col-xl-3 .card > .card-header {
+  background: linear-gradient(90deg, #0b4e50, #16847f)!important;
+  color: #fff!important;
+}
+
+html[data-bs-theme="dark"] .card-body,
+html[data-bs-theme="dark"] .modal-body,
+html[data-bs-theme="dark"] .dropdown-item {
+  background: transparent!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .text-muted,
+html[data-bs-theme="dark"] small,
+html[data-bs-theme="dark"] .topo-sub,
+html[data-bs-theme="dark"] .openap-admin-session-copy,
+html[data-bs-theme="dark"] .sb-status,
+html[data-bs-theme="dark"] .info-item-xs {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] .input-group-text,
+html[data-bs-theme="dark"] textarea,
+html[data-bs-theme="dark"] select {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .form-control:focus,
+html[data-bs-theme="dark"] .form-select:focus {
+  background: #122326!important;
+  border-color: var(--primary)!important;
+  box-shadow: 0 0 0 3px rgba(85,195,187,0.16)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .form-control::placeholder {
+  color: #6f8887!important;
+}
+
+html[data-bs-theme="dark"] .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-hover-bg: rgba(85,195,187,0.08);
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .table thead,
+html[data-bs-theme="dark"] .table-light {
+  --bs-table-bg: #101d1f;
+  --bs-table-color: var(--text-muted);
+  background: #101d1f!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .table td,
+html[data-bs-theme="dark"] .table th {
+  border-color: var(--border-light)!important;
+}
+
+html[data-bs-theme="dark"] .topo-node .topo-icon,
+html[data-bs-theme="dark"] .status-item,
+html[data-bs-theme="dark"] .wifi-bands .band,
+html[data-bs-theme="dark"] .ip-info-toggle button,
+html[data-bs-theme="dark"] .device-chip,
+html[data-bs-theme="dark"] .channel-pill {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .topo-node .topo-label,
+html[data-bs-theme="dark"] .device-label,
+html[data-bs-theme="dark"] .device-label a,
+html[data-bs-theme="dark"] .client-type .client-count,
+html[data-bs-theme="dark"] .openap-admin-session-title {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .openap-topology-hotspot-icon {
+  background: linear-gradient(180deg, #132123, #0f1c1e);
+  border-color: rgba(85,195,187,0.28);
+  color: var(--primary);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+}
+
+html[data-bs-theme="dark"] .openap-topology-hotspot-icon::before,
+html[data-bs-theme="dark"] .openap-topology-hotspot-icon::after {
+  border-color: rgba(85,195,187,0.18);
+}
+
+html[data-bs-theme="dark"] .openap-topology-hotspot-name {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .ip-info-toggle button.active,
+html[data-bs-theme="dark"] .wifi-bands .band.active,
+html[data-bs-theme="dark"] .badge-openap {
+  background: var(--primary-soft)!important;
+  border-color: rgba(85,195,187,0.28)!important;
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] .stat-card,
+html[data-bs-theme="dark"] .stat-card [style*="background:#fff"],
+html[data-bs-theme="dark"] .stat-card [style*="background: #fff"] {
+  background: var(--surface)!important;
+  border-color: var(--border)!important;
+}
+
+html[data-bs-theme="dark"] .openap-traffic-title,
+html[data-bs-theme="dark"] .openap-traffic-value,
+html[data-bs-theme="dark"] .openap-widget-title,
+html[data-bs-theme="dark"] .openap-widget-value,
+html[data-bs-theme="dark"] .openap-widget-resource-grid strong {
+  color: var(--text);
+}
+
+html[data-bs-theme="dark"] .openap-traffic-caption,
+html[data-bs-theme="dark"] .openap-traffic-copy small,
+html[data-bs-theme="dark"] .openap-widget-caption,
+html[data-bs-theme="dark"] .openap-widget-copy small,
+html[data-bs-theme="dark"] .openap-widget-resource-grid span {
+  color: var(--text-muted);
+}
+
+html[data-bs-theme="dark"] .openap-traffic-metric,
+html[data-bs-theme="dark"] .openap-widget-metric {
+  background: #0f1c1e;
+  border-color: var(--border);
+}
+
+html[data-bs-theme="dark"] .openap-traffic-copy span,
+html[data-bs-theme="dark"] .openap-traffic-copy strong,
+html[data-bs-theme="dark"] .openap-traffic-uplink strong,
+html[data-bs-theme="dark"] .openap-widget-copy span {
+  color: var(--text-muted);
+}
+
+html[data-bs-theme="dark"] [style*="color:#0f172a"],
+html[data-bs-theme="dark"] [style*="color: #0f172a"],
+html[data-bs-theme="dark"] [style*="color:#1f2937"],
+html[data-bs-theme="dark"] [style*="color: #1f2937"] {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] [style*="color:#64748b"],
+html[data-bs-theme="dark"] [style*="color: #64748b"],
+html[data-bs-theme="dark"] [style*="color:#6b7280"],
+html[data-bs-theme="dark"] [style*="color: #6b7280"] {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .openap-admin-modal .modal-header {
+  background: linear-gradient(135deg, #142426, #101d1f)!important;
+}
+
+html[data-bs-theme="dark"] .openap-admin-modal .modal-body,
+html[data-bs-theme="dark"] .openap-admin-modal .modal-footer,
+html[data-bs-theme="dark"] .openap-admin-session {
+  background: #0f1c1e!important;
+}
+
+html[data-bs-theme="dark"] .openap-admin-session {
+  border-color: rgba(255,123,138,0.24)!important;
+}
+
+html[data-bs-theme="dark"] .alert-success {
+  background: rgba(66,211,146,0.12);
+  border-color: rgba(66,211,146,0.26);
+  color: #8ef0bd;
+}
+
+html[data-bs-theme="dark"] .alert-danger {
+  background: rgba(255,123,138,0.12);
+  border-color: rgba(255,123,138,0.28);
+  color: #ffb0ba;
+}
+
+html[data-bs-theme="dark"] .btn-light {
+  background: #1c3033;
+  border-color: #2a4549;
+  color: var(--text);
+}
+
+/* Dashboard dark-mode details with inline-style overrides */
+html[data-bs-theme="dark"] .hs-section,
+html[data-bs-theme="dark"] .hs-section [style*="background:#fff"],
+html[data-bs-theme="dark"] .hs-section [style*="background: #fff"],
+html[data-bs-theme="dark"] .hs-section [style*="background:#f8fafc"],
+html[data-bs-theme="dark"] .hs-section [style*="background: #f8fafc"],
+html[data-bs-theme="dark"] .hs-section [style*="background:#fafbfc"],
+html[data-bs-theme="dark"] .hs-section [style*="background: #fafbfc"],
+html[data-bs-theme="dark"] .hs-section [style*="linear-gradient(135deg,#f8fafc,#fff)"],
+html[data-bs-theme="dark"] .hs-section [style*="linear-gradient(135deg, #f8fafc, #fff)"] {
+  background: #132123!important;
+  border-color: var(--border)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .hs-section [style*="border-top:1px solid #e2e8f0"],
+html[data-bs-theme="dark"] .hs-section [style*="border:1px solid #e2e8f0"],
+html[data-bs-theme="dark"] .hs-section [style*="border-bottom:1px solid #e2e8f0"],
+html[data-bs-theme="dark"] .hs-section [style*="border-bottom:1px solid #f8fafc"],
+html[data-bs-theme="dark"] .hs-section [style*="border-right:1px solid #e2e8f0"],
+html[data-bs-theme="dark"] .hs-section [style*="border-left:1px solid #e2e8f0"],
+html[data-bs-theme="dark"] .hs-section [style*="border-left:1px solid #f1f5f9"],
+html[data-bs-theme="dark"] .hs-section [style*="border-right:1px solid #f1f5f9"] {
+  border-color: var(--border)!important;
+}
+
+html[data-bs-theme="dark"] .hs-section [style*="border-bottom:1px solid #f8fafc"] {
+  border-bottom-color: var(--border-light)!important;
+}
+
+html[data-bs-theme="dark"] .hs-section [style*="color:#0f172a"],
+html[data-bs-theme="dark"] .hs-section [style*="color: #0f172a"],
+html[data-bs-theme="dark"] .hs-section [style*="color:#475569"],
+html[data-bs-theme="dark"] .hs-section [style*="color: #475569"] {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .hs-section [style*="color:#64748b"],
+html[data-bs-theme="dark"] .hs-section [style*="color: #64748b"],
+html[data-bs-theme="dark"] .hs-section [style*="color:#94a3b8"],
+html[data-bs-theme="dark"] .hs-section [style*="color: #94a3b8"] {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .hs-btn,
+html[data-bs-theme="dark"] .hs-section .hs-btn,
+html[data-bs-theme="dark"] .hs-section button[style*="background:#fff"],
+html[data-bs-theme="dark"] .hs-section a[style*="background:#fff"] {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .hs-btn:hover,
+html[data-bs-theme="dark"] .hs-section .hs-btn:hover {
+  background: var(--primary-soft)!important;
+  color: var(--primary)!important;
+  border-color: rgba(85,195,187,0.32)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type hr,
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="border-top:1px solid #e2e8f0"] {
+  border-color: var(--border)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="background:#f8fafc"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="background: #f8fafc"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="background:#e2e8f0"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="background: #e2e8f0"] {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="background:#1e3a8a"] {
+  background: #236fd1!important;
+  color: #fff!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color:#1e3a8a"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color: #1e3a8a"] {
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color:#0f172a"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color: #0f172a"] {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color:#64748b"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color: #64748b"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color:#94a3b8"],
+html[data-bs-theme="dark"] .container-fluid.p-0 > .row.g-3.mb-3:first-of-type [style*="color: #94a3b8"] {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .card .table,
+html[data-bs-theme="dark"] .card .table tbody,
+html[data-bs-theme="dark"] .card .table tbody tr,
+html[data-bs-theme="dark"] .card .table tbody td,
+html[data-bs-theme="dark"] .card .table tbody th {
+  background: #132123!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .card .table a,
+html[data-bs-theme="dark"] .card [style*="color:#1e3a8a"] a,
+html[data-bs-theme="dark"] .card a[style*="color:#1e3a8a"] {
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] .card .table thead th {
+  background: #0f1c1e!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] .card .table .text-center,
+html[data-bs-theme="dark"] .card .table [style*="background:#fafbfc"],
+html[data-bs-theme="dark"] .card .table [style*="background: #fafbfc"] {
+  background: #132123!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .card .table [style*="border-top:1px solid #e2e8f0"] {
+  border-color: var(--border)!important;
+}
+
+html[data-bs-theme="dark"] .client-table + .text-center,
+html[data-bs-theme="dark"] .card-body > .text-center.py-2,
+html[data-bs-theme="dark"] .card-body > .text-center.py-4 {
+  background: #132123!important;
+  border-color: var(--border)!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] .card-body > .text-center.py-2 a {
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] .card-header + .table-responsive,
+html[data-bs-theme="dark"] .table-responsive {
+  background: #132123!important;
+}
+
+html[data-bs-theme="dark"] #layoutSidenav_content {
+  background: var(--bg)!important;
+}
+
+/* Disabled repeater mode follows the dark dashboard palette. */
+html[data-bs-theme="dark"] .openap-repeater-mode-card.is-unavailable {
+  background: rgba(255,123,138,0.07)!important;
+  border-color: rgba(255,123,138,0.28)!important;
+}
+
+html[data-bs-theme="dark"] .openap-repeater-mode-card.is-unavailable .openap-repeater-mode-icon {
+  background: rgba(255,123,138,0.12)!important;
+  color: #ff9aa6!important;
+}
+
+html[data-bs-theme="dark"] .openap-repeater-mode-card.is-unavailable .openap-repeater-mode-title {
+  color: #ffc5cc!important;
+}
+
+html[data-bs-theme="dark"] .openap-repeater-mode-card.is-unavailable .openap-repeater-mode-state {
+  color: #ff9aa6!important;
+}
+
+/* Final dark-mode cleanup: topology status badge and hotspot modal controls */
+html[data-bs-theme="dark"] .card-header .badge-openap {
+  background: rgba(85,195,187,0.18)!important;
+  border-color: rgba(85,195,187,0.34)!important;
+  color: #a8fff7!important;
+}
+
+html[data-bs-theme="dark"] .card-header .badge-openap i {
+  color: #42d392!important;
+  opacity: 1!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .modal-content,
+html[data-bs-theme="dark"] #hotspotModal .modal-body,
+html[data-bs-theme="dark"] #hotspotModal .hotspot-panes {
+  background: var(--surface)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hotspot-tabs {
+  background: #0f1c1e!important;
+  border-bottom: 1px solid var(--border)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hotspot-tabs .tab-btn {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hotspot-tabs .tab-btn:hover {
+  background: var(--primary-soft)!important;
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hotspot-tabs .tab-btn.active {
+  background: var(--surface)!important;
+  color: var(--primary)!important;
+  box-shadow: none!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hfield-input,
+html[data-bs-theme="dark"] #hotspotModal .hfield-select,
+html[data-bs-theme="dark"] #hotspotModal input.hfield-input[style*="background:#f8fafc"],
+html[data-bs-theme="dark"] #hotspotModal input.hfield-input[style*="background:#f1f5f9"],
+html[data-bs-theme="dark"] #hotspotModal input.hfield-input[style*="background: #f8fafc"],
+html[data-bs-theme="dark"] #hotspotModal input.hfield-input[style*="background: #f1f5f9"] {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hfield-input:focus,
+html[data-bs-theme="dark"] #hotspotModal .hfield-select:focus {
+  background: #122326!important;
+  border-color: var(--primary)!important;
+  box-shadow: 0 0 0 3px rgba(85,195,187,0.16)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .hfield-input[readonly] {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .chip-cap,
+html[data-bs-theme="dark"] #hotspotModal .unsupported-note {
+  background: var(--primary-soft)!important;
+  border-color: rgba(85,195,187,0.22)!important;
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .unsupported-note {
+  background: #0f1c1e!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal [style*="border-bottom:1px solid #f1f5f9"],
+html[data-bs-theme="dark"] #hotspotModal [style*="border-top:1px solid #f1f5f9"],
+html[data-bs-theme="dark"] #hotspotModal [style*="border-top:1px solid #e2e8f0"] {
+  border-color: var(--border)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal [style*="color:#0f172a"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color: #0f172a"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color:#1e3a8a"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color: #1e3a8a"] {
+  color: var(--text)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal a[style*="color:#1e3a8a"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color:#1e3a8a"] i {
+  color: var(--primary)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal [style*="color:#64748b"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color: #64748b"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color:#94a3b8"],
+html[data-bs-theme="dark"] #hotspotModal [style*="color: #94a3b8"] {
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .btn-icon-ss,
+html[data-bs-theme="dark"] #hotspotModal .btn-ss,
+html[data-bs-theme="dark"] #hotspotModal .qr-thumb {
+  background: #0f1c1e!important;
+  border-color: var(--border)!important;
+  color: var(--text-muted)!important;
+}
+
+html[data-bs-theme="dark"] #hotspotModal .btn-icon-ss:hover,
+html[data-bs-theme="dark"] #hotspotModal .btn-ss:hover {
+  color: var(--primary)!important;
+  border-color: rgba(85,195,187,0.36)!important;
+}
+
+/* Unified OpenAP header/sidebar navigation palette. */
+.sb-sidenav {
+  background: linear-gradient(90deg, #0a5559, #126869)!important;
+  background-size: 100vw 100%!important;
+  background-position: left top!important;
+  background-repeat: no-repeat!important;
+  border-right-color: rgba(255,255,255,0.16)!important;
+}
+
+.sb-sidenav-menu .nav-link {
+  min-height: 42px;
+  color: rgba(255,255,255,0.9)!important;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.sb-sidenav-menu .nav-link i,
+.sb-sidenav-menu .nav-link .sb-nav-link-icon {
+  color: rgba(255,255,255,0.9)!important;
+  font-size: 15px;
+}
+
+.sb-sidenav-menu .nav-link:hover,
+.sb-sidenav-menu .sb-nav-link-icon.active .nav-link,
+.sb-sidenav-menu .nav-link.active {
+  background: rgba(255,255,255,0.15)!important;
+  color: #fff!important;
+  border-color: rgba(255,255,255,.22)!important;
+  border-left: 0!important;
+}
+
+.sb-sidenav-menu .nav-link:hover i,
+.sb-sidenav-menu .sb-nav-link-icon.active .nav-link i,
+.sb-sidenav-menu .nav-link.active i {
+  color: #fff!important;
+}
+
+.sb-sidenav .sidenav-menu-heading,
+.sb-sidenav .sb-sidenav-menu-heading {
+  color: rgba(255,255,255,0.68)!important;
+  font-size: 11px;
+}
+
+.openap-sidebar-bottom-mark img {
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+html[data-bs-theme="dark"] .sb-sidenav {
+  background: linear-gradient(90deg, #071214, #0d4f50)!important;
+  background-size: 100vw 100%!important;
+  background-position: left top!important;
+  border-right-color: rgba(168,255,247,0.14)!important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-sidenav-menu .nav.is-sliding .openap-sidebar-indicator {
+    transition: none;
+  }
+}
+
+/* AP Ethernet and Repeater modal headers match dashboard section headers. */
+html .openap-ap-ethernet-header,
+html .openap-repeater-header,
+html[data-bs-theme="dark"] .openap-ap-ethernet-header,
+html[data-bs-theme="dark"] .openap-repeater-header {
+  border-bottom-color: rgba(255, 255, 255, .16) !important;
+  background: linear-gradient(90deg, #0b4e50, #16847f) !important;
+  color: #fff !important;
+}
+html .openap-ap-ethernet-header .openap-ap-ethernet-title,
+html .openap-repeater-header .openap-repeater-title {
+  color: #fff !important;
+}
+html .openap-ap-ethernet-header .openap-ap-ethernet-subtitle,
+html .openap-repeater-header .openap-repeater-subtitle {
+  color: rgba(255, 255, 255, .76) !important;
+}
+html .openap-ap-ethernet-header .btn-close,
+html .openap-repeater-header .btn-close,
+html[data-bs-theme="dark"] .openap-ap-ethernet-header .btn-close,
+html[data-bs-theme="dark"] .openap-repeater-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%) !important;
+  opacity: .9 !important;
+}
+html .openap-ap-ethernet-header .btn-close:hover,
+html .openap-repeater-header .btn-close:hover {
+  opacity: 1 !important;
+}
+
+/* Logging page */
+.openap-page-kicker{color:#0f172a;font-size:12px;font-weight:600}.openap-page-kicker i{color:#1e3a8a;font-size:13px}.openap-logging-panel{overflow:hidden}.openap-log-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px}.openap-log-card{min-width:0;overflow:hidden;border:1px solid #dbe5e7;border-radius:9px;background:#fff;box-shadow:0 3px 12px rgba(15,23,42,.05)}.openap-log-header{min-height:48px;padding:7px 9px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,#0b4e50,#16847f);color:#fff}.openap-log-identity{display:flex;align-items:center;gap:9px;min-width:0}.openap-log-icon{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:7px;background:#fff;color:#1e5eb8;font-size:14px}.openap-log-identity h2{margin:0;color:#fff;font-size:14px;font-weight:700;line-height:1.15}.openap-log-identity p{margin:2px 0 0;color:rgba(255,255,255,.75);font-size:10px;line-height:1.15}.openap-log-copy{height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.42);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:650;white-space:nowrap;transition:.15s ease}.openap-log-copy:hover,.openap-log-copy:focus-visible,.openap-log-copy.is-copied{background:#fff;color:#0b6462;outline:none}.openap-log-output{height:280px;margin:0;padding:12px;overflow:auto;background:#0d1b1e;color:#d9f5f2;font:11px/1.48 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4}.openap-log-output:focus{outline:2px solid #1e78c9;outline-offset:-2px}.openap-log-help{margin:14px 0 2px;color:#64748b;font-size:12px;line-height:1.55}
+html[data-bs-theme="dark"] .openap-page-kicker{color:#e2e8f0}html[data-bs-theme="dark"] .openap-log-card{border-color:#264448;background:#102326}html[data-bs-theme="dark"] .openap-log-output{background:#071214;color:#d7f7f2}html[data-bs-theme="dark"] .openap-log-help{color:#a7bdc1}
+@media(max-width:1199.98px){.openap-log-output{height:250px}}@media(max-width:767.98px){.openap-log-grid{grid-template-columns:1fr;padding:8px;gap:9px}.openap-log-header{min-height:46px}.openap-log-output{height:230px;font-size:10.5px}.openap-log-copy{height:32px;padding:0 11px}.openap-logging-page .openap-ap-side-widgets{margin-top:0}}
+
+/* Logging: single tabbed journal window */
+.openap-logging-shell{overflow:hidden;border:0}.openap-logging-main-header{margin:0}.openap-logging-body{padding:12px;background:#f5f8f8}.openap-log-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:9px;padding:5px;border:1px solid #d7e2e3;border-radius:9px;background:#e9f0f0}.openap-log-tab{min-width:0;min-height:52px;padding:7px 10px;display:flex;align-items:center;gap:9px;border:1px solid transparent;border-radius:7px;background:transparent;color:#4b6063;text-align:left;transition:background .16s,border-color .16s,box-shadow .16s,color .16s}.openap-log-tab:hover{background:rgba(255,255,255,.65);color:#0b5e5d}.openap-log-tab.active{border-color:#c8dfe0;background:#fff;color:#0b5e5d;box-shadow:0 2px 8px rgba(15,70,72,.08)}.openap-log-tab:focus-visible{outline:2px solid #1e78c9;outline-offset:1px}.openap-log-tab-icon{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:7px;background:#fff;color:#1e5eb8;border:1px solid #d8e3ec}.openap-log-tab.active .openap-log-tab-icon{background:#eaf3ff;border-color:#bad2ed}.openap-log-tab>span:nth-child(2){min-width:0;display:flex;flex-direction:column}.openap-log-tab strong{font-size:12px;line-height:1.2}.openap-log-tab small{margin-top:2px;overflow:hidden;color:#7a8e91;font-size:9.5px;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}.openap-log-tab-state{margin-left:auto;color:#13a279;font-size:7px}.openap-log-panels{overflow:hidden;border:1px solid #cfdddf;border-radius:9px;background:#0d1b1e}.openap-log-panel[hidden]{display:none!important}.openap-log-toolbar{min-height:46px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,#0b4e50,#16847f);color:#fff}.openap-log-toolbar>div{display:flex;flex-direction:column}.openap-log-toolbar strong{font-size:13px;line-height:1.2}.openap-log-toolbar small{margin-top:2px;color:rgba(255,255,255,.72);font-size:9.5px}.openap-logging-shell .openap-log-output{height:clamp(430px,61vh,720px);border-radius:0;background:#0d1b1e}.openap-logging-shell .openap-log-copy{height:30px}
+.openap-logging-main-header .openap-section-heading-icon i{display:block!important;color:#1e3a8a!important;font-family:"Font Awesome 6 Free"!important;font-size:13px!important;font-style:normal;font-weight:900!important;line-height:1!important;opacity:1!important;visibility:visible!important}
+html[data-bs-theme="dark"] .openap-logging-body{background:#0c191b}html[data-bs-theme="dark"] .openap-log-tabs{border-color:#274346;background:#102527}html[data-bs-theme="dark"] .openap-log-tab{color:#a8bdc0}html[data-bs-theme="dark"] .openap-log-tab:hover{background:#173134;color:#d9f7f3}html[data-bs-theme="dark"] .openap-log-tab.active{border-color:#2f5558;background:#173134;color:#e3fbf8;box-shadow:none}html[data-bs-theme="dark"] .openap-log-tab-icon{border-color:#315157;background:#f8fbfb;color:#1e5eb8}html[data-bs-theme="dark"] .openap-log-tab small{color:#91aaad}html[data-bs-theme="dark"] .openap-log-panels{border-color:#315054}
+@media(max-width:575.98px){.openap-logging-body{padding:8px}.openap-log-tabs{gap:4px;padding:4px}.openap-log-tab{min-height:45px;padding:6px;gap:6px;justify-content:center}.openap-log-tab-icon{width:28px;height:28px;flex-basis:28px}.openap-log-tab small,.openap-log-tab-state{display:none}.openap-log-tab strong{font-size:10.5px}.openap-log-toolbar{min-height:44px;padding:6px 8px}.openap-log-toolbar small{display:none}.openap-logging-shell .openap-log-output{height:calc(100vh - 260px);min-height:360px;font-size:10px}.openap-logging-shell .openap-log-copy span{font-size:0}.openap-logging-shell .openap-log-copy span:after{content:"Copy";font-size:11px}}
+CSS # Applico lo stile della finestra unica, dei tab e del visualizzatore grande per desktop e mobile.
+/* Logging layout refinement: AP/DHCP 9+3 layout and compact embedded tabs */
+.openap-logging-page .openap-logging-body{padding:0;background:#fff}.openap-logging-page .openap-log-tabs{display:flex;align-items:flex-end;justify-content:flex-start;gap:0;margin:0;padding:0 10px;border:0;border-bottom:1px solid #d6e1e2;border-radius:0;background:#f5f8f8}.openap-logging-page .openap-log-tab{width:auto;min-width:0;min-height:34px;height:34px;padding:0 13px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:#647b7e;font-size:11px;font-weight:650;white-space:nowrap}.openap-logging-page .openap-log-tab:hover{background:rgba(11,94,93,.05);color:#0b5e5d}.openap-logging-page .openap-log-tab.active{border:0;border-bottom:2px solid #16847f;border-radius:0;background:transparent;box-shadow:none;color:#0b5e5d}.openap-logging-page .openap-log-tab>i{color:#1e5eb8;font-size:10px}.openap-logging-page .openap-log-panels{border:0;border-radius:0;background:#0d1b1e}.openap-logging-page .openap-log-toolbar{min-height:42px;padding:6px 10px}.openap-logging-page .openap-log-output{height:clamp(430px,62vh,700px)}
+html[data-bs-theme="dark"] .openap-logging-page .openap-logging-body{background:#0c191b}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tabs{border-bottom-color:#29474a;background:#102426}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab{color:#9cb2b5}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab:hover{background:rgba(85,195,187,.08);color:#d7f4f0}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab.active{border-bottom-color:#55c3bb;background:transparent;color:#e3fbf8}
+@media(max-width:575.98px){.openap-logging-page .openap-log-tabs{padding:0 4px}.openap-logging-page .openap-log-tab{flex:1;height:32px;min-height:32px;padding:0 5px;gap:4px;font-size:10px}.openap-logging-page .openap-log-toolbar{min-height:40px}.openap-logging-page .openap-log-output{height:calc(100vh - 250px);min-height:350px}}
+
+/* Logging tabs: distinct page-like leaves */
+.openap-logging-page .openap-log-tabs{align-items:flex-end;gap:4px;padding:6px 10px 0;border-bottom:1px solid #c9d8da;background:#eef4f4}.openap-logging-page .openap-log-tab{position:relative;z-index:1;flex:none;height:31px;min-height:31px;margin:0 0 -1px;padding:0 14px;border:1px solid #c9d8da;border-bottom-color:#c9d8da;border-radius:7px 7px 0 0;background:#e3ecec;color:#587073}.openap-logging-page .openap-log-tab:hover{border-color:#aac6c7;border-bottom-color:#c9d8da;background:#f5f9f9;color:#0b5e5d}.openap-logging-page .openap-log-tab.active{z-index:2;border:1px solid #c9d8da;border-top:2px solid #16847f;border-bottom-color:#fff;border-radius:7px 7px 0 0;background:#fff;color:#0b5e5d}.openap-logging-page .openap-log-panels{border:0;border-radius:0}.openap-logging-page .openap-log-tab:focus-visible{outline:2px solid #1e78c9;outline-offset:-3px}
+html[data-bs-theme="dark"] .openap-logging-page .openap-log-tabs{border-bottom-color:#315054;background:#0d1c1e}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab{border-color:#315054;border-bottom-color:#315054;background:#142b2e;color:#9fb5b8}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab:hover{border-color:#426568;border-bottom-color:#315054;background:#193538;color:#e1f7f4}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab.active{border-color:#315054;border-top-color:#55c3bb;border-bottom-color:#0d1b1e;background:#0d1b1e;color:#e3fbf8}
+@media(max-width:575.98px){.openap-logging-page .openap-log-tabs{gap:3px;padding:5px 5px 0}.openap-logging-page .openap-log-tab{flex:1;height:30px;min-height:30px;padding:0 4px;border-radius:6px 6px 0 0}.openap-logging-page .openap-log-tab.active{border-radius:6px 6px 0 0}}
+
+/* Keep the WiFi Hotspot icon visible and style DHCP Setting as a secondary header. */
+.openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon{background:#fff!important;color:#1e3a8a!important;opacity:1!important}.openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon i{display:block!important;color:#1e3a8a!important;font-size:13px!important;opacity:1!important;visibility:visible!important}.openap-dhcp-setting-heading{min-height:26px;padding:0 6px;border:1px solid rgba(22,132,127,.5);border-radius:10px;background:linear-gradient(90deg,#0b4e50,#16847f);box-shadow:0 7px 18px rgba(11,78,80,.16)}.openap-dhcp-setting-heading .openap-section-heading-icon{width:18px;height:18px;flex-basis:18px;border-radius:5px;font-size:7px}.openap-dhcp-setting-heading>div{display:flex;min-width:0;align-items:center;gap:5px;white-space:nowrap}.openap-dhcp-setting-heading strong{color:#fff;font-size:10px;line-height:10px}.openap-dhcp-setting-heading small{display:inline-flex!important;align-items:center;margin-top:0!important;color:rgba(255,255,255,.72);font-size:8px;line-height:8px}.openap-dhcp-setting-heading small:before{content:"—";margin-right:5px;color:rgba(255,255,255,.5)}
+
+/* AP Configuration secondary header matches DHCP Setting. */
+.openap-ap-configuration-heading{min-height:26px;padding:0 6px;border:1px solid rgba(22,132,127,.5);border-radius:10px;background:linear-gradient(90deg,#0b4e50,#16847f);box-shadow:0 7px 18px rgba(11,78,80,.16)}.openap-ap-configuration-heading .openap-section-heading-icon{width:18px;height:18px;flex-basis:18px;border-radius:5px;font-size:7px}.openap-ap-configuration-heading>div{display:flex;min-width:0;align-items:center;gap:5px;white-space:nowrap}.openap-ap-configuration-heading strong{color:#fff;font-size:10px;line-height:10px}.openap-ap-configuration-heading small{display:inline-flex!important;align-items:center;margin-top:0!important;color:rgba(255,255,255,.72);font-size:8px;line-height:8px}.openap-ap-configuration-heading small:before{content:"—";margin-right:5px;color:rgba(255,255,255,.5)}
+
+/* AP Ethernet network mode selector */
+.openap-ethernet-network-mode{margin:0 0 10px;padding:0;border:0}.openap-ethernet-network-mode legend{margin:0 0 5px;color:#64748b;font-size:9px;font-weight:750;letter-spacing:.45px;text-transform:uppercase}.openap-ethernet-mode-options{display:grid;grid-template-columns:1fr 1fr;gap:6px}.openap-ethernet-mode-choice{position:relative;min-width:0;min-height:48px;margin:0;padding:7px 8px;display:flex;align-items:center;gap:8px;border:1px solid #d7e2e3;border-radius:8px;background:#f7fafb;color:#52666a;cursor:pointer;transition:.15s}.openap-ethernet-mode-choice:hover{border-color:#9fc4c5;background:#f0f7f7}.openap-ethernet-mode-choice:has(input:checked){border-color:#16847f;background:rgba(22,132,127,.07);box-shadow:0 0 0 1px rgba(22,132,127,.08)}.openap-ethernet-mode-choice input{position:absolute;opacity:0;pointer-events:none}.openap-ethernet-mode-icon{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border:1px solid #d5e1e9;border-radius:7px;background:#fff;color:#1e5eb8;font-size:11px}.openap-ethernet-mode-choice>span:last-child{min-width:0;display:flex;flex-direction:column}.openap-ethernet-mode-choice strong{color:#17343a;font-size:11px;line-height:1.15}.openap-ethernet-mode-choice small{margin-top:2px;color:#789094;font-size:8.5px;line-height:1.2}.openap-ethernet-bridge-note{margin-top:6px;padding:6px 8px;border:1px solid rgba(30,94,184,.16);border-radius:7px;background:rgba(30,94,184,.05);color:#536b78;font-size:9px;line-height:1.35}.openap-ethernet-bridge-note i{margin-right:4px;color:#1e5eb8}
+html[data-bs-theme="dark"] .openap-ethernet-network-mode legend{color:#9ab0b4}html[data-bs-theme="dark"] .openap-ethernet-mode-choice{border-color:#2b474b;background:#102427;color:#a8bdc0}html[data-bs-theme="dark"] .openap-ethernet-mode-choice:hover{border-color:#3c6567;background:#153033}html[data-bs-theme="dark"] .openap-ethernet-mode-choice:has(input:checked){border-color:#55c3bb;background:rgba(85,195,187,.1)}html[data-bs-theme="dark"] .openap-ethernet-mode-choice strong{color:#e0f5f2}html[data-bs-theme="dark"] .openap-ethernet-mode-choice small{color:#91aaad}html[data-bs-theme="dark"] .openap-ethernet-mode-icon{border-color:#34545a;background:#f7fbfb;color:#1e5eb8}html[data-bs-theme="dark"] .openap-ethernet-bridge-note{border-color:#294e68;background:#10293a;color:#a9c3d3}
+@media(max-width:575.98px){.openap-ethernet-mode-options{grid-template-columns:1fr}.openap-ethernet-mode-choice{min-height:44px}.openap-ethernet-mode-choice small{font-size:9px}}
+
+/* System page: shared OpenAP dashboard/AP/DHCP visual language. */
+.openap-system-layout .openap-system-heading{min-height:42px;margin:0;padding:0 10px;border:1px solid rgba(22,132,127,.5);border-radius:11px 11px 0 0;background:linear-gradient(90deg,#0b4e50,#16847f);box-shadow:0 7px 18px rgba(11,78,80,.16)}
+.openap-system-layout .openap-system-heading .openap-section-heading-icon{width:30px;height:30px;flex:0 0 30px;border-radius:8px;background:#fff;color:#1e5eb8;font-size:12px}
+.openap-system-layout .openap-system-heading>div:nth-child(2){display:flex;min-width:0;flex-direction:column}
+.openap-system-layout .openap-system-heading strong{color:#fff;font-size:14px;line-height:1.2}
+.openap-system-layout .openap-system-heading small{display:block;margin-top:2px;color:rgba(255,255,255,.72);font-size:10px;line-height:1.2}
+.openap-system-heading-actions{margin-left:auto;display:flex!important;flex-direction:row!important;align-items:center;gap:6px}
+.openap-system-action{height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.42);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:700;transition:.15s ease}
+.openap-system-action:hover,.openap-system-action:focus-visible{background:#fff;color:#0b6462;outline:0}
+.openap-system-action.danger{border-color:rgba(255,205,205,.65);color:#ffe4e4}
+.openap-system-action.danger:hover,.openap-system-action.danger:focus-visible{background:#fff;color:#c92d3b}
+.openap-system-shell{overflow:hidden;border:1px solid rgba(18,104,105,.32);border-top:0;border-radius:0 0 12px 12px;background:var(--surface);box-shadow:0 10px 28px rgba(18,104,105,.1)!important}
+.openap-system-shell .openap-system-page{padding:11px;background:#f7fafb}
+.openap-system-shell .openap-system-hero{min-height:78px;margin:0 0 10px;padding:11px 12px;border:1px solid rgba(18,104,105,.22);border-radius:10px;background:#fff;box-shadow:none}
+.openap-system-identity{display:flex;align-items:center;gap:10px;min-width:0}
+.openap-system-identity-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border:1px solid #d6e2eb;border-radius:9px;background:#f8fbff;color:#1e5eb8;font-size:15px}
+.openap-system-shell .openap-system-kicker{margin:0 0 2px;color:#6f878b;font-size:10px;letter-spacing:.55px}
+.openap-system-shell .openap-system-hero h4{margin:0;color:#17343a;font-size:21px;line-height:1.15}
+.openap-system-shell .openap-system-hero .text-muted{margin-top:4px;overflow-wrap:anywhere;font-size:12px}
+.openap-system-shell .openap-system-mode{min-width:150px;padding:8px 10px;border:1px solid rgba(22,132,127,.16);border-radius:8px;background:rgba(22,132,127,.055);text-align:right}
+.openap-system-shell .openap-system-mode span{font-size:10px}
+.openap-system-shell .openap-system-mode strong{margin-top:3px;color:#16847f;font-size:15px}
+.openap-system-shell .openap-system-metrics{gap:8px;margin:0 0 10px}
+.openap-system-shell .openap-system-metric{min-height:62px;padding:9px 10px;grid-template-columns:28px 1fr;border:1px solid rgba(18,104,105,.2);border-radius:9px;background:#fff;box-shadow:none}
+.openap-system-shell .openap-system-metric i{width:28px;height:28px;display:grid;grid-row:1 / span 2;place-items:center;border:1px solid #d8e4ec;border-radius:7px;background:#f8fbff;color:#1e5eb8;font-size:12px}
+.openap-system-shell .openap-system-metric span{font-size:11px}
+.openap-system-shell .openap-system-metric strong{font-size:18px}
+.openap-system-shell .row.g-3{--bs-gutter-x:10px;--bs-gutter-y:10px}
+.openap-system-shell .openap-system-panel{overflow:hidden;height:auto;border:1px solid rgba(18,104,105,.25);border-radius:10px;background:#fff;box-shadow:none}
+.openap-system-shell .openap-system-panel-title{min-height:38px;padding:0 10px;border-bottom:1px solid rgba(255,255,255,.14);background:linear-gradient(90deg,#0b4e50,#16847f);color:#fff;font-size:13px}
+.openap-system-shell .openap-system-panel-title i{width:23px;height:23px;display:grid;place-items:center;border-radius:6px;background:#fff;color:#1e5eb8;font-size:9px}
+.openap-system-shell .openap-system-list div{min-height:38px;padding:7px 10px;border-bottom-color:#e8eff1}
+.openap-system-shell .openap-system-list span{color:#6d8488;font-size:10px}
+.openap-system-shell .openap-system-list strong{max-width:72%;color:#17343a;font-size:12.5px}
+.openap-system-shell .openap-system-table{margin:0;color:#17343a;font-size:12px}
+.openap-system-shell .openap-system-table th{padding:8px 10px;border-bottom-color:#dce7e9;background:#f3f7f8;color:#6d8488;font-size:10px}
+.openap-system-shell .openap-system-table td{padding:8px 10px;border-bottom-color:#e8eff1;vertical-align:middle}
+.openap-system-shell .openap-system-table tbody tr:last-child td{border-bottom:0}
+.openap-system-shell .openap-system-table code{color:#1e5eb8;font-size:11px;overflow-wrap:anywhere}
+.openap-system-shell .openap-system-badge{min-width:58px;padding:3px 8px;font-size:9.5px}
+.openap-system-shell .openap-system-file-time{font-size:9.5px}
+.openap-system-footer{padding:8px 11px;border-top:1px solid #e0eaec;background:#fff;color:#71878b;font-size:10.5px}
+.openap-system-side-widgets{align-content:start}
+.openap-system-side-widgets>.col-12:nth-child(3){order:-1}
+.openap-system-side-card{overflow:hidden;border:1px solid rgba(18,104,105,.3);border-top:3px solid #16847f!important;border-radius:10px;background:var(--surface);box-shadow:0 7px 20px rgba(18,104,105,.08)}
+.openap-system-side-card .stat-top{padding:11px}
+.openap-system-side-card .openap-widget-heading{margin-bottom:10px}
+.openap-system-side-card .openap-widget-title{color:#17343a;font-size:11.5px;font-weight:800;letter-spacing:.25px;text-transform:uppercase}
+.openap-system-side-card .openap-widget-caption{margin-top:2px;color:#789094;font-size:9.5px}
+.openap-system-side-icon{width:31px;height:31px;display:grid;place-items:center;border-radius:8px;font-size:12px}
+.openap-system-side-icon.violet{background:#f0edff;color:#6553c7}.openap-system-side-icon.blue{background:#eaf3ff;color:#1e5eb8}.openap-system-side-icon.green{background:#e8f7f2;color:#168b68}
+.openap-system-side-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.openap-system-side-grid>div{min-width:0;display:flex;flex-direction:column}
+.openap-system-side-grid span,.openap-system-side-mode span,.openap-system-side-list span{color:#789094;font-size:9.5px;text-transform:uppercase}
+.openap-system-side-grid strong{margin-top:3px;color:#17343a;font-size:14.5px;line-height:1.15;overflow-wrap:anywhere}
+.openap-system-side-mode{margin-bottom:7px;padding:8px;border:1px solid rgba(22,132,127,.18);border-radius:8px;background:rgba(22,132,127,.055)}
+.openap-system-side-mode span,.openap-system-side-mode strong{display:block}.openap-system-side-mode strong{margin-top:3px;color:#16847f;font-size:13.5px}
+.openap-system-side-list{display:flex;flex-direction:column;gap:5px}
+.openap-system-side-list>div{min-width:0;padding:6px 7px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e0e9eb;border-radius:7px;background:#fbfdfd}
+.openap-system-side-list strong{max-width:62%;overflow:hidden;color:#17343a;font-size:10.5px;text-align:right;text-overflow:ellipsis;white-space:nowrap}
+.openap-system-service-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.openap-system-service-summary>div{min-width:0;padding:7px;display:flex;align-items:center;gap:6px;border:1px solid #dce7e9;border-radius:7px;background:#fbfdfd}
+.openap-system-service-summary>div>span:last-child{min-width:0;display:flex;flex-direction:column}
+.openap-system-service-summary strong{overflow:hidden;color:#17343a;font-size:10.5px;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}
+.openap-system-service-summary small{margin-top:2px;color:#789094;font-size:9px}
+.openap-system-service-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#d97706}.openap-system-service-dot.up{background:#18a77d}.openap-system-service-dot.down{background:#d43b4b}
+.openap-system-side-card .stat-bottom{padding:8px 10px;display:flex;justify-content:space-between;gap:8px;border-top:1px solid #e0eaec;background:#f7fafb;color:#71878b;font-size:9.5px}
+html[data-bs-theme="dark"] .openap-system-shell,html[data-bs-theme="dark"] .openap-system-shell .openap-system-hero,html[data-bs-theme="dark"] .openap-system-shell .openap-system-metric,html[data-bs-theme="dark"] .openap-system-shell .openap-system-panel,html[data-bs-theme="dark"] .openap-system-side-card{border-color:#29484c;background:#102326}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-page{background:#0c191b}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-hero h4,html[data-bs-theme="dark"] .openap-system-shell .openap-system-list strong,html[data-bs-theme="dark"] .openap-system-shell .openap-system-table,html[data-bs-theme="dark"] .openap-system-side-card .openap-widget-title,html[data-bs-theme="dark"] .openap-system-side-grid strong,html[data-bs-theme="dark"] .openap-system-side-list strong,html[data-bs-theme="dark"] .openap-system-service-summary strong{color:#e2f4f2}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-mode{border-color:#315155;background:#132b2e}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-identity-icon,html[data-bs-theme="dark"] .openap-system-shell .openap-system-metric i,html[data-bs-theme="dark"] .openap-system-shell .openap-system-panel-title i{border-color:#d8e4ec;background:#fff;color:#1e5eb8}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-list div,html[data-bs-theme="dark"] .openap-system-shell .openap-system-table td{border-bottom-color:#294348}
+html[data-bs-theme="dark"] .openap-system-shell .openap-system-table th{border-bottom-color:#315054;background:#142a2d;color:#9bb0b4}
+html[data-bs-theme="dark"] .openap-system-footer,html[data-bs-theme="dark"] .openap-system-side-card .stat-bottom{border-color:#29484c;background:#0e2022;color:#94aaad}
+html[data-bs-theme="dark"] .openap-system-side-mode,html[data-bs-theme="dark"] .openap-system-side-list>div,html[data-bs-theme="dark"] .openap-system-service-summary>div{border-color:#2c494d;background:#13282b}
+@media(min-width:1200px){.openap-system-layout>.row>.col-xl-9{width:74%}.openap-system-layout>.row>.col-xl-3{width:26%}}
+@media(max-width:991.98px){.openap-system-side-widgets{margin-top:0}.openap-system-side-widgets>.col-12{width:33.333%}.openap-system-side-grid{gap:5px}}
+@media(max-width:767.98px){.openap-system-side-widgets>.col-12{width:100%}.openap-system-service-summary{grid-template-columns:1fr 1fr}.openap-system-shell .openap-system-page{padding:8px}}
+@media(max-width:575.98px){.openap-system-layout .openap-system-heading{padding:0 7px}.openap-system-layout .openap-system-heading small{display:none}.openap-system-heading-actions{gap:4px}.openap-system-action{width:30px;padding:0;justify-content:center}.openap-system-action span{display:none}.openap-system-shell .openap-system-hero{align-items:stretch}.openap-system-shell .openap-system-mode{min-width:0;text-align:left}.openap-system-shell .openap-system-list strong{max-width:100%}.openap-system-services-panel .openap-system-table{min-width:560px}.openap-system-config-panel .openap-system-table,.openap-system-config-panel .openap-system-table tbody,.openap-system-config-panel .openap-system-table tr,.openap-system-config-panel .openap-system-table td{display:block;width:100%}.openap-system-config-panel .openap-system-table tr{padding:9px 10px;border-bottom:1px solid #e8eff1}.openap-system-config-panel .openap-system-table tr:last-child{border-bottom:0}.openap-system-config-panel .openap-system-table td{padding:0;border:0}.openap-system-config-panel .openap-system-table td+td{margin-top:6px}.openap-system-config-panel .openap-system-table code{display:block;white-space:normal;word-break:break-word}html[data-bs-theme="dark"] .openap-system-config-panel .openap-system-table tr{border-bottom-color:#294348}}
+
+/* About OpenAP: product identity, attribution and shared 9+3 page layout. */
+.openap-about-page .openap-about-heading{min-height:42px;margin:0;padding:0 10px;border:1px solid rgba(22,132,127,.5);border-radius:11px 11px 0 0;background:linear-gradient(90deg,#0b4e50,#16847f);box-shadow:0 7px 18px rgba(11,78,80,.16)}
+.openap-about-page .openap-about-heading .openap-section-heading-icon{width:30px;height:30px;flex:0 0 30px;border-radius:8px;background:#fff;color:#1e5eb8;font-size:12px}
+.openap-about-page .openap-about-heading>div{display:flex;min-width:0;flex-direction:column}
+.openap-about-page .openap-about-heading strong{color:#fff;font-size:14px;line-height:1.2}
+.openap-about-page .openap-about-heading small{display:block;margin-top:2px;color:rgba(255,255,255,.72);font-size:10px;line-height:1.2}
+.openap-about-shell{overflow:hidden;border:1px solid rgba(18,104,105,.32);border-top:0;border-radius:0 0 12px 12px;background:#f7fafb;box-shadow:0 10px 28px rgba(18,104,105,.1)!important}
+.openap-about-hero{min-height:250px;padding:22px;display:grid;grid-template-columns:minmax(210px,31%) 1fr;align-items:center;gap:28px;border-bottom:1px solid rgba(18,104,105,.18);background:linear-gradient(135deg,#fff 0%,#f4f9f9 68%,rgba(22,132,127,.09) 100%)}
+.openap-about-logo-wrap{min-height:200px;display:grid;place-items:center;border:1px solid rgba(18,104,105,.18);border-radius:14px;background:#fff;box-shadow:0 9px 24px rgba(15,76,78,.08)}
+.openap-about-logo{display:block;width:min(100%,260px);height:190px;object-fit:contain}
+.openap-about-kicker{margin-bottom:5px;color:#16847f;font-size:11px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}
+.openap-about-intro h1{margin:0;color:#17343a;font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1}
+.openap-about-version{display:inline-flex;margin-top:10px;padding:4px 9px;border:1px solid rgba(30,94,184,.2);border-radius:999px;background:#eaf3ff;color:#1e5eb8;font-size:11px;font-weight:800}
+.openap-about-intro p{max-width:680px;margin:15px 0 0;color:#60777b;font-size:14px;line-height:1.65}
+.openap-about-update{margin-top:16px}
+.openap-about-section{margin:12px;border:1px solid rgba(18,104,105,.24);border-radius:10px;background:#fff}
+.openap-about-section-heading{min-height:42px;padding:7px 10px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(18,104,105,.13);background:linear-gradient(90deg,#0b4e50,#16847f);border-radius:9px 9px 0 0}
+.openap-about-section-heading>span{width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;border-radius:7px;background:#fff;color:#1e5eb8;font-size:10px}
+.openap-about-section-heading>div{display:flex;min-width:0;flex-direction:column}
+.openap-about-section-heading strong{color:#fff;font-size:12px;line-height:1.15}
+.openap-about-section-heading small{margin-top:2px;color:rgba(255,255,255,.72);font-size:9px}
+.openap-about-copy{padding:14px 16px;color:#536b70;font-size:12.5px;line-height:1.65}
+.openap-about-copy p{margin:0}.openap-about-copy p+p{margin-top:9px}
+.openap-about-copy a{color:#1e5eb8;font-weight:650}
+.openap-about-attribution-note{margin-top:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(30,94,184,.16);border-radius:8px;background:rgba(30,94,184,.05);color:#536b78}
+.openap-about-attribution-note i{margin-top:3px;color:#1e5eb8}
+.openap-about-footer{padding:8px 12px;border-top:1px solid #e0eaec;background:#fff;color:#71878b;font-size:10.5px}
+.openap-about-side-widgets{align-content:start}
+.openap-about-side-card{overflow:hidden;border:1px solid rgba(18,104,105,.3);border-radius:10px;background:var(--surface);box-shadow:0 7px 20px rgba(18,104,105,.08)}
+.openap-about-side-card .stat-top{padding:11px}
+.openap-about-side-card .openap-widget-heading{margin-bottom:10px}
+.openap-about-side-card .openap-widget-title{font-size:11.5px}.openap-about-side-card .openap-widget-caption{font-size:9.5px}
+.openap-about-release{padding:10px;border:1px solid rgba(22,132,127,.17);border-radius:8px;background:rgba(22,132,127,.055)}
+.openap-about-release span,.openap-about-release strong,.openap-about-release small{display:block}
+.openap-about-release span{color:#789094;font-size:9px;text-transform:uppercase}
+.openap-about-release strong{margin-top:3px;color:#17343a;font-size:20px;line-height:1.1}
+.openap-about-release small{margin-top:7px;color:#168b68;font-size:9px}.openap-about-release small i{margin-right:3px}
+.openap-about-side-card .stat-bottom{padding:8px 10px;display:flex;justify-content:space-between;border-top:1px solid #e0eaec;background:#f7fafb;color:#71878b;font-size:9.5px}
+.openap-about-side-card .stat-bottom strong{color:#17343a}
+.openap-about-links{display:flex;flex-direction:column;gap:6px}
+.openap-about-links a{min-height:39px;padding:7px 9px;display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:7px;border:1px solid #dce7e9;border-radius:8px;background:#fbfdfd;color:#17343a;font-size:11px;font-weight:700;text-decoration:none;transition:.15s}
+.openap-about-links a:hover,.openap-about-links a:focus-visible{border-color:#9dc7c7;background:#f1f8f8;color:#0b6462;outline:0}
+.openap-about-links a>i:first-child{color:#1e5eb8;text-align:center}.openap-about-links a>i:last-child{color:#8aa0a4;font-size:8px}
+.openap-about-license strong{display:block;color:#17343a;font-size:19px}
+.openap-about-license p{margin:7px 0 10px;color:#657d81;font-size:10.5px;line-height:1.5}
+.openap-about-license a{color:#1e5eb8;font-size:10.5px;font-weight:750;text-decoration:none}.openap-about-license a i{margin-left:3px;font-size:8px}
+html[data-bs-theme="dark"] .openap-about-shell,html[data-bs-theme="dark"] .openap-about-section,html[data-bs-theme="dark"] .openap-about-side-card{border-color:#29484c;background:#102326}
+html[data-bs-theme="dark"] .openap-about-hero{border-bottom-color:#29484c;background:linear-gradient(135deg,#102326,#0e2022 68%,rgba(22,132,127,.12))}
+html[data-bs-theme="dark"] .openap-about-logo-wrap{border-color:#315054;background:#fff}
+html[data-bs-theme="dark"] .openap-about-intro h1,html[data-bs-theme="dark"] .openap-about-release strong,html[data-bs-theme="dark"] .openap-about-side-card .stat-bottom strong,html[data-bs-theme="dark"] .openap-about-links a,html[data-bs-theme="dark"] .openap-about-license strong{color:#e2f4f2}
+html[data-bs-theme="dark"] .openap-about-intro p,html[data-bs-theme="dark"] .openap-about-copy,html[data-bs-theme="dark"] .openap-about-license p{color:#a4b9bc}
+html[data-bs-theme="dark"] .openap-about-section{background:#102326}
+html[data-bs-theme="dark"] .openap-about-attribution-note{border-color:#294e68;background:#10293a;color:#a9c3d3}
+html[data-bs-theme="dark"] .openap-about-footer,html[data-bs-theme="dark"] .openap-about-side-card .stat-bottom{border-color:#29484c;background:#0e2022;color:#94aaad}
+html[data-bs-theme="dark"] .openap-about-release,html[data-bs-theme="dark"] .openap-about-links a{border-color:#2c494d;background:#13282b}
+@media(min-width:1200px){.openap-about-page>.row>.col-xl-9{width:74%}.openap-about-page>.row>.col-xl-3{width:26%}}
+@media(max-width:991.98px){.openap-about-side-widgets>.col-12{width:33.333%}.openap-about-hero{grid-template-columns:190px 1fr}.openap-about-logo{height:160px}}
+@media(max-width:767.98px){.openap-about-side-widgets>.col-12{width:100%}.openap-about-hero{min-height:0;padding:15px;grid-template-columns:1fr;gap:14px}.openap-about-logo-wrap{min-height:150px}.openap-about-logo{height:140px}.openap-about-intro{text-align:center}.openap-about-intro h1{font-size:32px}.openap-about-intro p{font-size:12.5px}.openap-about-section{margin:9px}}
+@media(max-width:575.98px){.openap-about-page .openap-about-heading{padding:0 7px}.openap-about-page .openap-about-heading small{display:none}.openap-about-copy{padding:12px;font-size:12px}.openap-about-logo-wrap{min-height:135px}.openap-about-logo{height:125px}.openap-about-side-card .openap-widget-title{font-size:11px}}
+
+/* DHCP Setting: optional dnscrypt-proxy upstream protection. */
+.openap-encrypted-dns-heading{margin-top:12px!important}
+.openap-dhcp-managed-fields{min-width:0;margin:0;padding:0;border:0}
+.openap-dhcp-managed-fields:disabled{opacity:.68}
+.openap-bridge-readonly-note{display:flex;align-items:flex-start;gap:9px;margin:0 0 10px;padding:10px 12px;border:1px solid rgba(217,119,6,.22);border-radius:9px;background:rgba(217,119,6,.07);color:#75540b}
+.openap-bridge-readonly-note>i{margin-top:2px;color:#b77908}
+.openap-bridge-readonly-note>div{display:grid;gap:2px}
+.openap-bridge-readonly-note strong{font-size:11px}
+.openap-bridge-readonly-note span{font-size:10px;line-height:1.4}
+html[data-bs-theme="dark"] .openap-bridge-readonly-note{border-color:#5e4a1c;background:#2b2514;color:#e8cc86}
+.openap-dns-path{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:8px;margin-bottom:9px}
+.openap-dns-path-node{min-width:0;padding:10px;border:1px solid rgba(30,94,184,.15);border-radius:8px;background:rgba(30,94,184,.045);display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center}
+.openap-dns-path-node>i{grid-row:1 / 3;color:#1e5eb8}
+.openap-dns-path-node>span{font-size:9px;color:#71868e;text-transform:uppercase;letter-spacing:.03em}
+.openap-dns-path-node>strong{overflow:hidden;color:#253f4a;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.openap-dns-path-arrow{color:#91a5ad;font-size:9px}
+.openap-standard-dns-warning{color:#a16207!important}
+html[data-bs-theme="dark"] .openap-dns-path-node{border-color:#294e68;background:#10293a}
+html[data-bs-theme="dark"] .openap-dns-path-node>strong{color:#d9e8ed}
+@media(max-width:767.98px){.openap-dns-path{grid-template-columns:1fr}.openap-dns-path-arrow{transform:rotate(90deg);justify-self:center}}
+@media(max-width:575.98px){
+  .openap-dhcp-basic-fields{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:end;
+    gap:10px 8px;
+  }
+  .openap-dhcp-basic-fields .hfield-group,
+  .openap-dhcp-basic-fields .hfield-group.wide{
+    width:auto;
+    min-width:0;
+  }
+  .openap-dhcp-basic-fields .hfield-group:last-child{
+    grid-column:1 / -1;
+  }
+  .openap-standard-dns-fields{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:end;
+    gap:10px 8px;
+  }
+  .openap-standard-dns-fields .hfield-group,
+  .openap-standard-dns-fields .hfield-group.wide{
+    width:auto;
+    min-width:0;
+  }
+  .openap-standard-dns-fields .hfield-label{
+    min-height:22px;
+    align-items:flex-end;
+  }
+}
+@media(max-width:340px){
+  .openap-dhcp-basic-fields{grid-template-columns:1fr}
+  .openap-dhcp-basic-fields .hfield-group:last-child{grid-column:auto}
+  .openap-standard-dns-fields{grid-template-columns:1fr}
+  .openap-standard-dns-fields .hfield-label{min-height:0}
+}
+.openap-encrypted-dns-panel .openap-config-section{border-bottom:0}
+.openap-encrypted-dns-toggle{min-width:min(100%,320px)}
+.openap-encrypted-dns-toggle .form-check-input{
+  width:44px;
+  height:24px;
+  margin:0;
+  border:2px solid #71888b;
+  background-color:#d5dfe0;
+  box-shadow:0 0 0 3px rgba(18,104,105,.09);
+  cursor:pointer;
+  transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.openap-encrypted-dns-toggle .form-check-input:checked{
+  border-color:#0b5f61;
+  background-color:#16847f;
+  box-shadow:0 0 0 3px rgba(22,132,127,.18);
+}
+.openap-encrypted-dns-toggle .form-check-input:focus-visible{
+  border-color:#1e5eb8;
+  box-shadow:0 0 0 4px rgba(30,94,184,.24);
+  outline:0;
+}
+html[data-bs-theme="dark"] .openap-encrypted-dns-toggle .form-check-input:not(:checked){
+  border-color:#d2e3e5;
+  background-color:#52686d;
+  background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f4ffff'/%3e%3c/svg%3e");
+  box-shadow:0 0 0 3px rgba(210,227,229,.14);
+}
+html[data-bs-theme="dark"] .openap-encrypted-dns-toggle .form-check-input:checked{
+  border-color:#79ddd5;
+  background-color:#16847f;
+  box-shadow:0 0 0 3px rgba(85,195,187,.24);
+}
+html[data-bs-theme="dark"] .openap-encrypted-dns-toggle .form-check-input:focus-visible{
+  border-color:#8fc7ff;
+  box-shadow:0 0 0 4px rgba(96,165,250,.3);
+}
+
+/* AP Configuration advanced options: compact themed headers and visible switches. */
+.openap-advanced-toggle{
+  overflow:hidden;
+  border:1px solid rgba(18,104,105,.28);
+  border-radius:9px;
+  background:#eef7f6;
+  box-shadow:0 3px 10px rgba(18,104,105,.07);
+}
+.openap-advanced-toggle-header{
+  min-height:72px;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  background:linear-gradient(135deg,#f3faf9,#e5f2f1);
+}
+.openap-advanced-toggle-copy{min-width:0}
+.openap-advanced-toggle-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#164d50;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.35px;
+  text-transform:uppercase;
+}
+.openap-advanced-toggle-title i{
+  width:24px;
+  height:24px;
+  display:grid;
+  flex:0 0 24px;
+  place-items:center;
+  border:1px solid rgba(30,94,184,.18);
+  border-radius:6px;
+  background:#fff;
+  color:#1e5eb8;
+  font-size:10px;
+}
+.openap-advanced-toggle-description{
+  margin-top:5px;
+  color:#506b6e;
+  font-size:10px;
+  font-weight:550;
+  line-height:1.35;
+}
+.openap-advanced-toggle .form-check-input{
+  width:44px;
+  height:24px;
+  margin:0;
+  border:2px solid #71888b;
+  background-color:#d5dfe0;
+  box-shadow:0 0 0 3px rgba(18,104,105,.09);
+  cursor:pointer;
+}
+.openap-advanced-toggle .form-check-input:checked{
+  border-color:#0b5f61;
+  background-color:#16847f;
+  box-shadow:0 0 0 3px rgba(22,132,127,.18);
+}
+.openap-advanced-toggle .form-check-input:focus-visible{
+  border-color:#1e5eb8;
+  box-shadow:0 0 0 4px rgba(30,94,184,.24);
+  outline:0;
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle{
+  border-color:#45666a;
+  background:#13292c;
+  box-shadow:0 3px 12px rgba(0,0,0,.2);
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle-header{
+  background:linear-gradient(135deg,#193438,#11282b);
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle-title{color:#e2f4f2}
+html[data-bs-theme="dark"] .openap-advanced-toggle-title i{
+  border-color:#55767a;
+  background:#eaf4f5;
+  color:#1e5eb8;
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle-description{color:#b7cbcd}
+html[data-bs-theme="dark"] .openap-advanced-toggle .form-check-input:not(:checked){
+  border-color:#d2e3e5;
+  background-color:#52686d;
+  background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f4ffff'/%3e%3c/svg%3e");
+  box-shadow:0 0 0 3px rgba(210,227,229,.14);
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle .form-check-input:checked{
+  border-color:#79ddd5;
+  background-color:#16847f;
+  box-shadow:0 0 0 3px rgba(85,195,187,.24);
+}
+html[data-bs-theme="dark"] .openap-advanced-toggle .form-check-input:focus-visible{
+  border-color:#8fc7ff;
+  box-shadow:0 0 0 4px rgba(96,165,250,.3);
+}
+@media(max-width:575.98px){
+  .openap-advanced-toggles{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px!important;
+  }
+  .openap-advanced-toggle{width:100%}
+}
+.openap-encrypted-dns-note{margin-top:10px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;border:1px solid rgba(30,94,184,.16);border-radius:8px;background:rgba(30,94,184,.05);color:#536b78;font-size:10px;line-height:1.4}
+.openap-encrypted-dns-note>i{color:#1e5eb8}
+.openap-encrypted-dns-note>strong{padding:3px 7px;border-radius:999px;background:#e8eef0;color:#647b7e;font-size:9px;text-transform:uppercase}
+.openap-encrypted-dns-note>strong.is-protected{background:rgba(5,150,105,.11);color:#047857}
+.openap-encrypted-dns-note>strong.is-degraded{background:rgba(217,119,6,.12);color:#b45309}
+html[data-bs-theme="dark"] .openap-encrypted-dns-note{border-color:#294e68;background:#10293a;color:#a9c3d3}
+html[data-bs-theme="dark"] .openap-encrypted-dns-note>strong{background:#263b3f;color:#a9bdc0}
+html[data-bs-theme="dark"] .openap-encrypted-dns-note>strong.is-protected{background:rgba(16,185,129,.14);color:#6ee7b7}
+html[data-bs-theme="dark"] .openap-encrypted-dns-note>strong.is-degraded{background:rgba(245,158,11,.15);color:#fbbf24}
+@media(max-width:575.98px){
+  .openap-encrypted-dns-fields{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:end;
+    gap:10px 8px;
+  }
+  .openap-encrypted-dns-fields .hfield-group{
+    width:auto;
+    min-width:0;
+  }
+  .openap-encrypted-dns-fields .openap-encrypted-dns-toggle,
+  .openap-encrypted-dns-fields .hfield-group:last-child{
+    grid-column:1 / -1;
+  }
+  .openap-encrypted-dns-note{grid-template-columns:auto 1fr}
+  .openap-encrypted-dns-note>strong{grid-column:1 / -1;justify-self:start}
+  .openap-encrypted-dns-toggle{min-width:100%}
+  .openap-encrypted-dns-panel #applyEncryptedDns{
+    min-height:44px;
+    height:auto;
+    padding:8px 10px;
+    align-items:center;
+    justify-content:center;
+    line-height:1.2;
+    text-align:center;
+    white-space:normal;
+  }
+}
+@media(max-width:340px){
+  .openap-encrypted-dns-fields{grid-template-columns:1fr}
+  .openap-encrypted-dns-fields .openap-encrypted-dns-toggle,
+  .openap-encrypted-dns-fields .hfield-group:last-child{grid-column:auto}
+}
+
+/* WiFi Hotspot visual language for Live Traffic and Connected Clients. */
+.openap-network-traffic-section,
+.openap-topology-clients {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.openap-network-traffic-heading,
+.openap-topology-clients .openap-topology-clients-header {
+  min-height: 26px;
+  margin: 0 0 8px;
+  padding: 0 6px;
+  border: 1px solid rgba(22, 132, 127, .5);
+  border-radius: 10px;
+  box-shadow: 0 7px 18px rgba(11, 78, 80, .16);
+}
+.openap-network-traffic-section .openap-interface-details {
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-top: 3px solid #126869;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgba(18, 104, 105, .1);
+}
+.openap-network-traffic-section .openap-interface-details > [class*="col-"] {
+  padding-right: 4px;
+  padding-left: 4px;
+}
+.openap-network-traffic-section .iface-card.openap-traffic-card {
+  min-height: 154px;
+  padding: 10px;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 10px;
+  background: #edf4f6;
+  box-shadow: none;
+}
+.openap-network-traffic-section .openap-traffic-card-header {
+  min-height: 40px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(18, 104, 105, .14);
+}
+.openap-network-traffic-section .openap-traffic-live {
+  padding-top: 8px;
+}
+.openap-topology-clients .openap-topology-clients-body {
+  overflow-x: auto;
+  padding: 6px 10px 8px;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-top: 3px solid #126869;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgba(18, 104, 105, .1);
+}
+.openap-topology-clients .client-table {
+  min-width: 650px;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+.openap-topology-clients .client-table thead th {
+  padding: 3px 10px;
+  border: 0;
+  background: transparent;
+}
+.openap-topology-clients .client-table tbody td {
+  padding: 8px 10px;
+  border-top: 1px solid rgba(18, 104, 105, .18);
+  border-bottom: 1px solid rgba(18, 104, 105, .18);
+  background: #edf4f6;
+}
+.openap-topology-clients .client-table tbody td:first-child {
+  border-left: 1px solid rgba(18, 104, 105, .18);
+  border-radius: 9px 0 0 9px;
+}
+.openap-topology-clients .client-table tbody td:last-child {
+  border-right: 1px solid rgba(18, 104, 105, .18);
+  border-radius: 0 9px 9px 0;
+}
+.openap-topology-clients .client-table tbody tr:hover td {
+  background: #e4f0f2;
+}
+.openap-topology-clients .client-table + .text-center {
+  margin: 2px -10px -8px;
+  border-top-color: rgba(18, 104, 105, .18) !important;
+  background: transparent !important;
+}
+@media (max-width: 575px) {
+  .openap-network-traffic-section .openap-interface-details {
+    padding: 8px;
+  }
+  .openap-network-traffic-section .openap-interface-details > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  .openap-network-traffic-section .openap-interface-details > [class*="col-"] + [class*="col-"] {
+    margin-top: 8px;
+  }
+  .openap-topology-clients .openap-topology-clients-body {
+    padding: 5px 7px 7px;
+  }
+  .openap-topology-clients .client-table {
+    min-width: 500px;
+  }
+  .openap-topology-clients .client-table th:nth-child(4),
+  .openap-topology-clients .client-table td:nth-child(4) {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .openap-topology-clients .client-table {
+    min-width: 390px;
+  }
+  .openap-topology-clients .client-table th:nth-child(6),
+  .openap-topology-clients .client-table td:nth-child(6) {
+    display: none;
+  }
+}
+html[data-bs-theme="dark"] .openap-network-traffic-section .iface-card.openap-traffic-card,
+html[data-bs-theme="dark"] .openap-topology-clients .client-table tbody td {
+  border-color: rgba(68, 170, 164, .24) !important;
+  background: #182a2d !important;
+  color: var(--text) !important;
+}
+html[data-bs-theme="dark"] .openap-topology-clients .client-table tbody tr:hover td {
+  background: #203539 !important;
+}
+html[data-bs-theme="dark"] .openap-network-traffic-section,
+html[data-bs-theme="dark"] .openap-topology-clients,
+html[data-bs-theme="dark"] .openap-network-traffic-section .openap-interface-details,
+html[data-bs-theme="dark"] .openap-topology-clients .openap-topology-clients-body {
+  background: var(--surface) !important;
+}
+
+/* Per-client WiFi session traffic. */
+.openap-client-traffic-cell {
+  min-width: 178px;
+}
+.openap-client-traffic-values {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.openap-client-traffic-values .download i {
+  color: #059669;
+}
+.openap-client-traffic-values .upload i {
+  color: #2563eb;
+}
+.openap-client-traffic-total {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+.openap-client-top-usage {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border: 1px solid rgba(217, 119, 6, .2);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, .1);
+  color: #b45309;
+  font-size: 8px;
+  font-weight: 750;
+}
+.openap-client-top-usage i {
+  font-size: 7px;
+}
+.openap-topology-clients .client-table {
+  min-width: 790px;
+}
+@media (max-width: 575px) {
+  .openap-topology-clients .client-table {
+    min-width: 570px;
+  }
+  .openap-client-traffic-cell {
+    min-width: 165px;
+  }
+}
+@media (max-width: 420px) {
+  .openap-topology-clients .client-table {
+    min-width: 470px;
+  }
+  .openap-client-traffic-cell {
+    min-width: 155px;
+  }
+  .openap-client-traffic-values {
+    gap: 6px;
+  }
+}
+html[data-bs-theme="dark"] .openap-client-top-usage {
+  border-color: rgba(251, 191, 36, .28);
+  background: rgba(245, 158, 11, .13);
+  color: #fbbf24;
+}
+
+/* Compact Account settings modal, aligned with AP via Ethernet. */
+.openap-admin-dialog {
+  width: calc(100% - 24px);
+  max-width: 430px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.openap-admin-modal-content {
+  overflow: hidden;
+  border: 1px solid rgba(18,104,105,.48);
+  border-top: 3px solid #126869;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(18,104,105,.18);
+}
+.openap-admin-modal .openap-ap-ethernet-header {
+  min-height: 62px;
+  padding: 10px 14px;
+}
+.openap-admin-modal .modal-body {
+  max-height: calc(100dvh - 150px);
+  overflow-y: auto;
+  padding: 12px;
+  background: var(--bg);
+}
+.openap-admin-panel {
+  padding: 10px;
+  border-color: rgba(18,104,105,.24);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.openap-admin-panel-heading {
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: .35px;
+}
+.openap-admin-modal .mb-3 {
+  margin-bottom: 8px!important;
+}
+.openap-admin-modal .row.g-3 {
+  --bs-gutter-x: 8px;
+  --bs-gutter-y: 8px;
+}
+.openap-admin-modal .form-label {
+  margin-bottom: 3px;
+  font-size: 10px;
+}
+.openap-admin-modal .form-control,
+.openap-admin-modal .input-group-text {
+  min-height: 34px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.openap-admin-modal .form-control {
+  padding: 5px 8px;
+}
+.openap-admin-modal .input-group-text {
+  min-width: 38px;
+  justify-content: center;
+  padding: 5px 7px;
+}
+.openap-admin-modal .input-group-text i {
+  margin: 0!important;
+}
+.openap-admin-feedback:not(:empty) {
+  margin-bottom: 8px;
+}
+.openap-admin-feedback .alert {
+  padding: 7px 9px;
+  font-size: 10px;
+}
+.openap-admin-session {
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.openap-admin-session-title {
+  font-size: 11px;
+}
+.openap-admin-session-copy {
+  font-size: 9px;
+  line-height: 1.25;
+}
+.openap-admin-session .btn {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  font-size: 10px;
+}
+.openap-admin-modal .modal-footer {
+  gap: 6px;
+  padding: 9px 12px;
+  background: var(--surface);
+}
+.openap-admin-modal .modal-footer .btn {
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.openap-admin-save {
+  box-shadow: none;
+}
+html[data-bs-theme="dark"] .openap-admin-modal .modal-body {
+  background: var(--bg)!important;
+}
+html[data-bs-theme="dark"] .openap-admin-panel {
+  border-color: rgba(85,195,187,.24);
+  background: var(--surface);
+}
+html[data-bs-theme="dark"] .openap-admin-modal .form-control,
+html[data-bs-theme="dark"] .openap-admin-modal .input-group-text {
+  border-color: var(--border);
+  background: #102022;
+  color: var(--text);
+}
+html[data-bs-theme="dark"] .openap-admin-modal .input-group-text {
+  color: var(--primary);
+}
+html[data-bs-theme="dark"] .openap-admin-session {
+  background: #0f1c1e!important;
+}
+@media (max-width: 575.98px) {
+  .openap-admin-modal .modal-dialog {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+  }
+  .openap-admin-modal .modal-body {
+    max-height: calc(100dvh - 130px);
+    padding: 9px;
+  }
+  .openap-admin-panel {
+    padding: 8px;
+  }
+  .openap-admin-modal .openap-ap-ethernet-header {
+    min-height: 54px;
+    padding: 8px 10px;
+  }
+  .openap-admin-session {
+    align-items: center;
+    flex-direction: row;
+  }
+  .openap-admin-session-copy {
+    display: none;
+  }
+}
+@media (max-width: 360px) {
+  .openap-admin-modal .row.g-3 {
+    --bs-gutter-x: 6px;
+  }
+  .openap-admin-modal .form-control,
+  .openap-admin-modal .input-group-text {
+    min-height: 32px;
+    font-size: 11px;
+  }
+}
+
+/* Keep Account settings header identical to AP Ethernet in both themes. */
+html .openap-admin-modal .openap-ap-ethernet-header,
+html[data-bs-theme="dark"] .openap-admin-modal .openap-ap-ethernet-header {
+  border-bottom-color: rgba(255,255,255,.16)!important;
+  background: linear-gradient(90deg,#0b4e50,#16847f)!important;
+  color: #fff!important;
+}
+
+/* Match the dark dashboard panel frames to Live Network Traffic. */
+html[data-bs-theme="dark"] .hs-section.openap-hotspot-summary.is-contained,
+html[data-bs-theme="dark"] .openap-topology-clients .openap-topology-clients-body {
+  border: 1px solid rgba(18,104,105,.48)!important;
+  border-top: 3px solid #126869!important;
+  border-radius: 12px!important;
+  background: var(--surface)!important;
+  box-shadow: 0 10px 28px rgba(18,104,105,.1);
+}
+html[data-bs-theme="dark"] .openap-wifi-hotspot-card {
+  overflow: visible!important;
+  border: 0!important;
+  background: transparent!important;
+  box-shadow: none!important;
+}
+html[data-bs-theme="dark"] .openap-wifi-hotspot-card > .openap-topology-header {
+  margin-bottom: 8px!important;
+  border: 1px solid rgba(22,132,127,.5)!important;
+  border-radius: 10px!important;
+}
+html[data-bs-theme="dark"] body .hs-section.openap-hotspot-summary {
+  border: 1px solid rgba(18,104,105,.48)!important;
+  border-top: 3px solid #126869!important;
+  border-radius: 12px!important;
+}
+/* Operating-mode switch mirrors the mobile bottom-navigation visual language. */
+.openap-mode-selector {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 4px;
+  width: 100%;
+  min-height: 76px;
+  padding: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(18,104,105,.34);
+  border-radius: 16px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 10px 26px rgba(15,65,68,.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.openap-mode-selector .openap-mode-option,
+.openap-mode-selector .openap-mode-option:first-of-type,
+.openap-mode-selector .openap-repeater-mode-card {
+  position: relative;
+  z-index: 1;
+  grid-column: auto;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px 6px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent!important;
+  box-shadow: none;
+  color: #647b7e;
+  text-align: center;
+  text-decoration: none;
+  transition: border-color .15s ease,color .15s ease,transform .15s ease;
+}
+.openap-mode-selector .openap-mode-option:hover,
+.openap-mode-selector .openap-mode-option:focus-visible {
+  border-color: rgba(18,104,105,.2);
+  color: #0b6462;
+  outline: 0;
+}
+.openap-mode-selector .openap-mode-option:active { transform: translateY(1px); }
+.openap-mode-option-icon {
+  display: flex;
+  width: 30px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  background: transparent!important;
+  color: inherit!important;
+  font-size: 17px;
+}
+.openap-mode-option-title { color: inherit!important; font-size: 10px; font-weight: 750; line-height: 1.1; }
+.openap-mode-option-state { color: #829598!important; font-size: 9px; line-height: 1.1; }
+.openap-mode-selector .openap-mode-selector-indicator {
   position: absolute;
-  top: 0;
-  left: 0;
-  background: #F0F0F0;
-  opacity: 0.5;
-  padding-top: 40%;
-}
-
-.avatar .camera {
-  display: none;
-}
-
-.avatar:hover .camera {
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  z-index: 0;
   display: block;
+  width: calc((100% - 14px)/2);
+  border: 1px solid rgba(22,132,127,.28);
+  border-radius: 11px;
+  background: linear-gradient(135deg,#e8f6f4,#dcedeb);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+  pointer-events: none;
+  transition: transform .32s cubic-bezier(.22,1,.36,1);
+}
+.openap-mode-selector.is-repeater .openap-mode-selector-indicator { transform: translateX(calc(100% + 4px)); }
+.openap-mode-selector.is-ap-ethernet .openap-mode-option:first-of-type,
+.openap-mode-selector.is-repeater .openap-repeater-mode-card,
+.openap-mode-selector .openap-mode-option.active {
+  border-color: rgba(22,132,127,.28);
+  box-shadow: none;
+  color: #0b6462;
+}
+.openap-mode-selector .openap-mode-option.active::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  width: 20px;
+  height: 3px;
+  border-radius: 999px;
+  background: #16847f;
+}
+.openap-mode-selector .openap-mode-option.active .openap-mode-option-state { color: #087f71!important; }
+.openap-mode-selector .openap-mode-option.is-unavailable { cursor: not-allowed; }
+.openap-mode-selector-label { display: none; }
+html[data-bs-theme="dark"] .openap-mode-selector {
+  border-color: #45666a;
+  background: rgba(16,35,38,.95);
+  box-shadow: 0 14px 36px rgba(0,0,0,.38);
+}
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option { color: #9fb6b9; }
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option:hover,
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option:focus-visible { border-color: #36575b; color: #dff5f2; }
+html[data-bs-theme="dark"] .openap-mode-selector.is-ap-ethernet .openap-mode-option:first-of-type,
+html[data-bs-theme="dark"] .openap-mode-selector.is-repeater .openap-repeater-mode-card,
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option.active { border-color: #3e7775; color: #e5fbf8; }
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option.active::before { background: #79ddd5; }
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-option.active .openap-mode-option-state { color: #79ddd5!important; }
+html[data-bs-theme="dark"] .openap-mode-selector .openap-mode-selector-indicator {
+  border-color: #3e7775;
+  background: linear-gradient(135deg,#17403f,#143332);
+  box-shadow: inset 0 0 0 1px rgba(121,221,213,.08);
+}
+@media(prefers-reduced-motion:reduce) {
+  .openap-mode-selector .openap-mode-selector-indicator { transition: none; }
 }

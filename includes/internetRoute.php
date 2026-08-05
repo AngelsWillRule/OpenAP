@@ -39,17 +39,17 @@ function getRouteInfo($checkAccess)
             exec('host ' . $prop[2] . ' | sed -rn "s/.*domain name pointer (.*)\./\1/p" | head -n 1', $host);
             $rInfo[$i]["gw-name"] = empty($host) ? "*" : $host[0];
             // check if AP
-            unset($isAP);
-            exec("iwconfig $dev 2> /dev/null | sed -rn 's/.*(mode:master).*/1/ip'", $isAP);
-            $isAP = !empty($isAP);
+            $wifiInfo = [];
+            exec('iw dev ' . escapeshellarg($dev) . ' info 2>/dev/null', $wifiInfo);
+            $isAP = preg_match('/^[[:space:]]*type AP$/m', implode("\n", $wifiInfo)) === 1;
             $rInfo[$i]["isAP"] = $isAP;
             if (isset($checkAccess) && $checkAccess && !$isAP) {
                 // check internet connectivity w/ and w/o DNS resolution
                 unset($okip);
-                exec('ping -W1 -c 1 -I ' . $prop[0] . ' ' . RASPI_ACCESS_CHECK_IP . ' |  sed -rn "s/.*icmp_seq=1.*time=.*/OK/p"', $okip);
+                exec('ping -W1 -c 1 -I ' . $prop[0] . ' ' . OPENAP_ACCESS_CHECK_IP . ' |  sed -rn "s/.*icmp_seq=1.*time=.*/OK/p"', $okip);
                 $rInfo[$i]["access-ip"] = empty($okip) ? false : true;
                 unset($okdns);
-                exec('ping -W1 -c 1 -I ' . $prop[0] . ' ' . RASPI_ACCESS_CHECK_DNS . ' |  sed -rn "s/.*icmp_seq=1.*time=.*/OK/p"', $okdns);
+                exec('ping -W1 -c 1 -I ' . $prop[0] . ' ' . OPENAP_ACCESS_CHECK_DNS . ' |  sed -rn "s/.*icmp_seq=1.*time=.*/OK/p"', $okdns);
                 $rInfo[$i]["access-dns"] = empty($okdns) ? false : true;
                 $rInfo[$i]["access-url"] = preg_match('/OK.*/',checkHTTPAccess($prop[0]));
             }
@@ -75,7 +75,7 @@ function detectCaptivePortal($iface) {
 function checkHTTPAccess($iface, $detectPortal=false) {
 
     $ret="FAILED no HTTP access";
-    exec('timeout 5 curl -is ' . RASPI_ACCESS_CHECK_URL . ' --interface ' . $iface, $rcurl);
+    exec('timeout 5 curl -is ' . OPENAP_ACCESS_CHECK_URL . ' --interface ' . $iface, $rcurl);
     if ( !empty($rcurl) && preg_match("/^HTTP\/[0-9\.]+ ([0-9]+)/m",$rcurl=implode("\n",$rcurl),$code) ) {
        $code = $code[1];
        if ( $code == 200 )  {
@@ -114,7 +114,7 @@ function checkHTTPAccess($iface, $detectPortal=false) {
                }
             }
             break;
-          case RASPI_ACCESS_CHECK_URL_CODE:
+          case OPENAP_ACCESS_CHECK_URL_CODE:
             $ret="OK internet access";
             break;
           default:

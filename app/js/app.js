@@ -8,31 +8,207 @@ import {
 } from "./helpers.js";
 
 import { initHostapd } from "./ui/hostapd.js";
-import { initDHCP } from "./ui/dhcp.js";
-import { initAdblock } from "./ui/adblock.js";
-import { initNetworking } from "./ui/networking.js";
-import { initOpenVPN } from "./ui/openvpn.js";
-import { initWireGuard } from "./ui/wg.js";
-import { initRestApi } from "./ui/restapi.js";
 import { initSystem } from "./ui/system.js";
-import { initAbout } from "./ui/about.js";
-import { initLogin } from "./ui/login.js";
+import { initLogin } from "./ui/login.js?v=20260802-required-fields";
 
 // ajax handlers
-import { initHostapd_ajax } from "./ajax/hostapd.js";
-import { initDHCP_ajax } from "./ajax/dhcp.js";
-import { initAdblock_ajax } from "./ajax/adblock.js";
-import { initWPA_ajax } from "./ajax/wpa.js"; 
-import { initNetworking_ajax } from "./ajax/networking.js";
-import { initOpenVPN_ajax } from "./ajax/openvpn.js";
-import { initWireGuard_ajax } from "./ajax/wg.js";
-import { initSession_ajax } from "./ajax/session.js";
+import { initHostapd_ajax } from "./ajax/hostapd.js?v=20260720-openap-optimal-width-2";
+import { initSession_ajax } from "./ajax/session.js?v=20260730-mobile-session-expiry-3";
 import { initSystem_ajax} from "./ajax/system.js";
-import { initPlugins_ajax } from "./ajax/plugins.js";
-import { initAbout_ajax } from "./ajax/about.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.info("RaspAP app.js initialized");
+    console.info("OpenAP app.js initialized");
+
+    // Treat the mobile bottom navigation as primary app tabs. Besides
+    // replacing entries, remember the latest tab so mobile back/forward cache
+    // restores cannot reveal an older primary tab.
+    const mobilePrimaryRoutes = new Set(['/', '/dashboard', '/ap_configuration', '/dhcp_setting']);
+    const mobilePrimaryRouteKey = 'openap|mobile-primary-route';
+    const mobileNavIndexKey = 'openap|mobile-nav-previous-index';
+    const isMobilePrimaryNavigation = () => window.matchMedia('(max-width: 767.98px)').matches;
+    const enforceLatestMobilePrimaryRoute = () => {
+        if (!isMobilePrimaryNavigation() || !mobilePrimaryRoutes.has(window.location.pathname)) {
+            return;
+        }
+        try {
+            const latestRoute = sessionStorage.getItem(mobilePrimaryRouteKey);
+            if (latestRoute && latestRoute !== window.location.pathname && mobilePrimaryRoutes.has(latestRoute)) {
+                window.location.replace(latestRoute);
+            }
+        } catch (error) {
+            // History replacement still works when session storage is blocked.
+        }
+    };
+
+    if (isMobilePrimaryNavigation() && mobilePrimaryRoutes.has(window.location.pathname)) {
+        try {
+            const navigation = performance.getEntriesByType('navigation')[0];
+            const restoredByHistory = navigation && navigation.type === 'back_forward';
+            const latestRoute = sessionStorage.getItem(mobilePrimaryRouteKey);
+            if (restoredByHistory && latestRoute && latestRoute !== window.location.pathname && mobilePrimaryRoutes.has(latestRoute)) {
+                window.location.replace(latestRoute);
+                return;
+            }
+            sessionStorage.setItem(mobilePrimaryRouteKey, window.location.pathname);
+        } catch (error) {
+            // Keep navigation usable in private or hardened browser contexts.
+        }
+    }
+
+    window.addEventListener('pageshow', enforceLatestMobilePrimaryRoute);
+    window.addEventListener('popstate', enforceLatestMobilePrimaryRoute);
+
+    const mobileBottomNav = document.querySelector('.openap-mobile-bottom-nav[data-active-index]');
+    if (mobileBottomNav && isMobilePrimaryNavigation()) {
+        const activeIndex = Number(mobileBottomNav.dataset.activeIndex);
+        try {
+            const previousIndex = Number(sessionStorage.getItem(mobileNavIndexKey));
+            if (Number.isInteger(previousIndex) && previousIndex >= 0 && previousIndex <= 2 && previousIndex !== activeIndex) {
+                mobileBottomNav.style.setProperty('--openap-mobile-active', previousIndex);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        mobileBottomNav.classList.add('is-sliding');
+                        mobileBottomNav.style.setProperty('--openap-mobile-active', activeIndex);
+                    });
+                });
+            }
+            sessionStorage.setItem(mobileNavIndexKey, String(activeIndex));
+        } catch (error) {
+            mobileBottomNav.style.setProperty('--openap-mobile-active', activeIndex);
+        }
+    }
+
+    document.querySelectorAll('.openap-mobile-bottom-link[href]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+            const destination = new URL(link.href, window.location.href);
+            if (destination.origin !== window.location.origin || destination.href === window.location.href) {
+                return;
+            }
+            event.preventDefault();
+            try {
+                sessionStorage.setItem(mobilePrimaryRouteKey, destination.pathname);
+                const currentNav = link.closest('.openap-mobile-bottom-nav');
+                if (currentNav) {
+                    sessionStorage.setItem(mobileNavIndexKey, currentNav.dataset.activeIndex || '0');
+                }
+            } catch (error) {
+                // Continue with replacement navigation when storage is blocked.
+            }
+            window.location.replace(destination.href);
+        });
+    });
+
+    // Reproduce the mockup's subtle upward page entrance, but only after a
+    // real sidebar navigation. OpenAP renders server-side pages, so a short
+    // session flag carries the transition intent across the page load.
+    const pageTransitionKey = 'openap|sidebar-page-transition';
+    const pageContent = document.querySelector('#layoutSidenav_content main > .container-fluid');
+    try {
+        const supportsCrossDocumentTransition = 'onpageswap' in window;
+        if (pageContent && !supportsCrossDocumentTransition && sessionStorage.getItem(pageTransitionKey) === '1') {
+            sessionStorage.removeItem(pageTransitionKey);
+            pageContent.classList.add('openap-page-enter');
+        } else if (supportsCrossDocumentTransition) {
+            sessionStorage.removeItem(pageTransitionKey);
+        }
+    } catch (error) {
+        // Storage can be unavailable in hardened/private browser contexts.
+    }
+
+    const sidebarNav = document.querySelector('.sb-sidenav-menu .nav');
+    const sidebarIndicator = sidebarNav?.querySelector('.openap-sidebar-indicator');
+    const sidebarItems = sidebarNav ? Array.from(sidebarNav.querySelectorAll(':scope > .sb-nav-link-icon[data-openap-sidebar-index]')) : [];
+    const sidebarIndexKey = 'openap|sidebar-active-index';
+    const reducedNavigationMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const moveSidebarIndicator = (item, animate = true) => {
+        if (!sidebarNav || !sidebarIndicator || !item) return;
+        sidebarNav.classList.toggle('is-sliding', animate && !reducedNavigationMotion.matches);
+        sidebarIndicator.style.setProperty('--openap-sidebar-top', `${item.offsetTop}px`);
+        sidebarIndicator.style.setProperty('--openap-sidebar-height', `${item.offsetHeight}px`);
+        sidebarIndicator.classList.add('is-ready');
+        sidebarItems.forEach((candidate) => candidate.classList.toggle('active', candidate === item));
+    };
+
+    const currentSidebarItem = sidebarItems.find((item) => {
+        const link = item.querySelector('a.nav-link[href]');
+        return link && new URL(link.href, window.location.href).pathname === window.location.pathname;
+    });
+    if (currentSidebarItem) {
+        let previousSidebarItem = null;
+        try {
+            const previousIndex = Number(sessionStorage.getItem(sidebarIndexKey));
+            previousSidebarItem = Number.isInteger(previousIndex) ? sidebarItems[previousIndex] : null;
+        } catch (error) {
+            // Start directly at the active item when storage is unavailable.
+        }
+        if (previousSidebarItem && previousSidebarItem !== currentSidebarItem && !reducedNavigationMotion.matches) {
+            moveSidebarIndicator(previousSidebarItem, false);
+            requestAnimationFrame(() => requestAnimationFrame(() => moveSidebarIndicator(currentSidebarItem, true)));
+        } else {
+            moveSidebarIndicator(currentSidebarItem, false);
+        }
+        try {
+            sessionStorage.setItem(sidebarIndexKey, currentSidebarItem.dataset.openapSidebarIndex || '0');
+        } catch (error) {
+            // The visual state does not depend on storage.
+        }
+    }
+
+    document.querySelectorAll('.sb-sidenav-menu a.nav-link[href]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            const destination = new URL(link.href, window.location.href);
+            if (destination.origin !== window.location.origin || destination.hash || link.hasAttribute('download')) {
+                return;
+            }
+
+            event.preventDefault();
+            const selectedItem = link.closest('.sb-nav-link-icon[data-openap-sidebar-index]');
+            moveSidebarIndicator(selectedItem, true);
+
+            try {
+                sessionStorage.setItem(pageTransitionKey, '1');
+                sessionStorage.setItem(sidebarIndexKey, selectedItem?.dataset.openapSidebarIndex || '0');
+            } catch (error) {
+                // Navigation must continue even when storage is unavailable.
+            }
+
+            const mobileSidebar = window.matchMedia('(max-width: 991.98px)').matches;
+            const animationDelay = reducedNavigationMotion.matches ? 0 : 340;
+            const closeDelay = mobileSidebar && !reducedNavigationMotion.matches ? 180 : 0;
+            window.setTimeout(() => {
+                if (mobileSidebar) {
+                    document.body.classList.remove('sb-sidenav-toggled');
+                    document.documentElement.classList.remove('openap-mobile-sidebar-open');
+                    try {
+                        localStorage.setItem('openap|mobile-sidebar-open', 'false');
+                    } catch (error) {
+                        // Closing the drawer must not depend on storage.
+                    }
+                }
+                window.setTimeout(() => {
+                    if (destination.href !== window.location.href) {
+                        window.location.assign(destination.href);
+                    }
+                }, closeDelay);
+            }, animationDelay);
+        });
+    });
+
+    let hostapdPageInitialized = false;
+    const initializeHostapdPage = () => {
+        if (hostapdPageInitialized) return;
+        initHostapd();
+        initHostapd_ajax();
+        hostapdPageInitialized = true;
+    };
 
     // Initialize the appropriate module based on the current path
     const path = window.location.pathname;
@@ -43,49 +219,24 @@ document.addEventListener('DOMContentLoaded', () => {
             // initDashboard();
             break;
         case '/hostapd_conf':
-            initHostapd();
-            initHostapd_ajax();
-            break;
-        case '/dhcpd_conf':
-            initDHCP();
-            initDHCP_ajax();
-            break;
-        case '/adblock_conf':
-            initAdblock();
-            initAdblock_ajax();
-            break;
-        case '/network_conf':
-            initNetworking();
-            initNetworking_ajax();
-            break;
-        case '/wpa_conf':
-            initWPA_ajax();
-            break;
-        case '/openvpn_conf':
-            initOpenVPN();
-            initOpenVPN_ajax();
-            break;
-        case '/wg_conf':
-            initWireGuard();
-            initWireGuard_ajax();
-            break;
-        case '/restapi_conf':
-            initRestApi();
+        case '/hostapd_conf/':
+            initializeHostapdPage();
             break;
         case '/system_info':
             initSystem();
             initSystem_ajax();
-            initPlugins_ajax();
-            break;
-        case '/about':
-            initAbout();
-            initAbout_ajax();
             break;
         case '/login':
             initLogin();
             break;
         default:
             console.warn(`No initialization function defined for path: ${path}`);
+    }
+
+    // Rewritten or prefixed routes may not expose /hostapd_conf verbatim.
+    // The form itself is the reliable signal that hotspot controls are present.
+    if (document.querySelector('#cbxopenapband, #cbxhwmode')) {
+        initializeHostapdPage();
     }
 
     // --------- Global initialization ---------
@@ -97,15 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Enable Bootstrap tooltips
     $('[data-bs-toggle="tooltip"]').tooltip()
-
-    // Adds active class to current nav-item
-    $(window).on("load", function() {
-        var currentLocation = window.location;
-        $('.sb-nav-link-icon a').filter(function() {
-            const linkUrl = new URL(this.href);
-            return linkUrl.pathname == currentLocation.pathname;
-        }).parent().addClass('active');
-    });
 
     // Allows closing of sidebar when content overlay is clicked
     $(document).on('click', '.sb-sidenav-toggled #layoutSidenav_content', function() {
@@ -191,39 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Session expired login button
-    $(document).on("click", "#js-session-expired-login", function(e) {
-        const redirectUrl = window.location.pathname + window.location.hash;
-        window.location.href = `/login?action=${encodeURIComponent(redirectUrl)}`;
-    });
-
     // Static Array method
     Array.range = (start, end) => Array.from({length: (end - start)}, (v, k) => k + start);
 
-    function updateActivityLED() {
-    const threshold_bytes = 300;
-    fetch('app/net_activity')
-        .then(res => res.text())
-        .then(data => {
-        const activity = parseInt(data.trim());
-        const leds = document.querySelectorAll('.hostapd-led');
-
-        if (!isNaN(activity)) {
-            leds.forEach(led => {
-            if (activity > threshold_bytes) {
-                led.classList.add('led-pulse');
-                setTimeout(() => {
-                led.classList.remove('led-pulse');
-                }, 50);
-            } else {
-                led.classList.remove('led-pulse');
-            }
-            });
-        }
-        })
-        .catch(() => { /* ignore fetch errors */ });
-    }
-    setInterval(updateActivityLED, 100);
 
     const systemModeToggle = $('.system-mode-toggle');
     const darkModeToggle = $('.dark-mode-toggle');
@@ -317,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertTimeout = parseInt(getCookie('alert_timeout'), 10);
     window.setTimeout(
         function() {
-            $(".alert").fadeTo(500, 0).slideUp(500, function(){
+            $(".alert").not(".openap-persistent-alert").fadeTo(500, 0).slideUp(500, function(){
                 $(this).remove();
             });
         },

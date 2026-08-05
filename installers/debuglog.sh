@@ -1,23 +1,24 @@
 #!/bin/bash
 #
-# RaspAP Debug log generator
+# OpenAP debug log generator, derived from the RaspAP debug utility
 # Author: @billz <billzimmerman@gmail.com>
 # Author URI: https://github.com/billz/
 # License: GNU General Public License v3.0
 # License URI: https://github.com/raspap/raspap-webgui/blob/master/LICENSE
 #
-# Typically used in an ajax call from the RaspAP UI, this utility may also
+# Typically used in an AJAX call from the OpenAP UI, this utility may also
 # be invoked directly to generate a detailed system debug log.
 #
 # Usage: debuglog.sh [options]
 #
 # OPTIONS:
 # -w, --write       Writes the debug log to /tmp (useful if sourced directly)
-# -i, --install     Overrides the default RaspAP install location (/var/www/html)
+# -i, --install     Overrides the default OpenAP install location (/var/www/html)
 #
 # NOTE
-# Detailed system information is gathered for debugging and/or troubleshooting
-# purposes only. Passwords or other sensitive data are NOT included.
+# Detailed system information is gathered for debugging and troubleshooting.
+# Known credential fields are redacted, but users must inspect the output before
+# sharing it because network and system metadata can still be sensitive.
 #
 # You are not obligated to bundle the LICENSE file with your RaspAP projects as long
 # as you leave these references intact in the header comments of your source files.
@@ -30,7 +31,7 @@ set -o errtrace
 # set -o xtrace
 
 # Set defaults
-readonly RASPAP_DIR="/etc/raspap"
+readonly RASPAP_DIR="/etc/openap"
 readonly DNSMASQ_D_DIR="/etc/dnsmasq.d"
 readonly RASPAP_DHCDPCD="/etc/dhcpcd.conf"
 readonly RASPAP_HOSTAPD="$RASPAP_DIR/hostapd.ini"
@@ -39,31 +40,15 @@ readonly RASPAP_LOGPATH="/tmp"
 readonly RASPAP_LOGFILE="$RASPAP_LOGPATH/raspap_debug.log"
 readonly RASPAP_DEBUG_VERSION="1.0"
 readonly PREAMBLE="
-   888888ba                              .d888888   888888ba
-   88     8b                            d8     88   88     8b
-  a88aaaa8P' .d8888b. .d8888b. 88d888b. 88aaaaa88a a88aaaa8P
-   88    8b. 88    88 Y8ooooo. 88    88 88     88   88
-   88     88 88.  .88       88 88.  .88 88     88   88
-   dP     dP  88888P8  88888P  88Y888P  88     88   dP
-                               88
-                               dP     Debug Log Generator $RASPAP_DEBUG_VERSION
+OpenAP Debug Log Generator $RASPAP_DEBUG_VERSION
 
-This process collects debug and troubleshooting information about your RaspAP installation.
-It is intended to assist users with a self-diagnosis of their installations, as well as 
-provide useful information as a starting point for others to assist with troubleshooting.
-Debug log information contains the RaspAP version, current state and configuration of AP
-related services, relevant installed package versions, Linux kernel version and local
-networking configuration details. 
+This process collects debug and troubleshooting information about your OpenAP installation.
+It is intended to support self-diagnosis and provide a useful starting point for technical
+troubleshooting. The log contains the OpenAP version, service state, relevant package and
+kernel versions, and local networking configuration details.
 
-If you wish to share your debug info, paste the output to one of the following:
-  https://pastebin.com/
-  https://paste.ubuntu.com/
-
-Please do NOT paste the log in its entirety to RaspAP's discussions, issues or other
-support channels. Use one of the above links instead.
-
-DISCLAIMER: This log DOES contain details about your system, including networking
-settings. However, NO passwords or other sensitive data are included in the debug output.
+Review the complete log before sharing it. Known credential fields are redacted, but the
+output still contains potentially sensitive network and system metadata.
 ========================================================================================"
 
 function _main() {
@@ -104,7 +89,7 @@ function _generate_log() {
     _log_write "Debug log generation started at $(date)"
     _system_info
     _packages_info
-    _raspap_info
+    _openap_info
     _usb_info
     _rfkill_info
     _wpa_info
@@ -115,13 +100,18 @@ function _generate_log() {
     _iw_dev_info
     _iw_reg_info
     _systemd_info
-    _log_write "RaspAP debug log generation complete."
+    _log_write "OpenAP debug log generation complete."
     exit 0
 }
 
 # Fetches hardware, OS, uptime & used memory
 function _system_info() {
-    local model=$(tr -d '\0' < /proc/device-tree/model)
+    local model="Unknown"
+    if [ -r /proc/device-tree/model ]; then
+        model=$(tr -d '\0' < /proc/device-tree/model)
+    elif [ -r /sys/class/dmi/id/product_name ]; then
+        model=$(cat /sys/class/dmi/id/product_name)
+    fi
     local system_uptime=$(uptime | awk -F'( |,|:)+' '{if ($7=="min") m=$6; else {if ($7~/^day/){if ($9=="min") {d=$6;m=$8} else {d=$6;h=$8;m=$9}} else {h=$6;m=$7}}} {print d+0,"days,",h+0,"hours,",m+0,"minutes"}')
     local free_mem=$(free -m | awk 'NR==2{ total=$2 ; used=$3 } END { print used/total*100}')
     _log_separator "System Info"
@@ -149,10 +139,10 @@ function _packages_info() {
     if [ -x "$(command -v dhcpcd)" ]; then
         dhcpcd_version=$(dhcpcd --version | grep -oP '\d+\.\d+\.\d+')
     fi
-    if [ -x "$(command -v dhcpcd)" ]; then
+    if [ -x "$(command -v lighttpd)" ]; then
         lighttpd_version=$(lighttpd -v | grep -oP '(\d+\.\d+\.\d+)')
     fi
-    if [ -x "$(command -v dhcpcd)" ]; then
+    if [ -x "$(command -v vnstat)" ]; then
         vnstat_version=$(vnstat -v | grep -oP "vnStat \K[0-9]+\.[0-9]+")
     fi
 
@@ -164,50 +154,55 @@ function _packages_info() {
     _log_write "vnStat Version: ${vnstat_version}"
 }
 
-# Outputs installed RaspAP version & settings 
-function _raspap_info() {
+# Outputs installed OpenAP version and selected settings.
+function _openap_info() {
     local version="Not present"
     local hostapd_ini="Not present"
     local provider_ini="Not present"
 
     if [ -f ${install_dir}/includes/defaults.php ]; then
-        version=$(grep "RASPI_VERSION" $install_dir/includes/defaults.php | awk -F"'" '{print $4}')
+        version=$(grep "OPENAP_VERSION" $install_dir/includes/defaults.php | awk -F"'" '{print $4}')
     fi
     if [ -f ${RASPAP_HOSTAPD} ]; then
-        hostapd_ini=$(cat ${RASPAP_HOSTAPD})
+        hostapd_ini=$(_redact_config < ${RASPAP_HOSTAPD})
     fi
     if [ -f ${RASPAP_PROVIDER} ]; then
-        provider_ini=$(cat ${RASPAP_PROVIDER})
+        provider_ini=$(_redact_config < ${RASPAP_PROVIDER})
     fi
 
-    _log_separator "RaspAP Install"
-    _log_write "RaspAP Version: ${version}"
-    _log_write "RaspAP Installation Directory: ${install_dir}"
-    _log_write "RaspAP hostapd.ini contents:\n${hostapd_ini}"
-    _log_write "RaspAP provider.ini: ${provider_ini}"
+    _log_separator "OpenAP Install"
+    _log_write "OpenAP Version: ${version}"
+    _log_write "OpenAP Installation Directory: ${install_dir}"
+    _log_write "OpenAP hostapd.ini contents:\n${hostapd_ini}"
+    _log_write "OpenAP provider.ini: ${provider_ini}"
+}
+
+function _redact_config() {
+    sed -E '/^[[:space:]]*(wpa_passphrase|wpa_psk|password|passwd|token|secret|pin)[[:space:]]*=/I s/=.*/=[REDACTED]/'
 }
 
 function _usb_info() {
-    local stdout=$(lsusb)
+    local stdout=$(lsusb 2>&1 || true)
     _log_separator "USB Devices"
     _log_write "${stdout}"
 }
 
 function _rfkill_info() {
-    local stdout=$(rfkill list)
+    local stdout=$(rfkill list 2>&1 || true)
      _log_separator "rfkill"
      _log_write "${stdout}"
 }
 
 function _wpa_info() {
-    local stdout=$(wpa_cli status)
+    local stdout=$(wpa_cli status 2>&1 || true)
     _log_separator "WPA Supplicant"
     _log_write "${stdout}"
 }
 
-# Iterates the contents of RaspAP's 090_*.conf files in dnsmasq.d
+# Iterates legacy-compatible 090_*.conf files in dnsmasq.d.
 function _dnsmasq_info() {
-    local stdout=$(ls -h ${DNSMASQ_D_DIR}/090_*.conf)
+    local stdout
+    stdout=$(find "${DNSMASQ_D_DIR}" -maxdepth 1 -type f -name '090_*.conf' -print 2>/dev/null || true)
     local contents
     _log_separator "Dnsmasq Contents"
     _log_write "${stdout}"
@@ -330,4 +325,3 @@ function _log_write() {
 }
 
 _main "$@"
-

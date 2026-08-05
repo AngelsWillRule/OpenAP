@@ -1,15 +1,20 @@
 {
-    "name": "raspap/raspap-webgui",
-    "description": "Simple wireless AP setup and mangement for Debian-based devices",
+    "name": "angelswillrule/openap",
+    "description": "Web-managed Wi-Fi access point and repeater for supported Debian-based systems",
     "license": "GPL-3.0",
-    "homepage": "https://raspap.com/",
-    "keywords": ["raspberrypi", "debian", "armbian", "wifi"],
-    "type": "raspap-core",
+    "homepage": "https://github.com/AngelsWillRule/OpenAP",
+    "keywords": ["raspberry-pi", "debian", "ubuntu", "wifi", "access-point", "repeater"],
+    "type": "project",
     "authors": [
         {
-          "name": "RaspAP Team",
-          "email": "billzimmerman@gmail.com",
-          "homepage": "https://raspap.com/"
+          "name": "OpenAP contributors",
+          "homepage": "https://github.com/AngelsWillRule/OpenAP",
+          "role": "Maintainers"
+        },
+        {
+          "name": "RaspAP contributors",
+          "homepage": "https://github.com/RaspAP/raspap-webgui",
+          "role": "Upstream authors"
         }
     ],
     "require": {

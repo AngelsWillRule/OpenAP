@@ -1,7 +1,7 @@
 import { getCSRFToken } from "../helpers.js";
 
 export function initSystem_ajax() {
-    console.info("RaspAP System ajax module initialized");
+    console.info("OpenAP System ajax module initialized");
     
     $('#js-sys-reboot, #js-sys-shutdown').on('click', function (e) {
         e.preventDefault();

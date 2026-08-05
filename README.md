@@ -1,207 +1,133 @@
-![RaspAP Hero](https://i.imgur.com/aNAG3Wa.jpeg)
-[![Release 3.5.4](https://img.shields.io/badge/release-v3.5.4-green)](https://github.com/raspap/raspap-webgui/releases) [![Awesome](https://awesome.re/badge.svg)](https://github.com/thibmaek/awesome-raspberry-pi) [![Join Insiders](https://img.shields.io/static/v1?label=Insiders&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/RaspAP) [![Build Status](https://app.travis-ci.com/RaspAP/raspap-webgui.svg?branch=master)](https://app.travis-ci.com/RaspAP/raspap-webgui) [![Crowdin](https://badges.crowdin.net/raspap/localized.svg)](https://crowdin.com/project/raspap) [![Twitter URL](https://img.shields.io/twitter/url?label=%40RaspAP&logoColor=%23d8224c&url=https%3A%2F%2Ftwitter.com%2Frasp_ap)](https://twitter.com/rasp_ap) [![Reddit](https://img.shields.io/badge/%2Fr%2FRaspAP-e05d44?style=flat&logo=Reddit&logoColor=white&labelColor=e05d44&color=b14835)](https://reddit.com/r/RaspAP) [![Discord](https://img.shields.io/discord/642436993451819018?color=7289DA&label=Discord&logo=discord&style=flat)](https://discord.gg/KVAsaAR)
+# OpenAP
 
-RaspAP is feature-rich wireless router software that _just works_ on many popular [Debian-based devices](#supported-operating-systems), including the Raspberry Pi. Our [custom OS images](#pre-built-image), [Quick installer](#quick-installer) and [Docker container](#docker-support) create a known-good default configuration for all current Raspberry Pis with onboard wireless. A fully responsive, mobile-ready interface gives you control over the relevant services and networking options. Advanced DHCP settings, [WireGuard](https://docs.raspap.com/wireguard/), [Tailscale](https://docs.raspap.com/tailscale/) and [OpenVPN](https://docs.raspap.com/openvpn/) support, [SSL certificates](https://docs.raspap.com/ssl/), [ad blocking](#ad-blocking), security audits, [captive portal integration](https://docs.raspap.com/captive/), themes and [multilingual options](https://docs.raspap.com/translations/) are included.
+OpenAP is a web-managed Wi-Fi access point and two-radio repeater for supported
+Debian-based systems. It provides one focused interface for hotspot, DHCP/DNS,
+uplink, firewall and system status while keeping privileged network changes in
+explicit root-owned helpers.
 
-RaspAP has been featured by [ZDNET](https://www.zdnet.com/home-and-office/networking/how-i-built-my-own-wifi-router-with-raspberry-pi/), [PC World](https://www.pcwelt.de/article/1789512/raspberry-pi-als-wlan-router.html), [MSN](https://www.msn.com/en-us/news/technology/4-reasons-i-installed-raspap-on-my-raspberry-pi/ar-AA1GLHdE), [Adafruit](https://blog.adafruit.com/2016/06/24/raspap-wifi-configuration-portal-piday-raspberrypi-raspberry_pi/), [Raspberry Pi Weekly](https://www.raspberrypi.org/weekly/commander/), and [Awesome Raspberry Pi](https://project-awesome.org/thibmaek/awesome-raspberry-pi) and implemented in [countless projects](https://raspap.com/awesome/).
+> OpenAP `0.2.0` is in pre-release preparation. Do not treat the current
+> publication branch as a supported release or install it on a production
+> router. Release downloads and checksum-linked installation instructions will
+> appear here only after the clean validation matrix passes.
 
-We hope you enjoy using RaspAP as much as we do creating it. Tell us how you use this with [your own projects](https://raspap.com/awesome/).
+## What OpenAP does
 
-![RaspAP-dashboard-2026](https://github.com/user-attachments/assets/81991ee7-b83d-4785-bcf7-33d15d16fae6)
-<img width="32.5%" alt="Wifi Client" src="https://github.com/user-attachments/assets/95696ddc-da84-4339-97cc-f2a173054664">
-<img width="32.5%" alt="Hotspot" src="https://github.com/user-attachments/assets/c1c4de15-3ff2-4d3c-a7af-339c24896749">
-<img width="32.5%" alt="Adblock" src="https://github.com/user-attachments/assets/ab925687-8407-4bec-a952-9dc6a2675f49">
-<img width="32.5%" alt="About" src="https://github.com/user-attachments/assets/ba62d8bb-34f0-44ee-9fe8-504763a03726">
-<img width="32.5%" alt="Wireguard" src="https://github.com/user-attachments/assets/4ba16118-8671-4654-9a36-92ac7bc8507f">
-<img width="32.5%" alt="System" src="https://github.com/user-attachments/assets/f54e04fc-dc2c-4a21-903b-23641795822b">
+- creates a Wi-Fi hotspot over an Ethernet uplink;
+- detects interfaces by capability and hardware identity instead of assuming
+  names such as `wlan0` or `eth0`;
+- provides DHCP, DNS policy and nftables-based forwarding for hotspot clients;
+- switches to WiFi Repeater Mode after installation when a second suitable
+  Wi-Fi interface is available;
+- manages saved Wi-Fi uplinks without returning stored passphrases to the
+  browser;
+- exposes AP configuration, DHCP/DNS, clients, logs and service health through
+  a responsive light/dark web interface.
 
-## Contents
+The initial installer intentionally offers only the validated AP-over-Ethernet
+flow. Repeater Mode is selected later from the dashboard.
 
- - [Quick start](#quick-start)
- - [Join Insiders](#join-insiders)
- - [WireGuard support](#wireguard-support)
- - [OpenVPN support](#openvpn-support)
- - [VPN Provider support](#vpn-provider-support)
- - [Ad Blocking](#ad-blocking)
- - [Bridged AP](#bridged-ap)
- - [Manual installation](#manual-installation)
- - [802.11ac 5GHz support](#80211ac-5ghz-support)
- - [Supported operating systems](#supported-operating-systems)
- - [HTTPS support](#https-support)
- - [Docker support](#docker-support)
- - [Custom user plugins](#custom-user-plugins)
- - [Multilingual support](#multilingual-support)
- - [How to contribute](#how-to-contribute)
- - [Reporting issues](#reporting-issues)
- - [License](#license)
+## Intended first-release platforms
 
-## Quick start
-RaspAP gives you two different ways to get up and running quickly. The simplest and recommended approach is to use a custom Raspberry Pi OS image with RaspAP preinstalled. This option eliminates guesswork and gives you a base upon which to build. Alternatively, you may execute the Quick installer on an existing [compatible OS](https://docs.raspap.com/#compatible-operating-systems).
+| Platform | Intended status |
+| --- | --- |
+| Debian 13 x86-64 | Tested |
+| Ubuntu 26.04 x86-64 | Tested |
+| Current Raspberry Pi OS 64-bit on Raspberry Pi 3B+ | Tested |
+| Raspberry Pi 4 and 5 | Expected compatible; physical reports wanted |
+| Other Debian-like systems | Experimental |
 
-### Pre-built image
-Custom Raspberry Pi OS Lite images with the latest RaspAP are available for [direct download](https://github.com/RaspAP/raspap-webgui/releases/latest). This includes both 32- and 64-bit builds for ARM architectures.
+These labels become release claims only when the exact `0.2.0` candidate and
+checksum pass the clean-platform matrix.
 
-| Operating system | Debian version | Kernel version | RaspAP version | Size |
-| ------------ | -------------- | -------------- | -------------- | ---- |
-| Raspberry Pi OS (64-bit) Lite | 13 (trixie) | 6.12 | Latest | 826 MB |
-| Raspberry Pi OS (32-bit) Lite | 13 (trixie) | 6.12 | Latest | 799 MB |
+## Hardware prerequisites
 
-These images are automatically generated with each release of RaspAP. You may choose between an `arm64` or `armhf` (32-bit) based build. Refer to [this resource](https://www.raspberrypi.com/software/operating-systems/) to ensure compatibility with your hardware.
+OpenAP does not install Wi-Fi firmware or hardware drivers. Before installation
+the operating system must expose:
 
-After downloading your desired image from the [latest release page](https://github.com/RaspAP/raspap-webgui/releases/latest), use a utility such as the Raspberry Pi Imager or [balenaEtcher](https://www.balena.io/etcher) to flash the OS image onto a microSD card. Insert the card into your device and boot it up. The latest RaspAP release version with the most popular optional components will be active and ready for you to configure.
+- a working Ethernet uplink;
+- at least one Wi-Fi interface supporting AP mode;
+- a valid regulatory country.
 
-### Quick installer
-Alternatively, start with a clean install of a [latest release of Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/). Both the 32- and 64-bit release versions are supported, as well as the latest 64-bit Desktop distribution.
+Repeater Mode requires a second Wi-Fi interface capable of managed/client mode.
+See [Hardware and Wi-Fi prerequisites](docs/HARDWARE.md).
 
-Update RPi OS to its latest version, including the kernel and firmware, followed by a reboot:
+## Installer preview
 
-```
-sudo apt-get update
-sudo apt-get full-upgrade
-sudo reboot
-```
-Set the WiFi country in raspi-config's **Localisation Options**: `sudo raspi-config`.
+The detector and installer live in `openap-installer/bin`.
 
-Install RaspAP from your device's shell prompt:
-```sh
-curl -sL https://install.raspap.com | bash
+Read-only detection:
+
+```bash
+openap-installer/bin/openap-detect
+openap-installer/bin/openap-detect --json
 ```
 
-The Quick installer will respond to several [command line arguments](https://docs.raspap.com/quick/), or switches, to customize your installation in a variety of ways, or install one of RaspAP's optional helper tools.
+Dry run, which makes no changes:
 
-### Initial settings
-After completing either of these setup options, the wireless AP network will be configured as follows:
-
-* IP address: `10.3.141.1`
-  * Username: `admin`
-  * Password: `secret`
-* DHCP range: `10.3.141.50` — `10.3.141.254`
-* SSID: `RaspAP`
-* Password: `ChangeMe`
-
-It's _strongly recommended_ that your first post-install action is to change the default admin [authentication](https://docs.raspap.com/authentication/) settings. Thereafter, your AP's [basic settings](https://docs.raspap.com/ap-basics/) and many [advanced options](https://docs.raspap.com/ap-basics#advanced-options) are now ready to be modified by RaspAP.
-
-Please [read this](https://docs.raspap.com/issues/) before reporting an issue.
-
-## Join Insiders
-
-[<img src="https://github.com/user-attachments/assets/832f1f0d-517a-4d73-8b62-068cf1a2041d" width="320">](https://github.com/sponsors/RaspAP/)  
-
-RaspAP is free software, but powered by _your_ support. If you find RaspAP useful for your personal or commercial projects, [become an Insider](https://github.com/sponsors/RaspAP/) and get early access to [exclusive features](https://docs.raspap.com/insiders/#exclusive-features) in the [Insiders Edition](https://docs.raspap.com/insiders/).
-
-A tangible side benefit of sponsorship is that **Insiders** are able to help _steer future development of RaspAP_. This is done through Insiders' team access to discussions, feature requests, issues and more in the private GitHub repository.
-
-## WireGuard support
-
-WireGuard® is an extremely simple yet fast and modern VPN that utilizes state-of-the-art cryptography. It aims to be considerably more performant than OpenVPN, and is generally regarded as the most secure, easiest to use, and simplest VPN solution for modern Linux distributions.
-
-WireGuard is included in the pre-built OS and may be optionally installed by the [Quick Installer](https://docs.raspap.com/quick/). Once this is done, you can manage local (server) settings, create a peer configuration and control the `wg-quick` service with RaspAP.
-
-Details are [provided here](https://docs.raspap.com/wireguard/).
-
-## OpenVPN support
-
-OpenVPN is included in the pre-built OS and may be optionally installed by the Quick Installer. Once this is done, you can [manage client configurations](https://docs.raspap.com/openvpn/) and the `openvpn-client` service with RaspAP.
-
-To configure an OpenVPN client, upload a valid .ovpn file and, optionally, specify your login credentials. RaspAP will store your client configuration and add firewall rules to forward traffic from OpenVPN's `tun0` interface to your configured wireless interface. 
-
-See our [OpenVPN documentation](https://docs.raspap.com/openvpn/) for more information.
-
-## VPN provider support
-
-Several popular VPN providers include a Linux Command Line Interface (CLI) for interacting with their services. As a new beta feature, you may optionally control these VPN services from within RaspAP. After your provider's CLI is installed on your system you may administer it thereafter by using RaspAP's UI.
-
-See our [VPN provider documentation](https://docs.raspap.com/providers/) for more information.
-
-## Ad Blocking
-This feature uses DNS blacklisting to block requests for ads, trackers and other undesirable hosts. Ad blocking is included in the pre-built OS and may be optionally installed by the [Quick Installer](https://docs.raspap.com/quick/). Thereafter, you may choose between several of the best available [blocklist sources](https://docs.raspap.com/features-core/adblock/#blocklist-sources) to suit your needs.
-
-Details are [provided here](https://docs.raspap.com/adblock/).
-
-## Bridged AP
-By default RaspAP configures a routed AP for your clients to connect to. A bridged AP configuration is also possible. Select the **Bridged AP mode** toggle under the **Advanced** tab of **Hotspot**, configure a static IP address for the bridge interface, then save and restart the AP.
-
-Details on Bridged AP mode are [provided here](https://docs.raspap.com/bridged/).
-
-## Manual installation
-Detailed manual setup instructions are [provided here](https://docs.raspap.com/manual/).
-
-## 802.11ac 5GHz support
-RaspAP provides an 802.11ac wireless mode option for supported hardware (currently the RPi 3B+, 4, 5 and compatible Orange Pi models) and wireless regulatory domains. See [this](https://docs.raspap.com/ap-basics/#80211ac-5-ghz) for more information.
-
-## Supported operating systems
-RaspAP was originally made for Raspbian, but now also installs on the following Debian-based distros.
-
-| Distribution | Release | Architecture | Support | 
-| ------------ | ------- | ------------ | ------- |
-| Raspberry Pi OS Lite | 64-bit Debian 13 (trixie) | ARM | Official | 
-| Raspberry Pi OS Lite | 32-bit Debian 13 (trixie) | ARM | Official | 
-| Raspberry Pi OS Lite | 64-bit Debian 12 (bookworm) | ARM | Official | 
-| Raspberry Pi OS Lite | 32-bit Debian 12 (bookworm) | ARM | Official | 
-| Raspberry Pi OS Desktop | 64-bit Debian 12 (bookworm) | ARM | Official | 
-| Raspberry Pi OS Lite | 64-bit Debian 11 (bullseye) | ARM | Official | 
-| Raspberry Pi OS Lite | 32-bit Debian 11 (bullseye) | ARM | Official | 
-| Kali Linux |  2025.3 | [ARM 64-bit](https://www.kali.org/get-kali/#kali-arm) | Beta |
-| Kali Linux | 2025.3 | [ARM 32-bit](https://www.kali.org/get-kali/#kali-arm) | Beta |
-| Debian 13 |  trixie | [ARM](https://raspi.debian.net/tested-images/) | Beta |
-| Debian 12  |  bookworm | [ARM](https://raspi.debian.net/tested-images/)  | Beta |
-| Armbian  | 23.11 (jammy)  | ARM  | Beta  |
-
-<img src="https://i.imgur.com/L27nH8f.png" style="width:540px;" />
-
-You are also encouraged to use RaspAP's community-led [Docker container](#docker-support). Please note that "supported" is not a guarantee. If you are able to improve support for your preferred distro, we encourage you to [actively contribute](#how-to-contribute) to the project.
-
-## HTTPS support
-The Quick Installer may be used to [generate SSL certificates](https://docs.raspap.com/ssl-quick/) with `mkcert`. The installer automates the manual steps [described here](https://docs.raspap.com/ssl-manual/), including configuring lighttpd with SSL support. 
-
-Simply append the `-c` or `--cert` option to the Quick Installer, like so:
-
-```sh
-curl -sL https://install.raspap.com | bash -s -- --cert
+```bash
+openap-installer/bin/openap-install
 ```
 
-**Note**: this only installs mkcert and generates an SSL certificate with the input you provide. It does *not* (re)install RaspAP.
+Interactive installation from a verified release archive:
 
-More information on SSL certificates and HTTPS support is available [in our documentation](https://docs.raspap.com/ssl/). 
+```bash
+sudo openap-installer/bin/openap-install --apply
+```
 
-## Docker support
-As an alternative to the [Quick installer](#quick-installer), RaspAP may be run in an isolated, portable [Docker container](https://docs.raspap.com/docker/).
+Do not use unattended `--yes` installation for a public deployment until the
+pre-release static credential behavior has been replaced and revalidated.
 
-See the [RaspAP-docker repo](https://github.com/RaspAP/raspap-docker/) for more information.
+## Security model
 
-## Custom user plugins
-RaspAP's integrated `PluginManager` provides a framework for developers to create custom plugins. To facilitate this, a `SamplePlugin` [repository](https://github.com/RaspAP/SamplePlugin) is available to get developers started on the right track. If you'd like to develop your own plugin for RaspAP, see the [documentation](https://docs.raspap.com/custom-plugins/) or get started right away by forking the [SamplePlugin](https://github.com/RaspAP/SamplePlugin).
+The Lighttpd/PHP dashboard runs without unrestricted root access. Network
+changes are delegated to narrowly named helpers under `/usr/local/sbin`, with
+corresponding sudoers rules generated for detected interfaces and supported
+operations. Repository sources, installer scripts and project documentation
+are excluded from the installed webroot.
 
-## Multilingual support
-RaspAP uses [GNU Gettext](https://www.gnu.org/software/gettext/) to manage multilingual messages. Our pre-built OS includes the `locales-all` package, eliminating the need to manually generate locales.
+OpenAP does not enable WAN access to the dashboard by default. Administrators
+remain responsible for host firewall policy, physical security and applying
+operating-system security updates.
 
-If you're using the Quick Installer or Manual setup methods, you must configure a corresponding language package for your system. To list languages currently installed on your system, use `locale -a` at the shell prompt. To generate new locales, run `sudo dpkg-reconfigure locales` and select any other desired locales. Details are provided [here](https://docs.raspap.com/translations/).
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-See this list of [supported languages](https://docs.raspap.com/translations/#supported-languages) that are actively maintained by volunteer translators. If your language is not supported, why not [contribute a translation](https://docs.raspap.com/translations/#contributing-to-a-translation)? Contributors will receive credit as the original translators.
+## Known pre-release limitations
 
-## How to contribute
-1. Fork the project in your account and create a new branch: `your-great-feature`.
-2. Open an issue in the repository describing the feature contribution you'd like to make.
-3. Commit changes in your feature branch.
-4. Open a pull request and reference the initial issue in the pull request message.
+- installation, reinstall and mode switching still require the complete
+  release-candidate validation matrix;
+- unattended installation currently has insecure static defaults and must not
+  be used for public deployments;
+- WPA3-only Wi-Fi uplinks are not supported;
+- automatic configuration rollback is planned but not yet implemented;
+- Raspberry Pi 4/5 compatibility has not yet been physically validated;
+- OpenAP installs no Wi-Fi firmware or driver.
 
-Find out more about our [coding style guidelines and recommended tools](CONTRIBUTING.md). 
+## Documentation
 
-## Reporting issues
-Please [read this](https://docs.raspap.com/issues/) before reporting a bug.
+- [Documentation index](docs/README.md)
+- [Installation](docs/INSTALLATION.md)
+- [Hardware prerequisites](docs/HARDWARE.md)
+- [WiFi Repeater Mode](docs/REPEATER_MODE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Feature roadmap](docs/OPENAP_FEATURE_ROADMAP.md)
 
-## Contributors
+## Relationship to RaspAP
 
-### Code Contributors
-This project exists thanks to all the awesome people who [contribute](CONTRIBUTING.md) their time and expertise.
+OpenAP is derived from [RaspAP](https://github.com/RaspAP/raspap-webgui) and
+retains the GNU GPL version 3 license, original copyright notices and upstream
+authorship information. OpenAP is an independent project and is not endorsed
+by or affiliated with RaspAP unless explicitly stated otherwise.
 
-<a href="https://github.com/raspap/raspap-webgui/graphs/contributors"><img src="https://opencollective.com/raspap/contributors.svg?width=890&button=false" /></a>
+See [NOTICE.md](NOTICE.md) for provenance and
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the ongoing dependency
+license audit.
 
-### Financial Contributors
-Development of RaspAP is made possible thanks to a sponsorware release model. This means that new features are first exclusively released to sponsors as part of [**Insiders**](https://github.com/sponsors/RaspAP).
+## Contributing
 
-Learn more about [how sponsorship works](https://docs.raspap.com/insiders/#how-sponsorship-works), and how easy it is to get access to Insiders.
+OpenAP is not yet accepting production support requests. Code, documentation
+and hardware-validation contributions will be welcome after the initial
+private audit. See [CONTRIBUTING.md](CONTRIBUTING.md) for the intended workflow.
 
 ## License
-See the [LICENSE](./LICENSE) file.
 
+OpenAP is distributed under the [GNU General Public License version 3](LICENSE).

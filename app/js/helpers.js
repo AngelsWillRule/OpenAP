@@ -1,6 +1,6 @@
 export const themes = {
     'default': {
-        'name': 'RaspAP (default)',
+        'name': 'OpenAP (default)',
         'url': '/app/css/themes/default.php',
         'modes': ['light', 'dark'],
     },
@@ -85,7 +85,7 @@ export function set_theme(theme) {
 
 export function setDarkMode(isSystemPreferred = false) {
     $('.dark-mode-toggle').prop('checked', true);
-    $('.dark-mode-toggle + label i').removeClass('fa-moon').addClass('fa-sun');
+    $('.dark-mode-toggle + label i').removeClass('fa-sun').addClass('fa-moon');
     $('html').attr('data-bs-theme', 'dark');
     // only set cookie if in a user preference context
     if (!isSystemPreferred) setCookie('theme_mode', 'dark', 365);
@@ -93,7 +93,7 @@ export function setDarkMode(isSystemPreferred = false) {
 
 export function setLightMode(isSystemPreferred = false) {
     $('.dark-mode-toggle').prop('checked', false);
-    $('.dark-mode-toggle + label i').removeClass('fa-sun').addClass('fa-moon');
+    $('.dark-mode-toggle + label i').removeClass('fa-moon').addClass('fa-sun');
     $('html').attr('data-bs-theme', 'light');
     // only set cookie if in a user preference context
     if (!isSystemPreferred) setCookie('theme_mode', 'light', 365);

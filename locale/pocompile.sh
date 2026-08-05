@@ -1,14 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Compiles portable object (.po) files into machine object (.mo) files
-# Requires GNU gettext 
-# Install with: apt-get install gettext 
+set -euo pipefail
 
-arrLocales=($PWD/*/);
+locale_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# compiles message catalogs to binary format
-for f in "${arrLocales[@]}"; do
-  echo -n `msgfmt -o ${f}LC_MESSAGES/messages.mo ${f}LC_MESSAGES/messages.po`
-  echo "Compiled ${f}LC_MESSAGES/messages.po"
+command -v msgfmt >/dev/null 2>&1 || {
+  echo "GNU gettext is required (missing msgfmt)." >&2
+  exit 1
+}
+
+for po in "$locale_dir"/*/LC_MESSAGES/messages.po; do
+  mo="${po%.po}.mo"
+  msgfmt --check --check-format -o "$mo" "$po"
+  echo "Compiled $po"
 done
-

@@ -1,11 +1,11 @@
 <?php
 
-use RaspAP\Networking\Hotspot\HostapdManager;
-use RaspAP\Networking\Hotspot\HotspotService;
-use RaspAP\Networking\Hotspot\WiFiManager;
-use RaspAP\Networking\Hotspot\DhcpcdManager;
-use RaspAP\Messages\StatusMessage;
-use RaspAP\System\Sysinfo;
+use OpenAP\Networking\Hotspot\HostapdManager;
+use OpenAP\Networking\Hotspot\HotspotService;
+use OpenAP\Networking\Hotspot\WiFiManager;
+use OpenAP\Networking\Hotspot\DhcpcdManager;
+use OpenAP\Messages\StatusMessage;
+use OpenAP\System\Sysinfo;
 
 $wifi = new WiFiManager();
 $wifi->getWifiInterface();
@@ -33,16 +33,23 @@ function DisplayHostAPDConfig()
     $countryCodes = getCountryCodes($languageCode);
     $ifaces = $hotspot->getInterfaces();
     $interfaces = [];
-    foreach ($ifaces as $iface) {
-        $ifaceServices = [];
-        if ($iface === $_SESSION['ap_interface']) {
-            $ifaceServices[] = 'AP';
+    if (defined('OPENAP_REPEATER_CONTAINER') && OPENAP_REPEATER_CONTAINER) {
+        $ifaces = [OPENAP_WIFI_AP_INTERFACE];
+        $_SESSION['ap_interface'] = OPENAP_WIFI_AP_INTERFACE;
+        $_SESSION['wifi_client_interface'] = OPENAP_WIFI_CLIENT_INTERFACE;
+        $interfaces[OPENAP_WIFI_AP_INTERFACE] = OPENAP_WIFI_AP_INTERFACE . ' (AP)';
+    } else {
+        foreach ($ifaces as $iface) {
+            $ifaceServices = [];
+            if ($iface === $_SESSION['ap_interface']) {
+                $ifaceServices[] = 'AP';
+            }
+            if ($iface === $_SESSION['wifi_client_interface']) {
+                $ifaceServices[] = 'Client';
+            }
+            $label = !empty($ifaceServices) ? $iface . ' (' . implode(', ', $ifaceServices) . ')' : $iface;
+            $interfaces[$iface] = $label;
         }
-        if ($iface === $_SESSION['wifi_client_interface']) {
-            $ifaceServices[] = 'Client';
-        }
-        $label = !empty($ifaceServices) ? $iface . ' (' . implode(', ', $ifaceServices) . ')' : $iface;
-        $interfaces[$iface] = $label;
     }
     $arrTxPower = getDefaultNetOpts('txpower','dbm');
     $managedModeEnabled = false;
@@ -60,24 +67,19 @@ function DisplayHostAPDConfig()
 
     $txpower = $hotspot->getTxPower($interface);
     $arrHostapdConf = $hotspot->getHostapdIni();
+    $arrHostapdConf += [
+        'BridgedEnable' => 0,
+        'WifiAPEnable' => 0,
+        'RepeaterEnable' => defined('OPENAP_REPEATER_CONTAINER') && OPENAP_REPEATER_CONTAINER ? 1 : 0,
+        'LogEnable' => 0,
+        'WifiInterface' => $interface,
+    ];
     $logOutput = [];
 
-    if (!RASPI_MONITOR_ENABLED) {
+    if (!OPENAP_MONITOR_ENABLED) {
         if (isset($_POST['StartHotspot']) || isset($_POST['RestartHotspot'])) {
             $status->addMessage('Attempting to start hotspot', 'info');
-            if ($arrHostapdConf['BridgedEnable'] == 1) {
-                exec('sudo '.RASPI_CONFIG.'/hostapd/servicestart.sh --interface br0 --seconds 1', $return);
-            } elseif ($arrHostapdConf['WifiAPEnable'] == 1) {
-                exec('sudo '.RASPI_CONFIG.'/hostapd/servicestart.sh --interface uap0 --seconds 1', $return);
-            } else {
-                // systemctl expects a unit name like raspap-network-activity@wlan0.service
-                $iface_nonescaped = $interface;
-                if (preg_match('/^[a-zA-Z0-9_-]+$/', $iface_nonescaped)) { // validate interface name
-                    exec('sudo '.RASPI_CONFIG.'/hostapd/servicestart.sh --interface ' .$iface_nonescaped. ' --seconds 1', $return);
-                } else {
-                    throw new \Exception('Invalid network interface');
-                }
-            }
+            exec('sudo /bin/systemctl restart hostapd.service', $return);
             foreach ($return as $line) {
                 $status->addMessage($line, 'info');
             }
@@ -94,30 +96,43 @@ function DisplayHostAPDConfig()
 
             // reload hostapi.ini
             $arrHostapdConf = $hotspot->getHostapdIni();
+            $arrHostapdConf += [
+                'BridgedEnable' => 0,
+                'WifiAPEnable' => 0,
+                'RepeaterEnable' => defined('OPENAP_REPEATER_CONTAINER') && OPENAP_REPEATER_CONTAINER ? 1 : 0,
+                'LogEnable' => 0,
+                'WifiInterface' => $interface,
+            ];
 
         } elseif (isset($_POST['StopHotspot'])) {
             $status->addMessage('Attempting to stop hotspot', 'info');
             exec('sudo /bin/systemctl stop hostapd.service', $return);
-            exec('sudo systemctl stop "raspap-network-activity@*.service"');
             foreach ($return as $line) {
                 $status->addMessage($line, 'info');
             }
         }
     }
     if (isset($_SESSION['wifi_client_interface'])) {
-        exec('iwgetid '.escapeshellarg($_SESSION['wifi_client_interface']). ' -r', $wifiNetworkID);
+        exec(
+            'iw dev '.escapeshellarg($_SESSION['wifi_client_interface']).
+            ' link 2>/dev/null | sed -n "s/^[[:space:]]*SSID: //p"',
+            $wifiNetworkID
+        );
         if (!empty($wifiNetworkID[0])) {
             $managedModeEnabled = true;
         }
     }
 
     // process txpower user input 
-    if (isset($_POST['txpower'])) {
+    if (isset($_POST['txpower']) && (!isset($_POST['SaveHostAPDSettings']) || ($result ?? false) === true)) {
+        $requestedChannel = isset($_POST['channel']) && ctype_digit((string) $_POST['channel'])
+            ? (int) $_POST['channel']
+            : null;
         if ($_POST['txpower'] != 'auto') {
             $txpower = intval($_POST['txpower']);
-            $hotspot->maybeSetTxPower($interface, $txpower, $status);
+            $hotspot->maybeSetTxPower($interface, $txpower, $status, $requestedChannel);
         } elseif ($_POST['txpower'] == 'auto') {
-            $hotspot->maybeSetTxPower($interface, 'auto', $status);
+            $hotspot->maybeSetTxPower($interface, 'auto', $status, $requestedChannel);
         }
         $txpower = $_POST['txpower'];
     }
@@ -128,6 +143,7 @@ function DisplayHostAPDConfig()
     } catch (\RuntimeException $e) {
         error_log('Error: ' . $e->getMessage());
     }
+    $arrConfig['country_code'] ??= $reg_domain;
 
     // bridge configuration
     if (!empty($arrHostapdConf['BridgedEnable']) && (int)$arrHostapdConf['BridgedEnable'] === 1) {
@@ -189,4 +205,3 @@ function DisplayHostAPDConfig()
         )
     );
 }
-

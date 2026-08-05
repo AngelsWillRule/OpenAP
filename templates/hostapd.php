@@ -1,5 +1,5 @@
 <?php ob_start() ?>
-  <?php if (!RASPI_MONITOR_ENABLED) : ?>
+  <?php if (!OPENAP_MONITOR_ENABLED) : ?>
     <input type="submit" class="btn btn-outline-primary" id="btnSaveHostapd" name="SaveHostAPDSettings" value="<?php echo _("Save settings"); ?>" />
   <?php endif ?>
 <?php $buttons = ob_get_clean(); ob_end_clean() ?>
@@ -15,9 +15,9 @@
           </div>
           <div>
             <form method="POST" action="hostapd_conf">
-              <?php echo \RaspAP\Tokens\CSRF::hiddenField(); ?>
+              <?php echo \OpenAP\Tokens\CSRF::hiddenField(); ?>
               <div class="btn-group" role="group">
-                <?php if (!RASPI_MONITOR_ENABLED) : ?>
+                <?php if (!OPENAP_MONITOR_ENABLED) : ?>
                   <?php if ($hostapdstatus[0] == 0) : ?>
                     <button type="submit" class="btn btn-sm btn-light" title="<?php echo  _("Start hotspot"); $msg=_("Starting hotspot"); ?>" name="StartHotspot" data-bs-toggle="modal" data-bs-target="#hostapdModal">
                       <i class="fas fa-play"></i>
@@ -44,7 +44,7 @@
       <div class="card-body">
         <?php $status->showMessages(); ?>
         <form role="form" action="hostapd_conf" method="POST" class="needs-validation" novalidate>
-          <?php echo \RaspAP\Tokens\CSRF::hiddenField(); ?>
+          <?php echo \OpenAP\Tokens\CSRF::hiddenField(); ?>
 
           <!-- Nav tabs -->
           <div class="nav-tabs-wrapper">
@@ -84,7 +84,7 @@
         <div class="modal-title" id="ModalLabel"><i class="fas fa-sync-alt fa-spin me-2"></i><?php echo $msg ?></div>
       </div>
       <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1"><?php echo _("Executing RaspAP service start") ?>...</div>
+        <div class="col-md-12 mb-3 mt-1"><?php echo _("Executing OpenAP service start") ?>...</div>
         <div class="progress" style="height: 20px;">
           <div class="progress-bar bg-info" role="progressbar" id="progressBar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="9"></div>
         </div>

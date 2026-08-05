@@ -1,6 +1,6 @@
 <?php
 
-namespace RaspAP\Tokens;
+namespace OpenAP\Tokens;
 
 class CSRF
 {
@@ -61,10 +61,9 @@ class CSRF
     }
 }
 
-if (\RaspAP\Tokens\CSRF::validateRequest()) {
-    if (!\RaspAP\Tokens\CSRF::verify()) {
+if (\OpenAP\Tokens\CSRF::validateRequest()) {
+    if (!\OpenAP\Tokens\CSRF::verify()) {
         error_log("CSRF verification failed: Token missing or invalid");
-        \RaspAP\Tokens\CSRF::handleInvalidToken();
+        \OpenAP\Tokens\CSRF::handleInvalidToken();
     }
 }
-

@@ -1,7 +1,12 @@
 import { getCSRFToken } from "../helpers.js";
 
 export function showSessionExpiredModal() {
-    $('#sessionTimeoutModal').modal('show');
+    const returnUrl = window.location.pathname + window.location.search + window.location.hash;
+    const params = new URLSearchParams({
+        action: returnUrl,
+        reason: 'session_expired'
+    });
+    window.location.replace(`/login?${params.toString()}`);
 }
 
 export function initSession_ajax() {

@@ -143,7 +143,7 @@
       <div class="mb-3 col-md-6">
       <label for="cbxcountries"><?php echo _("Country Code"); ?></label>
       <input type="hidden" id="selected_country" value="<?php echo htmlspecialchars($arrConfig['country_code'], ENT_QUOTES); ?>">
-      <?php SelectorOptions('country_code', $countryCodes, $arrConfig['country_code'], 'cbxcountries', 'loadChannelSelect'); ?>
+      <?php SelectorOptions('country_code', $countryCodes, $arrConfig['country_code'], 'cbxcountries', 'getChannel'); ?>
       <script type="text/javascript">
       var country = document.getElementById("selected_country").value;
       var countries = document.getElementById("cbxcountries");

@@ -1,44 +1,113 @@
-<!-- about general tab -->
-<div class="tab-pane fade show active" id="aboutgeneral">
-  <div class="row">
-    <div class="col-md-6 mt-3">
-      <div class="card">
-	    <div class="card-body">
-          <div class="ms-5 mt-2"><img class="about-logo" src="app/img/raspAP-logo.php" style="width: 175px; height:175px"></div>
-          <h2 class="mt-3 ms-4"><?php echo _("RaspAP") ." v".RASPI_VERSION; ?></h2>
-          <?php if (!RASPI_MONITOR_ENABLED) : ?>
-          <button type="button" class="btn btn-warning ms-4 mt-2" name="check-update" data-bs-toggle="modal" data-bs-target="#chkupdateModal" />
-            <i class="fa-solid fa-cloud-arrow-down ms-1 me-2"></i><?php echo _("Check for update"); ?>
-          </button>
+<div class="row g-3 mb-3">
+  <div class="col-xl-9 col-lg-8">
+    <div class="openap-section-heading openap-about-heading">
+      <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-info-circle"></i></span>
+      <div><strong><?php echo _("About OpenAP"); ?></strong><small><?php echo _("Project identity and attribution"); ?></small></div>
+    </div>
+
+    <div class="card shadow openap-about-shell">
+      <div class="openap-about-hero">
+        <div class="openap-about-logo-wrap">
+          <img class="openap-about-logo" src="app/img/openap-sidebar-logo.png" alt="<?php echo _("OpenAP"); ?>">
+        </div>
+        <div class="openap-about-intro">
+          <div class="openap-about-kicker"><?php echo _("Open wireless access point"); ?></div>
+          <h1><?php echo _("OpenAP"); ?></h1>
+          <div class="openap-about-version">v<?php echo htmlspecialchars(OPENAP_VERSION, ENT_QUOTES); ?></div>
+          <p><?php echo _("A responsive control panel for access points, Ethernet uplinks and WiFi repeater deployments."); ?></p>
+          <?php if (defined('OPENAP_UPDATE_ENABLED') && OPENAP_UPDATE_ENABLED && !OPENAP_MONITOR_ENABLED) : ?>
+            <button type="button" class="btn-ss primary openap-about-update" name="check-update" data-bs-toggle="modal" data-bs-target="#chkupdateModal">
+              <i class="fa-solid fa-cloud-arrow-down"></i><?php echo _("Check for update"); ?>
+            </button>
           <?php endif; ?>
         </div>
       </div>
-     </div>
-     <div class="col-md-8">
-      <div class="mt-3">
-        <?php echo sprintf(
-        _('RaspAP is a co-creation of %1$s and %2$s with the contributions of our %3$s and %4$s. Learn more about joining the project as a %5$s, %6$s or %7$s with immediate access to %8$s available to %9$s.'),
-        '<a href="https://github.com/billz">billz</a>',
-        '<a href="https://github.com/sirlagz">SirLagz</a>',
-        '<a href="https://github.com/raspap/raspap-webgui/graphs/contributors">' . _('developer community') . '</a>',
-        '<a href="https://crowdin.com/project/raspap">' . _('language translators') . '</a>',
-        '<a href="https://docs.raspap.com/#get-involved">' . _('code contributor') . '</a>',
-        '<a href="https://docs.raspap.com/translations/">' . _('translator') . '</a>',
-        '<a href="https://github.com/sponsors/RaspAP">' . _('financial sponsor') . '</a>',
-        '<a href="https://docs.raspap.com/insiders/#whats-in-it-for-me">' . _('exclusive features') . '</a>',
-        '<strong>' . _('Insiders') . '</strong>'
-        ); ?>
-      </div>
-      <div class="mt-3 project-links">
-        <div class="row">
-          <div class="col-6">GitHub <i class="fa-brands fa-github"></i> <a href="https://github.com/RaspAP/" target="_blank" rel="noopener">RaspAP</a></div>
-          <div class="col-6">X <i class="fa-brands fa-square-x-twitter"></i> <a href="https://x.com/rasp_ap" target="_blank" rel="noopener">@RaspAP</a></div>
-          <div class="col-6">Reddit <i class="fa-brands fa-reddit"></i> <a href="https://www.reddit.com/r/RaspAP/" target="_blank" rel="noopener">/r/RaspAP</a></div>
-          <div class="col-6">Discord <i class="fa-brands fa-discord"></i> <a href="https://discord.gg/KVAsaAR" target="_blank" rel="noopener">RaspAP</a></div>
-          <div class="col-6">Docs <i class="fas fa-book-reader"></i> <a href="https://docs.raspap.com/" target="_blank" rel="noopener">docs.raspap.com</a></div>
-          <div class="col-6">License <i class="fas fa-balance-scale"></i> <a href="https://github.com/raspap/raspap-webgui/blob/master/LICENSE" target="_blank" rel="noopener">GPL-3.0</a></div>
+
+      <section class="openap-about-section">
+        <div class="openap-about-section-heading">
+          <span><i class="fas fa-broadcast-tower"></i></span>
+          <div><strong><?php echo _("About the project"); ?></strong><small><?php echo _("OpenAP profile and purpose"); ?></small></div>
         </div>
+        <div class="openap-about-copy">
+          <p><?php echo _("OpenAP is adapted for existing hostapd installations and for systems where network interfaces must be discovered by capability and hardware identity rather than fixed Linux names."); ?></p>
+          <p><?php echo _("The current project supports a dedicated WiFi access point over Ethernet and a validated two-radio WiFi repeater workflow, while preserving a clear separation between the web interface and privileged network helpers."); ?></p>
+        </div>
+      </section>
+
+      <section class="openap-about-section">
+        <div class="openap-about-section-heading">
+          <span><i class="fas fa-code-branch"></i></span>
+          <div><strong><?php echo _("Upstream project and attribution"); ?></strong><small><?php echo _("Open source foundations"); ?></small></div>
+        </div>
+        <div class="openap-about-copy">
+          <p><?php echo sprintf(
+              _('OpenAP is a fork based on RaspAP, a co-creation of %1$s and %2$s with contributions from the %3$s and %4$s.'),
+              '<a href="https://github.com/billz" target="_blank" rel="noopener">billz</a>',
+              '<a href="https://github.com/sirlagz" target="_blank" rel="noopener">SirLagz</a>',
+              '<a href="https://github.com/raspap/raspap-webgui/graphs/contributors" target="_blank" rel="noopener">' . _('developer community') . '</a>',
+              '<a href="https://crowdin.com/project/raspap" target="_blank" rel="noopener">' . _('language translators') . '</a>'
+          ); ?></p>
+          <div class="openap-about-attribution-note">
+            <i class="fas fa-balance-scale"></i>
+            <span><?php echo _("RaspAP attribution and the GPL-3.0 license are retained as part of the OpenAP source and distribution."); ?></span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <aside class="col-xl-3 col-lg-4">
+    <div class="row g-3 openap-about-side-widgets">
+      <div class="col-12">
+        <?php require dirname(__DIR__) . '/openap_service_status.php'; ?>
+      </div>
+      <div class="col-12">
+        <section class="stat-card border-top-green openap-about-side-card">
+          <div class="stat-top openap-widget-body">
+            <div class="openap-widget-heading">
+              <div><div class="openap-widget-title"><?php echo _("OpenAP release"); ?></div><div class="openap-widget-caption"><?php echo _("Installed web interface"); ?></div></div>
+              <div class="openap-widget-icon openap-widget-icon-green"><i class="fas fa-code-branch"></i></div>
+            </div>
+            <div class="openap-about-release">
+              <span><?php echo _("Version"); ?></span>
+              <strong><?php echo htmlspecialchars(OPENAP_VERSION, ENT_QUOTES); ?></strong>
+              <small><i class="fas fa-circle-check"></i> <?php echo _("Installed"); ?></small>
+            </div>
+          </div>
+          <div class="stat-bottom"><span><?php echo _("Project"); ?></span><strong>OpenAP</strong></div>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section class="stat-card border-top-blue openap-about-side-card">
+          <div class="stat-top openap-widget-body">
+            <div class="openap-widget-heading">
+              <div><div class="openap-widget-title"><?php echo _("OpenAP links"); ?></div><div class="openap-widget-caption"><?php echo _("Official project resources"); ?></div></div>
+              <div class="openap-widget-icon openap-widget-icon-blue"><i class="fas fa-external-link-alt"></i></div>
+            </div>
+            <div class="openap-about-links">
+              <a href="https://github.com/AngelsWillRule/OpenAP" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i><span>GitHub</span><i class="fas fa-chevron-right"></i></a>
+              <a href="https://angelswillrule.github.io/OpenAP/" target="_blank" rel="noopener"><i class="fas fa-book-reader"></i><span><?php echo _("Documentation"); ?></span><i class="fas fa-chevron-right"></i></a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section class="stat-card border-top-green openap-about-side-card">
+          <div class="stat-top openap-widget-body">
+            <div class="openap-widget-heading">
+              <div><div class="openap-widget-title"><?php echo _("License"); ?></div><div class="openap-widget-caption"><?php echo _("Free and open source"); ?></div></div>
+              <div class="openap-widget-icon openap-widget-icon-green"><i class="fas fa-balance-scale"></i></div>
+            </div>
+            <div class="openap-about-license">
+              <strong>GPL-3.0</strong>
+              <p><?php echo _("You may use, study, modify and redistribute the software under its license terms."); ?></p>
+              <a href="https://github.com/raspap/raspap-webgui/blob/master/LICENSE" target="_blank" rel="noopener"><?php echo _("Read license"); ?> <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
-  </div><!-- /.row -->
-</div><!-- /.tab-pane | general tab -->
+  </aside>
+</div>

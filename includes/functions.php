@@ -66,7 +66,7 @@ function cidr2mask($cidr)
 
 /**
  * Returns a default (fallback) value for the selected service, interface & setting
- * from /etc/raspap/networking/defaults.json
+ * from /etc/openap/networking/defaults.json
  *
  * @param string $svc
  * @param string $iface
@@ -74,7 +74,7 @@ function cidr2mask($cidr)
  */
 function getDefaultNetValue($svc,$iface,$key)
 {
-    $json = json_decode(file_get_contents(RASPI_CONFIG_NETWORK), true);
+    $json = json_decode(file_get_contents(OPENAP_CONFIG_NETWORK), true);
     if ($json === null) {
         return false;
     } else {
@@ -91,7 +91,7 @@ function getDefaultNetValue($svc,$iface,$key)
  */
 function getDefaultNetOpts($svc,$key)
 {
-    $json = json_decode(file_get_contents(RASPI_CONFIG_NETWORK), true);
+    $json = json_decode(file_get_contents(OPENAP_CONFIG_NETWORK), true);
     if ($json === null) {
         return false;
     } else {
@@ -108,7 +108,7 @@ function getDefaultNetOpts($svc,$key)
  */
 function getProviderValue($id, $key)
 {
-    $obj = json_decode(file_get_contents(RASPI_CONFIG_PROVIDERS), true);
+    $obj = json_decode(file_get_contents(OPENAP_CONFIG_PROVIDERS), true);
     if (!isset($obj['providers']) || !is_array($obj['providers'])) {
         return false;
     }
@@ -429,7 +429,7 @@ function renderTemplate($name, $__template_data = [], $pluginName = null)
 
 function expandCacheKey($key)
 {
-    return RASPI_CACHE_PATH . "/" . $key;
+    return OPENAP_CACHE_PATH . "/" . $key;
 }
 
 function hasCache($key)
@@ -449,8 +449,8 @@ function readCache($key)
 
 function writeCache($key, $data)
 {
-    if (!file_exists(RASPI_CACHE_PATH)) {
-        mkdir(RASPI_CACHE_PATH, 0777, true);
+    if (!file_exists(OPENAP_CACHE_PATH)) {
+        mkdir(OPENAP_CACHE_PATH, 0777, true);
         $cacheKey = expandCacheKey($key);
         file_put_contents($cacheKey, $data);
     }
@@ -532,7 +532,7 @@ function optionsForSelect($options)
 
 function blocklistUpdated($file)
 {
-    $blocklist = RASPI_CONFIG.'/adblock/'.$file;
+    $blocklist = OPENAP_CONFIG.'/adblock/'.$file;
     if (file_exists($blocklist)) {
         $lastModified = date ("F d Y H:i:s.", filemtime($blocklist));
         $lastModified = formatDateAgo($lastModified);
@@ -580,13 +580,13 @@ function initializeApp()
 
 function getThemeOpt()
 {
-    if (!isset($_COOKIE['theme']) || !RASPI_THEMES[$_COOKIE['theme']]) {
+    if (!isset($_COOKIE['theme']) || !OPENAP_THEMES[$_COOKIE['theme']]) {
         $theme = "default";
         setcookie('theme', $theme);
     } else {
         $theme = $_COOKIE['theme'];
     }
-    return RASPI_THEMES[$theme];
+    return OPENAP_THEMES[$theme];
 }
 
 function getColorOpt()
@@ -617,7 +617,7 @@ function getColorOpt()
 function getBridgedState()
 {
 
-	$hostapdIni = RASPI_CONFIG . '/hostapd.ini';
+	$hostapdIni = OPENAP_CONFIG . '/hostapd.ini';
 	if (!file_exists($hostapdIni)) {
 		return 0;
 	} else {
@@ -629,8 +629,8 @@ function getBridgedState()
 // Returns VPN provider ID, if defined
 function getProviderID()
 {
-    if (RASPI_VPN_PROVIDER_ENABLED) {
-        $arrProvider = parse_ini_file(RASPI_CONFIG.'/provider.ini');
+    if (OPENAP_VPN_PROVIDER_ENABLED) {
+        $arrProvider = parse_ini_file(OPENAP_CONFIG.'/provider.ini');
         if (isset($arrProvider['providerID'])) {
             return $arrProvider['providerID'];
         }
@@ -806,6 +806,7 @@ function validateInterface($interface)
 */
 function getCountryCodes($locale = 'en', $flag = true) {
     define("FLAG_SUPPORT", "3.3.0");
+    $opt = '';
     $output = [];
     $version = shell_exec("isoquery --version | grep -oP '(?<=isoquery )\d+\.\d+\.\d+'");
     $compat = checkReleaseVersion(FLAG_SUPPORT, $version);
@@ -865,7 +866,7 @@ function checkReleaseVersion($installed, $latest) {
  * @return string $log_limited
  */
 function getLogLimited($file_path, $file_data = null) {
-    $limit_in_kb = isset($_SESSION['log_limit']) ? $_SESSION['log_limit'] : RASPI_LOG_SIZE_LIMIT;
+    $limit_in_kb = isset($_SESSION['log_limit']) ? $_SESSION['log_limit'] : OPENAP_LOG_SIZE_LIMIT;
     $limit = $limit_in_kb * 1024; // convert KB to bytes
 
     if ($file_data === null) {
@@ -917,30 +918,6 @@ function lightenColor($color, $percent)
 
     return sprintf("#%02x%02x%02x", $r, $g, $b);
 }
-
-function renderStatus($hostapd_led, $hostapd_status, $memused_led, $memused, $cputemp_led, $cputemp)
-{
-    ?>
-    <div class="row g-0">
-      <div class="col-4 ms-2 sidebar-brand-icon">
-        <img src="app/img/raspAP-logo.php?static=1" class="navbar-logo" width="70" height="70">
-      </div>
-      <div class="col ml-2">
-        <div class="ml-1 sb-status"><?php echo _("Status"); ?></div>
-        <div class="info-item-xs"><span class="icon">
-          <i class="fas fa-circle hostapd-led <?php echo ($hostapd_led); ?>"></i></span> <?php echo _("Hotspot").' '. _($hostapd_status); ?>
-        </div>
-        <div class="info-item-xs"><span class="icon">
-          <i class="fas fa-circle <?php echo ($memused_led); ?>"></i></span> <?php echo _("Mem Use").': '. htmlspecialchars(strval($memused), ENT_QUOTES); ?>%
-        </div>
-        <div class="info-item-xs"><span class="icon">
-          <i class="fas fa-circle <?php echo ($cputemp_led); ?>"></i></span> <?php echo _("CPU").': '. htmlspecialchars($cputemp, ENT_QUOTES); ?>°C
-        </div>
-      </div>
-    </div>
-    <?php
-}
-
 
 /**
  * Executes a callback with a timeout

@@ -35,7 +35,7 @@ function _getRaspapConfig() {
 # Username and password for mobile data devices is stored in a file (RASPAP_MOBILEDATA_CONFIG)  
 function _getAuthRouter() {
     local mfile mdata pin user pw
-    if ! _getRaspapConfig "RASPI_MOBILEDATA_CONFIG"; then return 1; fi
+    if ! _getRaspapConfig "OPENAP_MOBILEDATA_CONFIG"; then return 1; fi
     mfile="$raspap_config" 
     if [ -f $mfile ]; then      
         mdata=$(cat "$mfile")

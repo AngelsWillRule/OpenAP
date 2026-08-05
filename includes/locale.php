@@ -2,10 +2,10 @@
 /**
  * Sets locale information for i18n support, with validation
  *
- * @see RaspAP\Localization\LocaleManager
+ * @see OpenAP\Localization\LocaleManager
  */
 
-use RaspAP\Localization\LocaleManager;
+use OpenAP\Localization\LocaleManager;
 
 // Initialize locale manager
 $localeManager = new LocaleManager();
@@ -38,4 +38,3 @@ function detectBrowserLocale(): string
     }
     return $localeManager->detectBrowserLocale();
 }
-

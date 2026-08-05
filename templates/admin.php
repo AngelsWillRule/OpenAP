@@ -1,5 +1,5 @@
 <?php ob_start() ?>
-  <?php if (!RASPI_MONITOR_ENABLED) : ?>
+  <?php if (!OPENAP_MONITOR_ENABLED) : ?>
     <input type="submit" class="btn btn-outline-primary" name="UpdateAdminPassword" value="<?php echo _("Save settings"); ?>" />
     <input type="submit" class="btn btn-warning" name="logout" value="<?php echo _("Logout") ?>" onclick="disableValidation(this.form)"/>
   <?php endif ?>
@@ -19,7 +19,7 @@
         <?php $status->showMessages(); ?>
         <h4><?php echo _("Authentication settings") ;?></h4>
         <form role="form" action="auth_conf" method="POST" class="needs-validation" novalidate>
-            <?php echo \RaspAP\Tokens\CSRF::hiddenField(); ?>
+            <?php echo \OpenAP\Tokens\CSRF::hiddenField(); ?>
           <div class="row">
             <div class="mb-3 col-md-6">
               <label for="username"><?php echo _("Username"); ?></label>

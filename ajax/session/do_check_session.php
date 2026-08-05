@@ -7,7 +7,7 @@ require_once '../../includes/authenticate.php';
 
 $lastActivity = $_SESSION['lastActivity'] ?? time();
 $sessionLifetime = time() - $lastActivity;
-$status = $sessionLifetime >= RASPI_SESSION_TIMEOUT ? 'session_expired' : 'active';
+$status = $sessionLifetime >= OPENAP_SESSION_TIMEOUT ? 'session_expired' : 'active';
 
 if ($status === 'session_expired') {
     session_unset(); // unset all session variables
@@ -28,4 +28,3 @@ $response = [
 
 echo json_encode($response);
 exit();
-
