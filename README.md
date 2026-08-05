@@ -5,10 +5,10 @@ Debian-based systems. It provides one focused interface for hotspot, DHCP/DNS,
 uplink, firewall and system status while keeping privileged network changes in
 explicit root-owned helpers.
 
-> OpenAP `0.2.0` is in pre-release preparation. Do not treat the current
-> publication branch as a supported release or install it on a production
-> router. Release downloads and checksum-linked installation instructions will
-> appear here only after the clean validation matrix passes.
+> OpenAP `0.2.0` is in pre-release validation. The current `main` branch is a
+> release candidate, not a supported production release. Versioned downloads
+> and checksum-linked installation instructions will appear after the exact
+> release candidate passes the clean validation matrix.
 
 ## What OpenAP does
 
@@ -85,8 +85,11 @@ Interactive installation from a verified release archive:
 sudo openap-installer/bin/openap-install --apply
 ```
 
-Do not use unattended `--yes` installation for a public deployment until the
-pre-release static credential behavior has been replaced and revalidated.
+Headless unattended installations must provide unique passwords through
+`OPENAP_HOTSPOT_PASSWORD` and `OPENAP_ADMIN_PASSWORD`. With an attached
+terminal, `--yes` generates unique passwords and displays them once at the end.
+Review the complete [installation guidance](docs/INSTALLATION.md) before
+deployment.
 
 ## Security model
 
@@ -106,8 +109,8 @@ Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 - installation, reinstall and mode switching still require the complete
   release-candidate validation matrix;
-- unattended installation currently has insecure static defaults and must not
-  be used for public deployments;
+- headless unattended installation requires explicit hotspot and administrator
+  passwords in the installer environment;
 - WPA3-only Wi-Fi uplinks are not supported;
 - automatic configuration rollback is planned but not yet implemented;
 - Raspberry Pi 4/5 compatibility has not yet been physically validated;
@@ -135,9 +138,9 @@ license audit.
 
 ## Contributing
 
-OpenAP is not yet accepting production support requests. Code, documentation
-and hardware-validation contributions will be welcome after the initial
-private audit. See [CONTRIBUTING.md](CONTRIBUTING.md) for the intended workflow.
+OpenAP does not yet offer production support guarantees. Code, documentation
+and hardware-validation contributions are welcome through the workflow in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

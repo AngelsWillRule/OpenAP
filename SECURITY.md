@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-OpenAP has not published its first supported release. The `0.2.0` publication
-branch is pre-release software and does not yet receive a formal security
+OpenAP has not published its first supported release. The current `main` branch
+contains pre-release software and does not yet receive a formal security
 support guarantee.
 
 After the first release, this file will identify supported versions and the
