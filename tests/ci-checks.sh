@@ -38,6 +38,22 @@ while IFS= read -r -d '' source_file; do
     php -l "$source_file" >/dev/null
 done < <(find . -path ./.git -prune -o -type f -name '*.php' -print0)
 
+section "Installed version metadata"
+version_value="$(tr -d '\r\n' < VERSION)"
+[[ "$version_value" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$ ]]
+php -r '
+require "includes/openap_version.php";
+$path = tempnam(sys_get_temp_dir(), "openap-version-");
+file_put_contents($path, "version=0.2.0\nrevision=9b264faf\n");
+if (openapInstalledVersion($path) !== "0.2.0 (9b264faf)") exit(1);
+file_put_contents($path, "version=0.2.0\n");
+if (openapInstalledVersion($path) !== "0.2.0") exit(1);
+file_put_contents($path, "version=<invalid>\n");
+if (openapInstalledVersion($path) !== "Not available") exit(1);
+unlink($path);
+if (openapInstalledVersion($path) !== "Not available") exit(1);
+'
+
 section "Shell syntax"
 while IFS= read -r -d '' source_file; do
     bash -n "$source_file"
@@ -73,5 +89,6 @@ done < <(find locale -type f -name '*.po' -print0)
 section "Installer dry run"
 openap-installer/bin/openap-install --yes >"$dry_run_log"
 grep -Fq 'No changes were made.' "$dry_run_log"
+grep -Fq 'DRY-RUN: write OpenAP version metadata to /etc/openap/release' "$dry_run_log"
 
 printf '\nAll CI checks passed.\n'
