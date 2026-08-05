@@ -25,6 +25,17 @@ detection and accurate platform support claims.
    runtime validation.
 7. Open a pull request describing behavior, risks, verification and rollback.
 
+Run the same validation suite used by GitHub Actions before opening a pull
+request:
+
+```bash
+tests/ci-checks.sh
+```
+
+It requires Bash, Git, gettext, Node.js, PHP CLI and Python 3. The suite checks
+source syntax, translation catalogs, repository hygiene and the installer dry
+run without changing the host.
+
 ## Networking changes
 
 Changes to addressing, DHCP, DNS, hostapd, routes or firewall rules must be
