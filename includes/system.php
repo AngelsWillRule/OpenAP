@@ -1,6 +1,7 @@
 <?php
 
 require_once 'includes/functions.php';
+require_once 'includes/openap_version.php';
 require_once 'config.php';
 
 /**
@@ -35,7 +36,7 @@ function DisplaySystem(&$extraFooterScripts)
         'uplink_wifi' => 'Uplink WiFi'
     ][$openapMode] ?? $openapMode;
     $managementIp = openapCommandValue("hostname -I | awk '{print $1}'");
-    $gitRevision = is_dir('/var/www/html/.git') ? openapCommandValue('git -C /var/www/html rev-parse --short HEAD 2>/dev/null', 'Not available') : 'Not available';
+    $openapUiVersion = openapInstalledVersion();
 
     // memory use
     $memused  = $system->usedMemory();
@@ -83,7 +84,7 @@ function DisplaySystem(&$extraFooterScripts)
     }
 
     $software = [
-        ['name' => 'OpenAP UI', 'version' => $gitRevision],
+        ['name' => 'OpenAP UI', 'version' => $openapUiVersion],
         ['name' => 'PHP', 'version' => PHP_VERSION],
         ['name' => 'lighttpd', 'version' => openapSoftwareVersion('lighttpd -v 2>&1', '/lighttpd\/([\w.\-]+)/')],
         ['name' => 'hostapd', 'version' => openapSoftwareVersion('hostapd -v 2>&1', '/hostapd v?([\w.\-]+)/i')],

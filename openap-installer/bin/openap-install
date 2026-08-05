@@ -18,6 +18,8 @@ wireless_country=""
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 detector="$repo_dir/openap-installer/bin/openap-detect"
 webroot_excludes="$repo_dir/openap-installer/config/webroot-excludes.txt"
+version_file="$repo_dir/VERSION"
+release_file="/etc/openap/release"
 sudoers_name="090_openap_universal"
 admin_user="admin"
 admin_password="${OPENAP_ADMIN_PASSWORD:-}"
@@ -1054,6 +1056,7 @@ fi
 
 for file in \
   "$detector" \
+  "$version_file" \
   "$repo_dir/openap-installer/config/50-openap-router.conf" \
   "$repo_dir/openap-installer/config/20-openap-wait-ap-address.conf" \
   "$webroot_excludes" \
@@ -1083,6 +1086,13 @@ for file in \
   "$repo_dir/installers/openap-bridge-neighbors.timer"; do
   require_file "$file"
 done
+
+openap_version="$(tr -d '\r\n' < "$version_file")"
+if [[ ! "$openap_version" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$ ]]; then
+  echo "ERROR: invalid OpenAP version in $version_file" >&2
+  exit 1
+fi
+openap_revision="$(git -C "$repo_dir" rev-parse --short=8 HEAD 2>/dev/null || true)"
 
 migrate_legacy_config_tree
 
@@ -1246,9 +1256,20 @@ run chown -R www-data:www-data "$webroot"
 echo
 echo "Install runtime directories"
 run mkdir -p /etc/openap/backups /etc/openap/hostapd /etc/openap/networking /etc/openap/system
+if [ "$apply" -eq 1 ]; then
+  {
+    printf 'version=%s\n' "$openap_version"
+    if [ -n "$openap_revision" ]; then
+      printf 'revision=%s\n' "$openap_revision"
+    fi
+  } > "$release_file"
+else
+  echo "DRY-RUN: write OpenAP version metadata to $release_file"
+fi
 run cp "$repo_dir/config/defaults.json" /etc/openap/networking/defaults.json
 run cp "$repo_dir/installers/debuglog.sh" /etc/openap/system/debuglog.sh
 run chown -R www-data:www-data /etc/openap
+run chmod 0644 "$release_file"
 run chown root:root /etc/openap/system/debuglog.sh
 run chmod 0750 /etc/openap/system/debuglog.sh
 
