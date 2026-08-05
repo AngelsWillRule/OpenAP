@@ -27,6 +27,38 @@ installer, the operating system must expose:
 - at least one Wi-Fi interface that supports AP mode;
 - a valid two-letter regulatory country code.
 
+Verify that the expected Ethernet and Wi-Fi interfaces are visible before
+downloading OpenAP:
+
+```bash
+ip -brief link
+iw dev
+```
+
+If `iw` is missing, install the distribution package that provides it before
+continuing. If the intended Wi-Fi interface does not appear, install and verify
+its firmware or driver first; OpenAP cannot do this for you.
+
+## Download the current pre-release from GitHub
+
+On a clean Debian-based system, install Git and clone OpenAP:
+
+```bash
+sudo apt update
+sudo apt install -y git
+git clone https://github.com/AngelsWillRule/OpenAP.git
+cd OpenAP
+```
+
+These commands download the current `main` branch. It is a moving pre-release
+target and must not be treated as a supported or reproducible release. Use it
+only on a test system. Fixed release archives and their SHA-256 checksums will
+replace this procedure when the first release is published.
+
+All commands below must be run from the cloned `OpenAP` directory.
+
+## Detect the host
+
 Use the read-only detector to inspect the host:
 
 ```bash

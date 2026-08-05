@@ -66,6 +66,20 @@ See [Hardware and Wi-Fi prerequisites](docs/HARDWARE.md).
 
 The detector and installer live in `openap-installer/bin`.
 
+To test the current pre-release on a clean supported system, install Git and
+clone the repository:
+
+```bash
+sudo apt update
+sudo apt install -y git
+git clone https://github.com/AngelsWillRule/OpenAP.git
+cd OpenAP
+```
+
+The default `main` branch is a moving pre-release target. Use this procedure
+only on a test system; the first supported release will provide a fixed archive
+and checksum-linked installation instructions.
+
 Read-only detection:
 
 ```bash
@@ -79,11 +93,14 @@ Dry run, which makes no changes:
 openap-installer/bin/openap-install
 ```
 
-Interactive installation from a verified release archive:
+Interactive installation:
 
 ```bash
 sudo openap-installer/bin/openap-install --apply
 ```
+
+See the [complete installation guide](docs/INSTALLATION.md) for prerequisites,
+the dry run and post-installation checks.
 
 Headless unattended installations must provide unique passwords through
 `OPENAP_HOTSPOT_PASSWORD` and `OPENAP_ADMIN_PASSWORD`. With an attached
