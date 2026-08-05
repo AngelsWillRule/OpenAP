@@ -1,40 +1,45 @@
 <?php
-
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
-
-/**
- * Handler for administrative user login
- */
 function DisplayLogin()
 {
-    // initialize auth object
-    $auth = new \RaspAP\Auth\HTTPAuth;
+    $auth = new \OpenAP\Auth\HTTPAuth;
     $status = null;
-    $redirectUrl = null;
-
-    // handle page action
-    if (RASPI_AUTH_ENABLED) {
+    $sessionExpired = ($_GET['reason'] ?? '') === 'session_expired';
+    $redirectUrl = openapNormalizeLoginRedirect($_GET['action'] ?? '/');
+    if (OPENAP_AUTH_ENABLED) {
         if (isset($_POST['login-auth'])) {
-            // authenticate user
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-            $redirectUrl = $_POST['redirect-url'];
-            if ($auth->login($username, $password)) {
+            $username = trim((string) ($_POST['username'] ?? ''));
+            $password = (string) ($_POST['password'] ?? '');
+            $redirectUrl = openapNormalizeLoginRedirect($_POST['redirect-url'] ?? '/');
+            if ($username === '') {
+                $status = "Username is required.";
+            } elseif ($password === '') {
+                $status = "Password is required.";
+            } elseif ($auth->login($username, $password)) {
                 $config = $auth->getAuthConfig();
                 header('Location: ' . $redirectUrl);
                 die();
             } else {
-                $status = "Login failed";
+                $status = "Username or password is incorrect.";
             }
         }
     }
-
-    echo renderTemplate(
-        "login", compact(
-            "status",
-            "redirectUrl"
-        )
-    );
+    echo renderTemplate("login", compact("status", "sessionExpired", "redirectUrl"));
 }
 
+function openapNormalizeLoginRedirect(?string $redirectUrl): string
+{
+    $redirectUrl = $redirectUrl ?: '/';
+    $path = parse_url($redirectUrl, PHP_URL_PATH) ?: '/';
+
+    if ($path === '/auth_conf' || $path === 'auth_conf') {
+        return '/';
+    }
+
+    if (strpos($redirectUrl, '/') !== 0 || strpos($redirectUrl, '//') === 0) {
+        return '/';
+    }
+
+    return $redirectUrl;
+}

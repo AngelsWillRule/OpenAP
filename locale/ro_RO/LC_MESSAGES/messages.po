@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: raspap\n"
-"Report-Msgid-Bugs-To: Bill Zimmerman <billzimmerman@gmail.com>\n"
-"POT-Creation-Date: 2026-06-21 19:23+0000\n"
+"Project-Id-Version: OpenAP 0.2.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/AngelsWillRule/OpenAP/issues\n"
+"POT-Creation-Date: 2026-08-05 15:59+0000\n"
 "PO-Revision-Date: 2026-04-22 02:22\n"
 "Last-Translator: \n"
 "Language-Team: Romanian\n"
@@ -10,3420 +10,2489 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);\n"
-"X-Crowdin-Project: raspap\n"
-"X-Crowdin-Project-ID: 395801\n"
-"X-Crowdin-Language: ro\n"
-"X-Crowdin-File: /master/locale/messages.pot\n"
-"X-Crowdin-File-ID: 12\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && "
+"n%100<20)) ? 1 : 2);\n"
 
-#: ../src/RaspAP/Plugins/PluginInstaller.php:594
-msgid "Installed"
-msgstr "Instalat"
+#: ajax/networking/get_nl80211_band.php:37
+#, php-format
+msgid ""
+"The selected interface (%s) has support for the 2.4 GHz wireless band only."
+msgstr ""
 
-#: ../src/RaspAP/Plugins/PluginInstaller.php:598
-msgid "Details"
-msgstr "Detalii"
+#: ajax/networking/get_nl80211_band.php:40
+#, php-format
+msgid ""
+"The selected interface (%s) has support for the 5 GHz wireless band only."
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:19 ../templates/dashboard.php:8
+#: ajax/networking/get_nl80211_band.php:43
+#, php-format
+msgid ""
+"The selected interface (%s) has support for both the 2.4 and 5 GHz wireless "
+"bands."
+msgstr ""
+
+#: ajax/networking/get_nl80211_band.php:46
+#, php-format
+msgid "The selected interface (%s) does not support wireless mode operation."
+msgstr ""
+
+#: app/lib/signprint.php:20
+msgid "Printable Wi-Fi sign"
+msgstr "Semn Wi-Fi printabil"
+
+#: app/lib/signprint.php:37
+msgid "Wi-Fi Connect"
+msgstr "Conectare Wi-Fi"
+
+#: app/lib/signprint.php:54
+msgid ""
+"To connect with your phone or tablet, scan the QR code above with your "
+"camera app."
+msgstr ""
+"Pentru a vă conecta cu telefonul sau tableta, scanați codul QR de mai sus cu "
+"aplicația dvs. de cameră."
+
+#: app/lib/signprint.php:55
+msgid "For other devices, use the login credentials below."
+msgstr "Pentru alte dispozitive, utilizați datele de autentificare de mai jos."
+
+#: app/lib/signprint.php:65 templates/ap_configuration.php:174
+#: templates/dashboard.php:729 templates/dashboard.php:1068
+msgid "Network"
+msgstr "Rețea"
+
+#: app/lib/signprint.php:67 templates/ap_configuration.php:56
+#: templates/ap_configuration.php:147 templates/ap_configuration.php:175
+#: templates/dashboard.php:357 templates/dashboard.php:834
+#: templates/dashboard.php:1069 templates/hostapd.php:53
+#: templates/wifi_hotspot.php:70
+msgid "Security"
+msgstr "Securitate"
+
+#: app/lib/signprint.php:67 templates/wizard_uplink.php:158
+msgid "Password"
+msgstr "Parolă"
+
+#: app/lib/signprint.php:68 templates/ap_configuration.php:57
+msgid "None (open network)"
+msgstr ""
+
+#: includes/dashboard.php:124
+msgid ""
+"DHCP settings are managed by the upstream router while Ethernet Bridge mode "
+"is active."
+msgstr ""
+
+#: includes/dashboard.php:127
+msgid "System reboot requested. OpenAP will be temporarily unavailable."
+msgstr ""
+
+#: includes/dashboard.php:192 includes/dashboard.php:295
+#, php-format
+msgid "%d WLAN %s"
+msgstr ""
+
+#: includes/dashboard.php:198 includes/dashboard.php:301
+#, php-format
+msgid "%d LAN %s"
+msgstr ""
+
+#: includes/dashboard.php:257 templates/dashboard.php:720
+#: templates/dashboard.php:1170 templates/system.php:18
+#, fuzzy
+msgid "WiFi uplink"
+msgstr "Client WiFi"
+
+#: includes/dashboard.php:257 templates/dashboard.php:42
+#: templates/dashboard.php:720
+#, fuzzy
+msgid "Ethernet uplink"
+msgstr "Ethernet"
+
+#: includes/dashboard.php:264
+msgid ""
+"Repeater mode requires one AP-capable and one managed-capable WiFi interface."
+msgstr ""
+
+#: includes/dashboard.php:265
+#, php-format
+msgid "Repeater mode requires at least 2 WiFi interfaces. Detected: %d."
+msgstr ""
+
+#: includes/dashboard.php:721
+#, fuzzy
+msgid "Invalid Encrypted DNS state."
+msgstr "Începerea intervalului DHCP invalid."
+
+#: includes/dashboard.php:724
+msgid "Unsupported Encrypted DNS provider."
+msgstr ""
+
+#: includes/dashboard.php:734
+msgid "Unable to apply Encrypted DNS settings: "
+msgstr ""
+
+#: includes/dashboard.php:741
+#, fuzzy
+msgid "Encrypted DNS enabled successfully."
+msgstr "Fișier \"%s\" șters cu succes"
+
+#: includes/dashboard.php:742
+msgid "Encrypted DNS disabled; direct public DNS restored."
+msgstr ""
+
+#: includes/dashboard.php:819
+#, fuzzy
+msgid "Invalid service."
+msgstr "Nume de interfață invalid."
+
+#: includes/dashboard.php:826
+msgid "Unable to read this service log."
+msgstr ""
+
+#: includes/dashboard.php:828 templates/logging.php:45
+msgid "No recent log entries."
+msgstr ""
+
+#: includes/footer.php:6
+#, php-format
+msgid ""
+"OpenAP fork based on <a href=\"%s\" target=\"_blank\" rel=\"noopener\">%s</a>"
+msgstr ""
+
+#: includes/footer.php:6
+msgid "RaspAP"
+msgstr "RaspAP"
+
+#: includes/footer.php:9
+msgid "OpenAP documentation"
+msgstr ""
+
+#: includes/navbar.php:65 templates/login.php:418
+msgid "Change light/dark theme"
+msgstr ""
+
+#: includes/navbar.php:67
+msgid "Theme"
+msgstr ""
+
+#: includes/navbar.php:73
+msgid "Admin area"
+msgstr ""
+
+#: includes/navbar.php:88
+msgid "Quick navigation"
+msgstr ""
+
+#: includes/navbar.php:93 src/OpenAP/UI/Sidebar.php:18
 msgid "Dashboard"
 msgstr "Tablou de bord"
 
-#: ../src/RaspAP/UI/Sidebar.php:20 ../includes/functions.php:1003
-#: ../templates/hostapd.php:13
-msgid "Hotspot"
-msgstr "Hotspot"
+#: includes/navbar.php:98
+msgid "AP Config"
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:23 ../templates/dhcp.php:14
-msgid "DHCP Server"
-msgstr "Server DHCP"
+#: includes/navbar.php:103 templates/dashboard.php:325
+msgid "DHCP"
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:26 ../templates/adblock.php:13
-msgid "Ad Blocking"
-msgstr "Blocarea reclamelor"
+#: includes/navbar.php:113
+#, fuzzy
+msgid "Account settings"
+msgstr "Detalii despre cont"
 
-#: ../src/RaspAP/UI/Sidebar.php:29 ../templates/networking.php:8
-#: ../templates/dashboard.php:24 ../templates/dashboard.php:25
-msgid "Networking"
-msgstr "Rețele"
+#: includes/navbar.php:114
+msgid "Manage administrator access"
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:32 ../templates/configure_client.php:7
-msgid "WiFi client"
-msgstr "Client WiFi"
+#: includes/navbar.php:118 templates/ap_configuration.php:133
+#: templates/ap_configuration.php:167 templates/dashboard.php:594
+#: templates/dashboard.php:642 templates/dashboard.php:1061
+#: templates/dashboard.php:1110 templates/dashboard.php:1140
+#: templates/dashboard.php:1162 templates/hostapd.php:93
+#: templates/system.php:269
+msgid "Close"
+msgstr "Închidere"
 
-#: ../src/RaspAP/UI/Sidebar.php:35 ../templates/openvpn.php:13
-msgid "OpenVPN"
-msgstr "OpenVPN"
+#: includes/navbar.php:131
+msgid "Credentials"
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:38 ../templates/wireguard.php:14
-msgid "WireGuard"
-msgstr "WireGuard"
+#: includes/navbar.php:135 templates/admin.php:25
+msgid "Username"
+msgstr "Nume utilizator"
 
-#: ../src/RaspAP/UI/Sidebar.php:44
-msgid "Data usage"
-msgstr "Utilizarea datelor"
+#: includes/navbar.php:137 templates/admin.php:28
+msgid "Please provide a valid username."
+msgstr "Vă rugăm să furnizați un nume de utilizator valid."
 
-#: ../src/RaspAP/UI/Sidebar.php:47 ../templates/restapi.php:14
-msgid "RestAPI"
-msgstr "RestAPI"
+#: includes/navbar.php:141
+#, fuzzy
+msgid "Current password"
+msgstr "Am uitat parola"
 
-#: ../src/RaspAP/UI/Sidebar.php:50 ../templates/system.php:7
-#: ../templates/dashboard.php:44 ../templates/dashboard.php:45
-msgid "System"
-msgstr "Sistemul"
+#: includes/navbar.php:145 templates/admin.php:39
+msgid "Please enter your old password."
+msgstr ""
 
-#: ../src/RaspAP/UI/Sidebar.php:53 ../templates/about.php:12
-msgid "About RaspAP"
-msgstr "Despre RaspAP"
+#: includes/navbar.php:151 templates/admin.php:46
+msgid "New password"
+msgstr ""
 
-#: ../src/RaspAP/UI/Dashboard.php:79 ../src/RaspAP/UI/Dashboard.php:99
+#: includes/navbar.php:155 templates/admin.php:51
+msgid "Please enter a new password."
+msgstr ""
+
+#: includes/navbar.php:159
+#, fuzzy
+msgid "Repeat password"
+msgstr "Am uitat parola"
+
+#: includes/navbar.php:163 includes/navbar.php:217 includes/navbar.php:239
+#: templates/admin.php:63
+msgid "Please re-enter your new password."
+msgstr ""
+
+#: includes/navbar.php:171
+msgid "Active session"
+msgstr ""
+
+#: includes/navbar.php:172
+msgid "End the current administrator session and return to login."
+msgstr ""
+
+#: includes/navbar.php:175 templates/admin.php:4
+msgid "Logout"
+msgstr "Ieșire"
+
+#: includes/navbar.php:181 templates/ap_configuration.php:151
+#: templates/system.php:275 templates/wizard_ap_ethernet.php:90
+#: templates/wizard_repeater.php:87
+msgid "Cancel"
+msgstr "Anulează"
+
+#: includes/navbar.php:184 templates/admin.php:3 templates/hostapd.php:3
+msgid "Save settings"
+msgstr "Salvare setări"
+
+#: includes/navbar.php:216
+msgid "Passwords do not match."
+msgstr ""
+
+#: includes/navbar.php:284
+msgid "Saving"
+msgstr ""
+
+#: includes/navbar.php:329
+#, fuzzy
+msgid "Please try again."
+msgstr "Vă rugăm să introduceți o mască de rețea validă"
+
+#: includes/navbar.php:330
+#, fuzzy
+msgid "Unable to update account settings."
+msgstr "Setări date mobile"
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:126
+#, php-format
+msgid "DHCP configuration for %s enabled."
+msgstr "Configurația DHCP pentru %s este activată."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:148
+msgid "WiFi repeater mode: A metric value is already defined for DHCP."
+msgstr ""
+"Modul de repetare WiFi: O valoare metrică este deja definită pentru DHCP."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:150
+#, php-format
+msgid "Metric value configured for the %s interface."
+msgstr "Valoarea metrică configurată pentru interfața %s."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:226
+msgid "Invalid interface name."
+msgstr "Nume de interfață invalid."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:229
+msgid "Invalid static IP address."
+msgstr "Adresă IP statică invalidă."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:232
+msgid "Invalid subnet mask."
+msgstr "Mască de subrețea invalidă."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:235
+msgid "Invalid default gateway."
+msgstr "Gateway implicit invalid."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:239
+msgid "Invalid DHCP range start."
+msgstr "Începerea intervalului DHCP invalid."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:242
+msgid "Invalid DHCP range end."
+msgstr "Sfârșitul intervalului DHCP invalid."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:245
+msgid "Invalid DHCP lease time, not a number."
+msgstr "Timp de închiriere DHCP invalid, nu un număr."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:248
+msgid "Unknown DHCP lease time unit."
+msgstr "Unitate de timp de închiriere DHCP necunoscută."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:251
+msgid "Invalid metric value, not a number."
+msgstr "Valoare metrică invalidă, nu este un număr."
+
+#: src/OpenAP/Networking/Hotspot/DhcpcdManager.php:276
+#, php-format
+msgid "DHCP configuration for %s updated."
+msgstr "Configurația DHCP pentru %s actualizată."
+
+#: src/OpenAP/Networking/Hotspot/DnsmasqManager.php:289
+msgid "Invalid MAC address: "
+msgstr "Adresă MAC invalidă: "
+
+#: src/OpenAP/Networking/Hotspot/DnsmasqManager.php:292
+msgid "Duplicate IP address entered: "
+msgstr "Adresă IP duplicată introdusă: "
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:111
+msgid "WPA and WPA2"
+msgstr "WPA și WPA2"
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:112
+msgid "WPA2 and WPA3-Personal (transitional mode)"
+msgstr "WPA2 și WPA3-Personal (mod tranzitoriu)"
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:114
+#: templates/ap_configuration.php:147 templates/ap_configuration.php:148
+msgid "None"
+msgstr "Niciuna"
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:124
+#: templates/dhcp_setting.php:76
+msgid "Disabled"
+msgstr "Dezactivat"
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:125
+msgid "Enabled (for supported clients)"
+msgstr "Activat (pentru clienții acceptați)"
+
+#: src/OpenAP/Networking/Hotspot/HotspotService.php:126
+msgid "Required (for supported clients)"
+msgstr "Necesar (pentru clienții asistați)"
+
+#: src/OpenAP/Networking/Hotspot/WiFiManager.php:384
+msgid "Signal strength"
+msgstr "Puterea semnalului"
+
+#: src/OpenAP/UI/Dashboard.php:79 src/OpenAP/UI/Dashboard.php:99
 msgid "No MAC Address Found"
 msgstr "Nu s-a găsit nicio adresă MAC"
 
-#: ../src/RaspAP/UI/Dashboard.php:82 ../src/RaspAP/UI/Dashboard.php:126
+#: src/OpenAP/UI/Dashboard.php:82 src/OpenAP/UI/Dashboard.php:126
 msgid "No IPv6 Address Found"
 msgstr "Nu s-a găsit nicio adresă IPv6"
 
-#: ../src/RaspAP/UI/Dashboard.php:232
+#: src/OpenAP/UI/Dashboard.php:259
 msgid "client"
 msgid_plural "clients"
 msgstr[0] "client"
 msgstr[1] "clienți"
 msgstr[2] "clienți"
 
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:126
-#, php-format
-msgid "DHCP configuration for %s enabled."
-msgstr "Configurația DHCP pentru %s este activată."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:148
-msgid "WiFi repeater mode: A metric value is already defined for DHCP."
-msgstr "Modul de repetare WiFi: O valoare metrică este deja definită pentru DHCP."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:150
-#, php-format
-msgid "Metric value configured for the %s interface."
-msgstr "Valoarea metrică configurată pentru interfața %s."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:226
-msgid "Invalid interface name."
-msgstr "Nume de interfață invalid."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:229
-msgid "Invalid static IP address."
-msgstr "Adresă IP statică invalidă."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:232
-msgid "Invalid subnet mask."
-msgstr "Mască de subrețea invalidă."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:235
-msgid "Invalid default gateway."
-msgstr "Gateway implicit invalid."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:239
-msgid "Invalid DHCP range start."
-msgstr "Începerea intervalului DHCP invalid."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:242
-msgid "Invalid DHCP range end."
-msgstr "Sfârșitul intervalului DHCP invalid."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:245
-msgid "Invalid DHCP lease time, not a number."
-msgstr "Timp de închiriere DHCP invalid, nu un număr."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:248
-msgid "Unknown DHCP lease time unit."
-msgstr "Unitate de timp de închiriere DHCP necunoscută."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:251
-msgid "Invalid metric value, not a number."
-msgstr "Valoare metrică invalidă, nu este un număr."
-
-#: ../src/RaspAP/Networking/Hotspot/DhcpcdManager.php:276
-#, php-format
-msgid "DHCP configuration for %s updated."
-msgstr "Configurația DHCP pentru %s actualizată."
-
-#: ../src/RaspAP/Networking/Hotspot/DnsmasqManager.php:289
-msgid "Invalid MAC address: "
-msgstr "Adresă MAC invalidă: "
-
-#: ../src/RaspAP/Networking/Hotspot/DnsmasqManager.php:292
-msgid "Duplicate IP address entered: "
-msgstr "Adresă IP duplicată introdusă: "
-
-#: ../src/RaspAP/Networking/Hotspot/WiFiManager.php:378
-#: ../includes/wifi_functions.php:281
-msgid "Signal strength"
-msgstr "Puterea semnalului"
-
-#: ../src/RaspAP/Networking/Hotspot/HostapdManager.php:40
-msgid "Verbose debugging"
-msgstr "Depanare verbală"
-
-#: ../src/RaspAP/Networking/Hotspot/HostapdManager.php:41
-msgid "Debugging"
-msgstr "Depanare"
-
-#: ../src/RaspAP/Networking/Hotspot/HostapdManager.php:42
-msgid "Informational"
-msgstr "Informare"
-
-#: ../src/RaspAP/Networking/Hotspot/HostapdManager.php:43
-msgid "Notification"
-msgstr "Notificare"
-
-#: ../src/RaspAP/Networking/Hotspot/HostapdManager.php:44
-msgid "Warning"
-msgstr "Avertisment"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:111
-msgid "WPA and WPA2"
-msgstr "WPA și WPA2"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:112
-msgid "WPA2 and WPA3-Personal (transitional mode)"
-msgstr "WPA2 și WPA3-Personal (mod tranzitoriu)"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:114
-msgid "None"
-msgstr "Niciuna"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:124
-msgid "Disabled"
-msgstr "Dezactivat"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:125
-msgid "Enabled (for supported clients)"
-msgstr "Activat (pentru clienții acceptați)"
-
-#: ../src/RaspAP/Networking/Hotspot/HotspotService.php:126
-msgid "Required (for supported clients)"
-msgstr "Necesar (pentru clienții asistați)"
-
-#: ../plugins-available/Captive/Captive.php:70
-#: ../plugins-available/Captive/Captive.php:130
-msgid "Captive portal"
-msgstr "Portal captiv"
-
-#: ../plugins-available/Captive/Captive.php:95
-#, php-format
-msgid "Attempting to start %s"
-msgstr "Încercarea de a porni %s"
-
-#: ../plugins-available/Captive/Captive.php:99
-#, php-format
-msgid "Attempting to stop %s"
-msgstr "Încercarea de a opri %s"
-
-#: ../plugins-available/Captive/Captive.php:106
-#, php-format
-msgid "Client %s deauthenticated"
-msgstr ""
-
-#: ../plugins-available/Captive/Captive.php:108
-#, php-format
-msgid "Failed to deauthenticate client %s"
-msgstr ""
-
-#: ../plugins-available/Captive/Captive.php:111
-msgid "Invalid client MAC address"
-msgstr ""
-
-#: ../plugins-available/Captive/Captive.php:131
-msgid "A captive portal plugin that implements nodogsplash"
-msgstr "Un plugin de portal captiv care implementează nodogsplash"
-
-#: ../plugins-available/Captive/Captive.php:132
-#: ../plugins-available/Tailscale/Tailscale.php:252
-#: ../plugins-available/Wireshark/Wireshark.php:185
-msgid "Bill Z"
-msgstr "Bill Z"
-
-#: ../plugins-available/Captive/Captive.php:538
-msgid "Portal settings saved successfully"
-msgstr "Setările portalului au fost salvate cu succes"
-
-#: ../plugins-available/Captive/Captive.php:541
-#: ../plugins-available/Wireshark/Wireshark.php:248
-msgid "Error saving settings: "
-msgstr "Eroare la salvarea setărilor: "
-
-#: ../plugins-available/Captive/Captive.php:582
-msgid "Failed to execute ndsctl."
-msgstr "Nu a reușit să execute ndsctl."
-
-#: ../plugins-available/Captive/templates/main.php:3
-#: ../plugins-available/Tailscale/templates/main.php:16
-#: ../plugins-available/Wireshark/templates/main.php:3 ../templates/dhcp.php:3
-#: ../templates/wireguard.php:3 ../templates/networking/wlanrouting.php:3
-#: ../templates/networking/mobile.php:29 ../templates/hostapd.php:3
-#: ../templates/system/advanced.php:39 ../templates/system/theme.php:56
-#: ../templates/system/language.php:11 ../templates/provider.php:3
-#: ../templates/admin/general.php:2 ../templates/restapi.php:3
-#: ../templates/adblock.php:3 ../templates/openvpn.php:3
-msgid "Save settings"
-msgstr "Salvare setări"
-
-#: ../plugins-available/Captive/templates/main.php:22
-msgid "Stop portal"
-msgstr "Opriți portalul"
-
-#: ../plugins-available/Captive/templates/main.php:26
-msgid "Start portal"
-msgstr "Start portal"
-
-#: ../plugins-available/Captive/templates/main.php:48 ../templates/admin.php:20
-#: ../templates/hostapd.php:49 ../templates/system.php:17
-msgid "Basic"
-msgstr "De bază"
-
-#: ../plugins-available/Captive/templates/main.php:49
-msgid "Clients"
-msgstr "Clienți"
-
-#: ../plugins-available/Captive/templates/main.php:50 ../templates/dhcp.php:52
-#: ../templates/hostapd.php:51 ../templates/system.php:20
-msgid "Advanced"
-msgstr "Avansat"
-
-#: ../plugins-available/Captive/templates/main.php:51
-#: ../plugins-available/Tailscale/templates/main.php:71
-#: ../includes/functions.php:1001 ../templates/wifi_stations/network.php:33
-#: ../templates/provider.php:36 ../templates/restapi.php:47
-msgid "Status"
-msgstr "Statut"
-
-#: ../plugins-available/Captive/templates/main.php:52
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:4
-msgid "Active clients"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/main.php:53
-#: ../plugins-available/Captive/templates/tabs/about.php:3
-#: ../plugins-available/Tailscale/templates/main.php:72
-#: ../plugins-available/Tailscale/templates/tabs/about.php:3
-#: ../plugins-available/Wireshark/templates/main.php:47
-#: ../plugins-available/Wireshark/templates/tabs/about.php:3
-#: ../templates/about.php:21
-msgid "About"
-msgstr "Despre"
-
-#: ../plugins-available/Captive/templates/main.php:79
-msgid "Information provided by nodogsplash"
-msgstr "Informații furnizate de nodogsplash"
-
-#: ../plugins-available/Captive/templates/main.php:90
-msgid "Stop portal service"
-msgstr "Opriți serviciul portal"
-
-#: ../plugins-available/Captive/templates/main.php:90
-msgid "Start portal service"
-msgstr "Începeți serviciul portal"
-
-#: ../plugins-available/Captive/templates/main.php:95
-msgid "Changing the portal service will momentarily disrupt client traffic. Choose <strong>Proceed</strong> to continue."
-msgstr "Schimbarea serviciului portal va întrerupe momentan traficul clienților. Alegeți <strong>Proceed (Continuare</strong> ) pentru a continua."
-
-#: ../plugins-available/Captive/templates/main.php:99
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:89
-#: ../templates/admin.php:90 ../templates/admin.php:119
-#: ../templates/wireguard.php:83 ../templates/wireguard.php:101
-#: ../templates/system.php:56 ../templates/system.php:74
-#: ../templates/system.php:109 ../templates/system.php:253
-#: ../templates/openvpn.php:81 ../templates/openvpn.php:99
-#: ../templates/about.php:56 ../templates/about.php:104
-msgid "Cancel"
-msgstr "Anulează"
-
-#: ../plugins-available/Captive/templates/main.php:100
-msgid "Proceed"
-msgstr "Continuați"
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:6
-#: ../plugins-available/Tailscale/Tailscale.php:403
-#: ../plugins-available/Tailscale/templates/main.php:4
-#: ../templates/networking/devices.php:4 ../templates/networking/general.php:4
-#: ../templates/system/basic.php:63 ../templates/dashboard.php:12
-#: ../templates/dhcp/summary.php:9
-msgid "Refresh"
-msgstr "Reîmprospătare"
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:17
-msgid "Client"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:21
-msgid "IP"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:22
-msgid "Token"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:23
-#: ../templates/networking/diagnostics.php:34 ../templates/wg/peers.php:73
-msgid "Download"
-msgstr "Descărcare"
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:24
-#: ../templates/networking/diagnostics.php:40
-msgid "Upload"
-msgstr "Încărcare"
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:25
-msgid "Last activity"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:26
-msgid "Session start"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:27
-msgid "Session end"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:35
-msgid "Deauthenticate"
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clientlist.php:44
-msgid "No active clients connected."
-msgstr ""
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:5
-#: ../templates/openvpn/general.php:2 ../templates/configure_client.php:21
-#: ../templates/openvpn.php:46
-msgid "Client settings"
-msgstr "Setări client"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:9
-msgid "Maximum clients"
-msgstr "Numărul maxim de clienți"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:11
-msgid "Maximum number of concurrent authenticated users"
-msgstr "Numărul maxim de utilizatori autentificați concomitent"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:15
-msgid "Does not include users on the trusted MAC list"
-msgstr "Nu include utilizatorii din lista MAC de încredere"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:19
-msgid "Session timeout (minutes)"
-msgstr "Timeout sesiune (minute)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:21
-msgid "Default session length in minutes. 0 = unlimited"
-msgstr "Durata implicită a sesiunii în minute. 0 = nelimitat"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:30
-msgid "Pre-auth idle timeout (minutes)"
-msgstr "Timpul de inactivitate pre-autorizare (minute)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:32
-msgid "Time before unauthenticated idle users are removed"
-msgstr "Timp înainte ca utilizatorii inactivi neautentificați să fie eliminați"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:39
-msgid "Auth idle timeout (minutes)"
-msgstr "Timpul de inactivitate al autorității (minute)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:41
-msgid "Time before authenticated idle users are deauthenticated"
-msgstr "Timp înainte ca utilizatorii inactivi autentificați să fie dezautentificați"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:50
-msgid "Check interval (seconds)"
-msgstr "Interval de verificare (secunde)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:52
-msgid "How often to check client timeouts"
-msgstr "Cât de des să verificați timeout-urile clienților"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:59
-msgid "MAC address control"
-msgstr "Controlul adresei MAC"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:63
-msgid "MAC mechanism"
-msgstr "Mecanismul MAC"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:65
-msgid "Block: blocklisted MACs are blocked. Allow: only allowlisted MACs are allowed"
-msgstr "Block (Blocare): MAC-urile din lista de blocuri sunt blocate. Allow (Permite): sunt permise numai MAC-urile din lista de permise"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:68
-msgid "Block (blocklist mode)"
-msgstr "Bloc (modul blocklist)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:71
-msgid "Allow (allowlist mode)"
-msgstr "Permite (modul allowlist)"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:79
-msgid "Blocked MAC list"
-msgstr "Lista MAC blocate"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:81
-msgid "Comma-separated MAC addresses to block (used when mechanism is 'block')"
-msgstr "Adrese MAC separate prin virgulă pentru blocare (utilizate atunci când mecanismul este \"block\")"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:84
-#: ../plugins-available/Captive/templates/tabs/clients.php:95
-msgid "Example: <code>00:11:22:33:44:55,AA:BB:CC:DD:EE:FF</code>"
-msgstr "Exemplu: <code>00:11:22:33:44:55,AA:BB:CC:DD:EE:FF</code>"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:90
-msgid "Allowed MAC list"
-msgstr "Lista MAC permise"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:92
-msgid "Comma-separated MAC addresses to allow (used when mechanism is 'allow')"
-msgstr "Adrese MAC separate prin virgule pentru a permite (utilizate atunci când mecanismul este \"allow\")"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:101
-msgid "Trusted MAC list"
-msgstr "Lista MAC de încredere"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:103
-msgid "Comma-separated MAC addresses that bypass authentication entirely"
-msgstr "Adrese MAC separate prin virgulă care ocolesc complet autentificarea"
-
-#: ../plugins-available/Captive/templates/tabs/clients.php:106
-msgid "These devices are not subject to authentication or firewall rules"
-msgstr "Aceste dispozitive nu sunt supuse regulilor de autentificare sau de firewall"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:5
-#: ../templates/system/advanced.php:3 ../templates/hostapd/advanced.php:2
-msgid "Advanced settings"
-msgstr "Setări avansate"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:9
-msgid "Gateway IP range"
-msgstr "Intervalul IP Gateway"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:11
-msgid "IP range to manage in CIDR notation. Leave empty for all addresses"
-msgstr "Intervalul IP de gestionat în notație CIDR. Lăsați gol pentru toate adresele"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:15
-msgid "Default: 0.0.0.0/0 (all addresses)"
-msgstr "Implicit: 0.0.0.0/0 (toate adresele)"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:21
-msgid "Debug level"
-msgstr "Nivel de depanare"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:23
-msgid "Amount of logging detail reported by the nodogsplash.service"
-msgstr "Cantitatea de detalii de logare raportate de nodogsplash.service"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:26
-msgid "0 - Errors only"
-msgstr "0 - Numai erori"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:29
-msgid "1 - Errors, warnings, infos"
-msgstr "1 - Erori, avertismente, informații"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:32
-msgid "2 - Errors, warnings, infos, verbose"
-msgstr "2 - Erori, avertismente, informații, verbose"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:35
-msgid "3 - Errors, warnings, infos, verbose, debug"
-msgstr "3 - Erori, avertismente, informații, verbose, debug"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:41
-msgid "Firewall settings"
-msgstr "Setări Firewall"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:49
-msgid "Allow all traffic for authenticated users"
-msgstr "Permiteți tot traficul pentru utilizatorii autentificați"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:52
-msgid "When enabled, authenticated users have unrestricted access"
-msgstr "Atunci când este activat, utilizatorii autentificați au acces nerestricționat"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:63
-msgid "Allow DNS for pre-authenticated users"
-msgstr "Permiteți DNS pentru utilizatorii pre-autentificați"
-
-#: ../plugins-available/Captive/templates/tabs/advanced.php:66
-msgid "Required for clients to resolve domain names before authentication"
-msgstr "Necesar pentru ca clienții să poată rezolva numele de domeniu înainte de autentificare"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:5
-#: ../plugins-available/Tailscale/templates/tabs/basic.php:2
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:2
-#: ../templates/hostapd/basic.php:2 ../templates/admin/general.php:14
-msgid "Basic settings"
-msgstr "Setări de bază"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:9
-msgid "Gateway interface"
-msgstr "Interfață gateway"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:10
-msgid "Interface to be managed by the portal"
-msgstr "Interfața care urmează să fie gestionată de portal"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:12
-msgid "Defaults to the active AP interface, typically <code>wlan0</code>"
-msgstr "Valoarea implicită este interfața AP activă, de obicei <code>wlan0</code>"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:16
-msgid "Gateway name"
-msgstr "Numele gateway-ului"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:18
-msgid "Name of your gateway (available as $gatewayname variable)"
-msgstr "Numele gateway-ului dvs. (disponibil ca variabilă $gatewayname)"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:27
-msgid "Gateway address"
-msgstr "Adresa gateway-ului"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:29
-msgid "IP address of the router. Leave empty for auto-detection"
-msgstr "Adresa IP a routerului. Lăsați gol pentru autodetecție"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:33
-msgid "Auto-detected from gateway interface if not specified"
-msgstr "Detectat automat de la interfața gateway dacă nu este specificat"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:37
-msgid "Gateway port"
-msgstr "Port gateway"
-
-#: ../plugins-available/Captive/templates/tabs/basic.php:39
-msgid "Port for Nodogsplash HTTP server"
-msgstr "Port pentru serverul HTTP Nodogsplash"
-
-#: ../plugins-available/Captive/templates/tabs/status.php:3
-msgid "Portal status"
-msgstr "Starea portalului"
-
-#: ../plugins-available/Captive/templates/tabs/status.php:4
-msgid "Current <code>nodogsplash</code> status is displayed below."
-msgstr "Starea actuală <code>a nodogsplash</code> este afișată mai jos."
-
-#: ../plugins-available/Captive/templates/tabs/about.php:5
-#: ../plugins-available/Tailscale/templates/tabs/about.php:5
-#: ../plugins-available/Wireshark/templates/tabs/about.php:5
-msgid "was created by"
-msgstr "a fost creat de"
-
-#: ../plugins-available/Captive/templates/tabs/about.php:8
-#: ../plugins-available/Tailscale/templates/tabs/about.php:8
-#: ../plugins-available/Wireshark/templates/tabs/about.php:8
-msgid "Plugin description"
-msgstr "Descrierea pluginului"
-
-#: ../plugins-available/Tailscale/Tailscale.php:52
-msgid "Tailscale VPN"
-msgstr "Tailscale VPN"
-
-#: ../plugins-available/Tailscale/Tailscale.php:237
-#, php-format
-msgid "Expected tailscale binary not found at: %s"
-msgstr "Binarul așteptat de la tailscale nu a fost găsit la: %s"
-
-#: ../plugins-available/Tailscale/Tailscale.php:238
-#, php-format
-msgid "Visit the <a href=\"%s\" target=\"_blank\">installation instructions</a> or reinstall the Tailscale plugin."
-msgstr "Consultați <a href=\"%s\" target=\"_blank\">instrucțiunile de instalare</a> sau reinstalați pluginul Tailscale."
-
-#: ../plugins-available/Tailscale/Tailscale.php:251
-msgid "A Tailscale VPN exit node extension for RaspAP"
-msgstr "O extensie a nodului de ieșire Tailscale VPN pentru RaspAP"
-
-#: ../plugins-available/Tailscale/Tailscale.php:400
-#: ../plugins-available/Tailscale/templates/main.php:44
-msgid "Start Tailscale"
-msgstr "Start Tailscale"
-
-#: ../plugins-available/Tailscale/Tailscale.php:406
-#, php-format
-msgid "Unable to retrieve Tailscale login. Choose <strong>%s</strong> to continue."
-msgstr "Nu se poate prelua datele de autentificare Tailscale. Alegeți <strong>%s</strong> pentru a continua."
-
-#: ../plugins-available/Tailscale/Tailscale.php:786
-msgid "Not connected: Login required."
-msgstr "Nu este conectat: Login necesar."
-
-#: ../plugins-available/Tailscale/templates/dialogs/active.php:1
-msgid "Exit node activated"
-msgstr "Nod de ieșire activat"
-
-#: ../plugins-available/Tailscale/templates/dialogs/active.php:4
-#, php-format
-msgid "The device <code>%s</code> is connected with the address <code>%s</code> and offers an <strong>exit node</strong>."
-msgstr "Dispozitivul <code>%s</code> este conectat cu adresa <code>%s</code> și oferă un <strong>nod de ieșire</strong>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/active.php:13
-#, php-format
-msgid "See the %s on how to use this exit node with your devices."
-msgstr "Consultați %s pentru a afla cum să utilizați acest nod de ieșire cu dispozitivele dvs."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:1
-msgid "Configure new exit node"
-msgstr "Configurarea noului nod de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:3
-#, php-format
-msgid "For security reasons, you must opt in to enable exit node functionality. The first step is to advertise <code>%s</code> as an exit node in your tailnet. In the next step, you'll allow this device to be an exit node."
-msgstr "Din motive de securitate, trebuie să optați pentru a activa funcționalitatea nodului de ieșire. Primul pas este să vă anunțați <code>%s</code> ca nod de ieșire în rețeaua dvs. secundară. În pasul următor, veți permite acestui dispozitiv să fie un nod de ieșire."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:10
-#, php-format
-msgid "Advertise <code>%s</code> as an exit node"
-msgstr "Publicitate <code>%s</code> ca nod de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:12
-msgid "This effectively configures Tailscale  as a VPN to mask your real location, access region-restricted content, or enhance privacy when connecting from untrusted networks."
-msgstr "Acest lucru configurează în mod eficient Tailscale ca un VPN pentru a vă masca locația reală, pentru a accesa conținut restricționat pe regiuni sau pentru a spori confidențialitatea atunci când vă conectați de la rețele nesigure."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:16
-msgid "This option lets Tailscale know your device is ready to route traffic."
-msgstr "Această opțiune permite Tailscale să știe că dispozitivul dvs. este pregătit să direcționeze traficul."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:23
-msgid "Enable optimized UDP throughput"
-msgstr "Permite optimizarea debitului UDP"
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:25
-msgid "Recommended for Tailscale exit nodes with Linux 6.2 or later kernels, this uses UDP generic receive offload (GRO) forwarding to reduce CPU overhead."
-msgstr "Recomandată pentru nodurile de ieșire Tailscale cu nuclee Linux 6.2 sau mai recente, aceasta utilizează redirecționarea UDP generic receive offload (GRO) pentru a reduce supraîncărcarea CPU."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:29
-msgid "This option enables transport layer offloads for better performance."
-msgstr "Această opțiune permite descărcarea stratului de transport pentru o performanță mai bună."
-
-#: ../plugins-available/Tailscale/templates/dialogs/exit.php:36
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:39
-msgid "Choose <strong>Next</strong> to continue."
-msgstr "Alegeți <strong>Următorul</strong> pentru a continua."
-
-#: ../plugins-available/Tailscale/templates/dialogs/using.php:1
-msgid "Using exit node"
-msgstr "Utilizarea nodului de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/using.php:5
-#, php-format
-msgid "The device <code>%s</code> is configured to use exit node <code>%s</code>. It has the Tailscale MagicDNS address <code>%s</code>."
-msgstr "Dispozitivul <code>%s</code> este configurat pentru a utiliza nodul de ieșire <code>%s</code>. Acesta are adresa Tailscale MagicDNS <code>%s</code>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:1
-msgid "Configure device"
-msgstr "Configurați dispozitivul"
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:4
-#, php-format
-msgid "The device <code>%s</code> is connected to your tailnet with the address <code>%s</code>."
-msgstr "Dispozitivul <code>%s</code> este conectat la rețeaua dvs. tailnet cu adresa <code>%s</code>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:8
-msgid "By default, Tailscale only routes traffic between the devices on which it's been installed. You can also route all your public internet traffic by configuring a device on your network as an <strong>exit node</strong>"
-msgstr "În mod implicit, Tailscale direcționează traficul doar între dispozitivele pe care a fost instalat. De asemenea, puteți direcționa tot traficul public de internet prin configurarea unui dispozitiv din rețea ca <strong>nod de ieșire</strong>"
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:10
-msgid "When you route all traffic through an exit node, you're effectively using default routes (0.0.0.0/0, ::/0), similar to how you would if you were using a typical VPN."
-msgstr "Atunci când direcționați tot traficul printr-un nod de ieșire, utilizați efectiv rute implicite (0.0.0.0/0, ::/0), la fel ca în cazul utilizării unui VPN tipic."
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:14
-msgid "You have the option of configuring this device as an exit node, or using another exit node in your tailnet."
-msgstr "Aveți opțiunea de a configura acest dispozitiv ca nod de ieșire sau de a utiliza un alt nod de ieșire în rețeaua de coadă."
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:21
-msgid "Select an existing exit node on your tailnet"
-msgstr "Selectați un nod de ieșire existent pe rețeaua dvs. de coadă"
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:23
-msgid "This is a typical configuration if you're using this device as a VPN travel router, for example."
-msgstr "Aceasta este o configurație tipică dacă utilizați acest dispozitiv ca router de călătorie VPN, de exemplu."
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:30
-msgid "Configure this device as a new exit node"
-msgstr "Configurați acest dispozitiv ca un nou nod de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/config.php:32
-msgid "By configuring this device as an exit node, public internet traffic from devices connected in your tailnet  will be routed through it."
-msgstr "Prin configurarea acestui dispozitiv ca nod de ieșire, traficul public de internet de la dispozitivele conectate în rețeaua dvs. de coadă va fi direcționat prin acesta."
-
-#: ../plugins-available/Tailscale/templates/dialogs/auth.php:1
-msgid "Login to Tailscale"
-msgstr "Conectați-vă la Tailscale"
-
-#: ../plugins-available/Tailscale/templates/dialogs/auth.php:2
-#, php-format
-msgid "To connect device %s to your tailnet, choose %s."
-msgstr "Pentru a conecta dispozitivul %s la coada dvs., alegeți %s."
-
-#: ../plugins-available/Tailscale/templates/dialogs/auth.php:2
-#: ../plugins-available/Tailscale/templates/dialogs/auth.php:4
-msgid "Open Tailscale Login"
-msgstr "Conectare deschisă la Tailscale"
-
-#: ../plugins-available/Tailscale/templates/dialogs/auth.php:7
-msgid "After logging in, choose <strong>Next</strong> to continue."
-msgstr "După autentificare, selectați <strong>Înainte</strong> pentru a continua."
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:1
-msgid "Allow exit node"
-msgstr "Permiteți nodul de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:3
-#, php-format
-msgid "The device <code>%s</code> is pending approval as an exit node."
-msgstr "Dispozitivul <code>%s</code> este în curs de aprobare ca nod de ieșire."
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:7
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:7
-msgid "Open Tailscale Machines"
-msgstr "Mașini deschise la scara cozii"
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:12
-#, php-format
-msgid "Locate the <code>%s</code> <strong>Exit Node</strong> badge in the machines list."
-msgstr "Localizați ecusonul <code>%s</code> Insigna <strong>nodului de ieșire</strong> în lista de mașini."
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:13
-#, php-format
-msgid "From the %s icon menu of the exit node, open the %s panel."
-msgstr "Din meniul de pictograme %s al nodului de ieșire, deschideți panoul %s."
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:13
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:13
-msgid "Edit route settings"
-msgstr "Editarea setărilor rutei"
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:14
-msgid "Enable the <strong>Use as exit node</strong> option."
-msgstr "Activați opțiunea <strong>Utilizare ca nod de ieșire</strong>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/approve.php:19
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:19
-msgid "Choose <strong>Next</strong> when you've completed these steps."
-msgstr "Alegeți <strong>Next (Următorul</strong> ) după ce ați finalizat acești pași."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:1
-msgid "Select an exit node"
-msgstr "Selectați un nod de ieșire"
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:6
-#, php-format
-msgid "To use <code>%s</code> as a VPN gateway, configure Tailscale to use an exit node. Tailscale's suggested node is indicated with a star."
-msgstr "Pentru a utiliza <code>%s</code> ca o poartă VPN, configurați Tailscale pentru a utiliza un nod de ieșire. Nodul sugerat de Tailscale este indicat cu o stea."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:11
-#, php-format
-msgid "Advertise a <strong>subnet route</strong> for the active <code>%s</code> AP interface"
-msgstr "Anunțați o <strong>rută de subrețea</strong> pentru <code>%s</code> interfață AP activă"
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:13
-msgid "Subnet routes let you extend your Tailscale network (known as a tailnet) to include devices that don't or can't run the Tailscale client."
-msgstr "Rutele de subrețea vă permit să vă extindeți rețeaua Tailscale (cunoscută sub numele de tailnet) pentru a include dispozitive care nu rulează sau nu pot rula clientul Tailscale."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:17
-msgid "A subnet route acts as a gateway between your tailnet and a physical subnet. The subnet of the active AP interface is preconfigured below; edit if necessary."
-msgstr "O rută de subrețea acționează ca o poartă de acces între rețeaua dvs. secundară și o subrețea fizică. Subrețeta interfeței AP active este preconfigurată mai jos; modificați dacă este necesar."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:25
-msgid "Route LAN traffic through the exit node."
-msgstr "Rutați traficul LAN prin nodul de ieșire."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:28
-msgid "This will direct all LAN traffic to go through your exit node only."
-msgstr "Acest lucru va direcționa tot traficul LAN să treacă numai prin nodul de ieșire."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:35
-msgid "Use Tailscale DNS settings (default)."
-msgstr "Utilizați setările DNS Tailscale (implicit)."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:38
-msgid "Uncheck to use local DNS. This sets <code>--accept-dns=false</code>."
-msgstr "Debifați pentru a utiliza DNS local. Aceasta setează <code>--accept-dns=false</code>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:45
-msgid "Do not use Tailscale subnets (default on Linux)."
-msgstr "Nu utilizați subrețele Tailscale (implicit pe Linux)."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:48
-msgid "If subnet routes exist for your tailnet, you can route your device's traffic to a subnet router. Enabling this sets <code>--accept-routes=true</code>."
-msgstr "Dacă există rute de subrețea pentru rețeaua dvs. de coadă, puteți direcționa traficul dispozitivului dvs. către un router de subrețea. Activarea acestei opțiuni setează <code>--accept-routes=true</code>."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:55
-msgid "If keys expire for a device, connections to/from the given endpoint will stop working."
-msgstr "Dacă cheile expiră pentru un dispozitiv, conexiunile către/de la punctul final dat nu vor mai funcționa."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:58
-msgid "This option uses <code>--force-reauth</code> to renew the keys for this device."
-msgstr "Această opțiune utilizează <code>--force-reauth</code> pentru a reînnoi cheile pentru acest dispozitiv."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:63
-#, php-format
-msgid "Choose <strong>Next</strong> to configure <code>%s</code> to use the selected exit node with these options."
-msgstr "Alegeți <strong>Next (Următorul</strong> ) pentru a configura <code>%s</code> pentru a utiliza nodul de ieșire selectat cu aceste opțiuni."
-
-#: ../plugins-available/Tailscale/templates/dialogs/select.php:66
-msgid "No exit nodes found on your tailnet. Choose <strong>Back</strong> to continue."
-msgstr "Nu s-au găsit noduri de ieșire pe rețeaua dvs. de coadă. Alegeți <strong>Înapoi</strong> pentru a continua."
-
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:1
-msgid "Approve subnet route"
-msgstr "Aprobarea rutei subrețelei"
-
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:3
-#, php-format
-msgid "The device <code>%s</code> is advertising a subnet route. For security reasons, you must opt in to enable this."
-msgstr "Dispozitivul <code>%s</code> anunță o rută de subrețea. Din motive de securitate, trebuie să optați pentru a activa acest lucru."
-
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:12
-#, php-format
-msgid "Locate the <code>%s</code> <strong>Subnets</strong> badge in the machines list."
-msgstr "Localizați ecusonul <code>%s</code> Insigna <strong>subrețele</strong> în lista de mașini."
-
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:13
-#, php-format
-msgid "From the %s icon menu of the device, open the %s panel."
-msgstr "Din meniul de pictograme %s al dispozitivului, deschideți panoul %s."
-
-#: ../plugins-available/Tailscale/templates/dialogs/subnet.php:14
-msgid "Check the IP range box that corresponds to the subnet route you want to advertise, then select <strong>Save</strong>."
-msgstr "Bifați caseta Interval IP care corespunde rutei de subrețea pe care doriți să o anunțați, apoi selectați <strong>Salvare</strong>."
-
-#: ../plugins-available/Tailscale/templates/main.php:7
-msgid "Back"
-msgstr "Înapoi"
-
-#: ../plugins-available/Tailscale/templates/main.php:10
-#: ../plugins-available/Tailscale/templates/main.php:13
-msgid "Next"
-msgstr "Următorul"
-
-#: ../plugins-available/Tailscale/templates/main.php:19
-msgid "Revoke Exit Node"
-msgstr "Revocarea nodului de ieșire"
-
-#: ../plugins-available/Tailscale/templates/main.php:22
-#: ../templates/admin/general.php:4
-msgid "Logout"
-msgstr "Ieșire"
-
-#: ../plugins-available/Tailscale/templates/main.php:25
-msgid "Stop Using Exit Node"
-msgstr "Opriți utilizarea nodului de ieșire"
-
-#: ../plugins-available/Tailscale/templates/main.php:48
-msgid "Stop Tailscale"
-msgstr "Stop Tailscale"
-
-#: ../plugins-available/Tailscale/templates/main.php:70
-#: ../plugins-available/Wireshark/templates/main.php:45
-#: ../templates/wireguard.php:46 ../templates/provider.php:35
-#: ../templates/restapi.php:46
-msgid "Settings"
-msgstr "Setări"
-
-#: ../plugins-available/Tailscale/templates/main.php:89
-#: ../plugins-available/Wireshark/templates/main.php:69
-msgid "Information provided by "
-msgstr "Informații furnizate de "
-
-#: ../plugins-available/Tailscale/templates/tabs/status.php:3
-msgid "Tailnet status"
-msgstr "Starea capotei"
-
-#: ../plugins-available/Tailscale/templates/tabs/status.php:4
-msgid "Current <code>tailnet</code> status is displayed below."
-msgstr "Starea curentă a <code>capotei</code> este afișată mai jos."
-
-#: ../plugins-available/Wireshark/templates/main.php:20
-msgid "Start capture"
-msgstr "Start captură"
-
-#: ../plugins-available/Wireshark/templates/main.php:24
-msgid "Stop capture"
-msgstr "Opriți captura"
-
-#: ../plugins-available/Wireshark/templates/main.php:46
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:3
-msgid "Capture files"
-msgstr "Fișiere de captură"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:4
-msgid "Capture files generated by <code>tshark</code> are displayed below."
-msgstr "Fișierele de captură generate de <code>tshark</code> sunt afișate mai jos."
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:10
-msgid "No capture files found in /tmp directory"
-msgstr "Nu s-au găsit fișiere de captură în directorul /tmp"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:17
-msgid "Filename"
-msgstr "Filename"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:18
-msgid "Size"
-msgstr "Mărime"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:19
-msgid "Modified"
-msgstr "Modificat"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:20
-msgid "Actions"
-msgstr "Acțiuni"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:38
-msgid "Download file"
-msgstr "Descărcați fișierul"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:47
-msgid "Delete file"
-msgstr "Ștergeți fișierul"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:64
-#, php-format
-msgid "Total: %d file(s), %s"
-msgstr "Total: %d fișier(e), %s"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:80
-msgid "Confirm deletion"
-msgstr "Confirmați ștergerea"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:85
-msgid "Are you sure you want to delete this file?"
-msgstr "Sunteți sigur că doriți să ștergeți acest fișier?"
-
-#: ../plugins-available/Wireshark/templates/tabs/capture.php:91
-#: ../templates/wifi_stations/network.php:100 ../templates/wireguard.php:84
-#: ../templates/openvpn.php:82
-msgid "Delete"
-msgstr "Ștergeți"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:8
-msgid "Capture interface"
-msgstr "Interfață de captură"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:15
-msgid "Output file"
-msgstr "Fișier de ieșire"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:16
-msgid "Path where capture file will be saved (.pcap format)"
-msgstr "Calea în care va fi salvat fișierul de captură (format .pcap)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:20
-msgid "File will be saved with .pcap extension"
-msgstr "Fișierul va fi salvat cu extensia .pcap"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:26
-msgid "Capture filter (BPF syntax)"
-msgstr "Filtru de captură (sintaxa BPF)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:28
-msgid "Berkeley Packet Filter syntax. Leave empty to capture all traffic."
-msgstr "Sintaxa filtrului de pachete Berkeley. Lăsați gol pentru a capta tot traficul."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:33
-msgid "Examples: <code>port 80</code>, <code>host 192.168.1.1</code>, <code>tcp and not port 22</code>"
-msgstr "Exemple: <code>port 80</code>, <code>gazdă 192.168.1.1</code>, <code>tcp și nu port 22</code>"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:38
-msgid "Capture limits"
-msgstr "Limite de captură"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:42
-msgid "Packet count limit"
-msgstr "Limita numărului de pachete"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:44
-msgid "Stop capture after this many packets. Leave empty for unlimited."
-msgstr "Opriți captarea după acest număr de pachete. Lăsați gol pentru nelimitat."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:51
-msgid "Duration limit (seconds)"
-msgstr "Limita de durată (secunde)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:53
-msgid "Stop capture after this many seconds. Leave empty for unlimited."
-msgstr "Opriți captura după acest număr de secunde. Lăsați gol pentru nelimitat."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:60
-msgid "Ring buffer settings"
-msgstr "Setări tampon inelar"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:64
-msgid "File size (KB)"
-msgstr "Dimensiunea fișierului (KB)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:66
-msgid "Create new file when this size is reached. Leave empty to disable."
-msgstr "Creează un fișier nou atunci când este atinsă această dimensiune. Lăsați gol pentru a dezactiva."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:70
-msgid "10000 = 10 MB per file"
-msgstr "10000 = 10 MB per fișier"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:74
-msgid "Number of files"
-msgstr "Număr de fișiere"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:76
-msgid "Maximum number of ring buffer files to keep. Oldest files are deleted."
-msgstr "Numărul maxim de fișiere din ring buffer care trebuie păstrate. Cele mai vechi fișiere sunt șterse."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:83
-msgid "Advanced options"
-msgstr "Opțiuni avansate"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:87
-msgid "Snapshot length (bytes)"
-msgstr "Lungimea instantanee (bytes)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:89
-msgid "Limit the amount of data captured per packet. Leave empty for full packets."
-msgstr "Limitați cantitatea de date capturate per pachet. Lăsați gol pentru pachetele pline."
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:93
-msgid "96 bytes captures headers only, reduces file size"
-msgstr "96 de octeți capturează doar anteturile, reduce dimensiunea fișierului"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:101
-msgid "Promiscuous mode"
-msgstr "Mod promiscuu"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:104
-msgid "Capture all packets on the network segment, not just those destined for this interface"
-msgstr "Capturați toate pachetele de pe segmentul de rețea, nu doar cele destinate acestei interfețe"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:109
-msgid "Quick filter presets"
-msgstr "Presetări rapide de filtre"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:114
-msgid "All Traffic"
-msgstr "Tot traficul"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:117
-msgid "HTTP/HTTPS"
-msgstr "HTTP/HTTPS"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:120
-#: ../templates/wg/general.php:107
-msgid "DNS"
-msgstr "DNS"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:123
-msgid "ICMP (Ping)"
-msgstr "ICMP (Ping)"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:126
-msgid "SSH"
-msgstr "SSH"
-
-#: ../plugins-available/Wireshark/templates/tabs/basic.php:129
-msgid "Exclude SSH"
-msgstr "Exclude SSH"
-
-#: ../plugins-available/Wireshark/Wireshark.php:48
-msgid "Wireshark"
-msgstr "Wireshark"
-
-#: ../plugins-available/Wireshark/Wireshark.php:140
-#, php-format
-msgid "Attempting to start packet capture on %s"
-msgstr "Încercarea de a începe capturarea pachetelor pe %s"
-
-#: ../plugins-available/Wireshark/Wireshark.php:143
-#, php-format
-msgid "TShark started with PID %s"
-msgstr "TShark a început cu PID %s"
-
-#: ../plugins-available/Wireshark/Wireshark.php:152
-#, php-format
-msgid "Attempting to stop packet capture on %s"
-msgstr "Încercarea de a opri capturarea pachetelor pe %s"
-
-#: ../plugins-available/Wireshark/Wireshark.php:172
-#, php-format
-msgid "Expected tshark binary not found at: %s"
-msgstr "Binarul tshark așteptat nu a fost găsit la: %s"
-
-#: ../plugins-available/Wireshark/Wireshark.php:173
-#, php-format
-msgid "Visit the <a href=\"%s\" target=\"_blank\">installation instructions</a> or reinstall the Wireshark plugin."
-msgstr "Consultați <a href=\"%s\" target=\"_blank\">instrucțiunile de instalare</a> sau reinstalați pluginul Wireshark."
-
-#: ../plugins-available/Wireshark/Wireshark.php:184
-msgid "A Wireshark (TShark) CLI packet capture for RaspAP"
-msgstr "O captură de pachete Wireshark (TShark) CLI pentru RaspAP"
-
-#: ../plugins-available/Wireshark/Wireshark.php:244
-msgid "TShark settings saved successfully"
-msgstr "Setările TShark au fost salvate cu succes"
-
-#: ../plugins-available/Wireshark/Wireshark.php:649
-msgid "File not found"
-msgstr "Fișierul nu a fost găsit"
-
-#: ../plugins-available/Wireshark/Wireshark.php:658
-#, php-format
-msgid "File \"%s\" deleted successfully"
-msgstr "Fișier \"%s\" șters cu succes"
-
-#: ../plugins-available/Wireshark/Wireshark.php:661
-#, php-format
-msgid "Failed to delete file \"%s\""
-msgstr "Eșec la ștergerea fișierului \"%s\""
-
-#: ../includes/networking.php:51 ../includes/networking.php:54
-msgid "not configured"
-msgstr ""
-
-#: ../includes/networking.php:137
-#, php-format
-msgid "Attempting to enable routing between %s and %s interfaces"
-msgstr ""
-
-#: ../includes/networking.php:147
-#, php-format
-msgid "Attempting to restart routing between %s and %s interfaces"
-msgstr ""
-
-#: ../includes/networking.php:151
-#, php-format
-msgid "Attempting to disable routing between %s and %s interfaces"
-msgstr ""
-
-#: ../includes/networking.php:252
-#, php-format
-msgid "DHCP configuration for %s enabled"
-msgstr ""
-
-#: ../includes/networking.php:259
-#, php-format
-msgid "DHCP configuration for %s added"
-msgstr ""
-
-#: ../includes/networking.php:265
-#, php-format
-msgid "DHCP configuration for %s updated"
-msgstr ""
-
-#: ../includes/networking.php:271
-#, php-format
-msgid "No default DHCP configuration exists for the %s interface"
-msgstr ""
-
-#: ../includes/networking.php:272
-#, php-format
-msgid "Configure a static IP and DHCP for this interface in DHCP Server settings"
-msgstr ""
-
-#: ../includes/networking.php:294
-#, php-format
-msgid "Dnsmasq  configuration for %s added"
-msgstr ""
-
-#: ../includes/footer.php:6
-#, php-format
-msgid "Created by the <a href=\"%s\" target=\"_blank\" rel=\"noopener\">%s</a>"
-msgstr ""
-
-#: ../includes/footer.php:6
-msgid "RaspAP Team"
-msgstr ""
-
-#: ../includes/footer.php:9
-msgid "Thanks for being an Insider"
-msgstr ""
-
-#: ../includes/footer.php:17
-msgid "Session Expired"
-msgstr ""
-
-#: ../includes/footer.php:20
-msgid "Your session has expired. Please login to continue."
-msgstr ""
-
-#: ../includes/footer.php:23 ../templates/admin.php:18
-#: ../templates/login.php:30
-msgid "Login"
-msgstr "Autentificare"
-
-#: ../includes/provider.php:65
-#, php-format
-msgid "Expected %s binary not found at: %s"
-msgstr ""
-
-#: ../includes/provider.php:66
-#, php-format
-msgid "Visit the <a href=\"%s\" target=\"_blank\">installation instructions</a> for %s's Linux CLI."
-msgstr ""
-
-#: ../includes/provider.php:70
-#, php-format
-msgid "Unable to execute %s binary found at: %s"
-msgstr ""
-
-#: ../includes/provider.php:71
-msgid "Check that binary is executable and permissions exist in raspap.sudoers"
-msgstr ""
-
-#: ../includes/provider.php:119
-#, php-format
-msgid "Attempting to connect to %s"
-msgstr ""
-
-#: ../includes/provider.php:318
-msgid "Select a country..."
-msgstr ""
-
-#: ../includes/provider.php:387
-#, php-format
-msgid "Account information not available from %s's Linux CLI."
-msgstr ""
-
-#: ../includes/functions.php:1006
-msgid "Mem Use"
-msgstr ""
-
-#: ../includes/functions.php:1009
-msgid "CPU"
-msgstr ""
-
-#: ../includes/restapi.php:59
-#, php-format
-msgid "RestAPI docs are accessible <a href=\"%s\" target=\"_blank\">here %s</a>"
-msgstr ""
-
-#: ../includes/system.php:67
-#, php-format
-msgid "Changing log limit size to %s KB"
-msgstr ""
-
-#: ../includes/system.php:86
-#, php-format
-msgid "Changing alert close timeout to %s ms"
-msgstr ""
-
-#: ../includes/adblock.php:31
-msgid "Invalid custom IP address found on line "
-msgstr ""
-
-#: ../includes/adblock.php:35
-msgid "Invalid custom host found on line "
-msgstr ""
-
-#: ../includes/dashboard.php:72
-#, php-format
-msgid "%d WLAN %s"
-msgstr ""
-
-#: ../includes/dashboard.php:78
-#, php-format
-msgid "%d LAN %s"
-msgstr ""
-
-#: ../templates/admin.php:7
-msgid "Authentication"
-msgstr ""
-
-#: ../templates/admin.php:21 ../templates/admin/avatar.php:11
-msgid "Avatar"
-msgstr "Avatar"
-
-#: ../templates/admin.php:47
-msgid "Update admin password"
-msgstr ""
-
-#: ../templates/admin.php:54
-msgid "Old password"
-msgstr ""
-
-#: ../templates/admin.php:59
-msgid "Please enter your old password."
-msgstr ""
-
-#: ../templates/admin.php:66
-msgid "New password"
-msgstr ""
-
-#: ../templates/admin.php:71
-msgid "Please enter a new password."
-msgstr ""
-
-#: ../templates/admin.php:78
-msgid "Repeat new password"
-msgstr ""
-
-#: ../templates/admin.php:83
-msgid "Please re-enter your new password."
-msgstr ""
-
-#: ../templates/admin.php:91
-msgid "Save"
-msgstr ""
-
-#: ../templates/admin.php:103
-msgid "Logout and enable limited user mode"
-msgstr ""
-
-#: ../templates/admin.php:114
-msgid "This action will save the limited user's credentials and logout the current admin user. Save and enable limited privilege mode?"
-msgstr ""
-
-#: ../templates/admin.php:120
-msgid "Save and logout"
-msgstr ""
-
-#: ../templates/adblock/stats.php:3
-msgid "Statistics"
-msgstr "Statistică"
-
-#: ../templates/adblock/general.php:5 ../templates/adblock.php:45
-msgid "Blocklist settings"
-msgstr "Setări listă de blocuri"
-
-#: ../templates/adblock/general.php:10
-msgid "Enable blocklists"
-msgstr "Activarea listelor de blocuri"
-
-#: ../templates/adblock/general.php:13
-msgid "Enable this option if you want RaspAP to <b>block DNS requests for ads, tracking and other virtual garbage</b>. Blocklists are gathered from multiple, actively maintained sources and automatically updated, cleaned, optimized and moderated on a daily basis."
-msgstr "Activați această opțiune dacă doriți ca RaspAP să <b>blocheze cererile DNS pentru reclame, urmărire și alte gunoaie virtuale</b>. Listele de blocuri sunt colectate din mai multe surse menținute în mod activ și actualizate, curățate, optimizate și moderate în mod automat zilnic."
-
-#: ../templates/adblock/general.php:15
-msgid "This option adds <code>conf-file</code> and <code>addn-hosts</code> to the dnsmasq configuration."
-msgstr "Această opțiune adaugă <code>conf-file</code> și <code>addn-hosts</code> la configurația dnsmasq."
-
-#: ../templates/adblock/general.php:22
-msgid "Hostnames blocklist last updated"
-msgstr "Lista de blocare a numelor de gazdă actualizată ultima dată"
-
-#: ../templates/adblock/general.php:24
-msgid "Domains blocklist last updated"
-msgstr "Ultima actualizare a listei de blocare a domeniilor"
-
-#: ../templates/adblock/general.php:29
-msgid "Choose a blocklist provider"
-msgstr "Alegeți un furnizor de liste de blocuri"
-
-#: ../templates/adblock/general.php:33
-msgid "Update now"
-msgstr "Actualizați acum"
-
-#: ../templates/adblock/custom.php:3 ../templates/adblock.php:46
-msgid "Custom blocklist"
-msgstr "Lista de blocuri personalizată"
-
-#: ../templates/adblock/custom.php:10
-msgid "Enable custom blocklist"
-msgstr "Activarea listei de blocuri personalizate"
-
-#: ../templates/adblock/custom.php:14
-msgid "Define custom hosts to be blocked by entering an IPv4 or IPv6 address followed by any whitespace (spaces or tabs) and the host name."
-msgstr "Definiți gazdele personalizate care urmează să fie blocate prin introducerea unei adrese IPv4 sau IPv6 urmată de orice spațiu alb (spații sau tabulații) și de numele gazdei."
-
-#: ../templates/adblock/custom.php:15
-msgid "<b>IPv4 example:</b> 0.0.0.0 badhost.com"
-msgstr "<b>IPv4 exemplu:</b> 0.0.0.0 badhost.com"
-
-#: ../templates/adblock/custom.php:17
-msgid "This option adds an <code>addn-hosts</code> directive to the dnsmasq configuration."
-msgstr "Această opțiune adaugă o directivă <code>addn-hosts</code> la configurația dnsmasq."
-
-#: ../templates/adblock/logging.php:3 ../templates/openvpn/logging.php:3
-#: ../templates/dhcp.php:55 ../templates/wireguard.php:49
-#: ../templates/hostapd.php:52 ../templates/hostapd/logging.php:3
-#: ../templates/adblock.php:47 ../templates/openvpn.php:48
-#: ../templates/dhcp/logging.php:3 ../templates/wg/logging.php:5
+#: src/OpenAP/UI/Sidebar.php:19 templates/ap_configuration.php:30
+#, fuzzy
+msgid "AP Configuration"
+msgstr "Configurații"
+
+#: src/OpenAP/UI/Sidebar.php:22 templates/dhcp_setting.php:103
+#, fuzzy
+msgid "DHCP Setting"
+msgstr "Setări APN"
+
+#: src/OpenAP/UI/Sidebar.php:25 templates/dashboard.php:836
+#: templates/hostapd.php:55 templates/hostapd/logging.php:3
+#: templates/logging.php:32
 msgid "Logging"
 msgstr "Înregistrare"
 
-#: ../templates/provider/general.php:2
+#: src/OpenAP/UI/Sidebar.php:28
+msgid "DHCP Server"
+msgstr "Server DHCP"
+
+#: src/OpenAP/UI/Sidebar.php:31
+msgid "Ad Blocking"
+msgstr "Blocarea reclamelor"
+
+#: src/OpenAP/UI/Sidebar.php:34
+msgid "Networking"
+msgstr "Rețele"
+
+#: src/OpenAP/UI/Sidebar.php:37
+msgid "WiFi client"
+msgstr "Client WiFi"
+
+#: src/OpenAP/UI/Sidebar.php:40
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#: src/OpenAP/UI/Sidebar.php:43
+msgid "WireGuard"
+msgstr "WireGuard"
+
+#: src/OpenAP/UI/Sidebar.php:49
+msgid "Data usage"
+msgstr "Utilizarea datelor"
+
+#: src/OpenAP/UI/Sidebar.php:52
+msgid "RestAPI"
+msgstr "RestAPI"
+
+#: src/OpenAP/UI/Sidebar.php:55 templates/system.php:32
+msgid "System"
+msgstr "Sistemul"
+
+#: src/OpenAP/UI/Sidebar.php:58 templates/about/general.php:5
+#, fuzzy
+msgid "About OpenAP"
+msgstr "Despre RaspAP"
+
+#: templates/about/general.php:5
+msgid "Project identity and attribution"
+msgstr ""
+
+#: templates/about/general.php:11 templates/about/general.php:15
+#, fuzzy
+msgid "OpenAP"
+msgstr "OpenVPN"
+
+#: templates/about/general.php:14
+#, fuzzy
+msgid "Open wireless access point"
+msgstr "Conectare deschisă la Tailscale"
+
+#: templates/about/general.php:17
+msgid ""
+"A responsive control panel for access points, Ethernet uplinks and WiFi "
+"repeater deployments."
+msgstr ""
+
+#: templates/about/general.php:20
+msgid "Check for update"
+msgstr "Verificare pentru actualizare"
+
+#: templates/about/general.php:29
+msgid "About the project"
+msgstr ""
+
+#: templates/about/general.php:29
+msgid "OpenAP profile and purpose"
+msgstr ""
+
+#: templates/about/general.php:32
+msgid ""
+"OpenAP is adapted for existing hostapd installations and for systems where "
+"network interfaces must be discovered by capability and hardware identity "
+"rather than fixed Linux names."
+msgstr ""
+
+#: templates/about/general.php:33
+msgid ""
+"The current project supports a dedicated WiFi access point over Ethernet and "
+"a validated two-radio WiFi repeater workflow, while preserving a clear "
+"separation between the web interface and privileged network helpers."
+msgstr ""
+
+#: templates/about/general.php:40
+msgid "Upstream project and attribution"
+msgstr ""
+
+#: templates/about/general.php:40
+msgid "Open source foundations"
+msgstr ""
+
+#: templates/about/general.php:44
 #, php-format
-msgid "%s settings"
-msgstr "%s setări"
+msgid ""
+"OpenAP is a fork based on RaspAP, a co-creation of %1$s and %2$s with "
+"contributions from the %3$s and %4$s."
+msgstr ""
 
-#: ../templates/provider/general.php:9 ../templates/openvpn/general.php:8
-#: ../templates/wg/general.php:8
-msgid "IPv4 Address"
-msgstr "Adresa IPv4"
+#: templates/about/general.php:47
+msgid "developer community"
+msgstr "comunitatea dezvoltatorilor"
 
-#: ../templates/provider/general.php:24
-msgid "Account details"
-msgstr "Detalii despre cont"
+#: templates/about/general.php:48
+msgid "language translators"
+msgstr "traducători de limbi străine"
 
-#: ../templates/provider/general.php:28
-msgid "My account"
-msgstr "Contul meu"
+#: templates/about/general.php:52
+msgid ""
+"RaspAP attribution and the GPL-3.0 license are retained as part of the "
+"OpenAP source and distribution."
+msgstr ""
 
-#: ../templates/provider/general.php:36
-msgid "Server location"
-msgstr "Locația serverului"
+#: templates/about/general.php:68
+msgid "OpenAP release"
+msgstr ""
 
-#: ../templates/provider/general.php:38
-msgid "Choosing <strong>Save settings</strong> will connect to the selected country."
-msgstr "Dacă alegeți <strong>Salvare setări</strong>, vă veți conecta la țara selectată."
+#: templates/about/general.php:68
+#, fuzzy
+msgid "Installed web interface"
+msgstr "Nume de interfață invalid."
 
-#: ../templates/provider/general.php:41
-#, php-format
-msgid "Choosing <strong>Connect %s</strong> will connect to a recommended server."
-msgstr "Alegând <strong>Connect %s</strong> vă veți conecta la un server recomandat."
+#: templates/about/general.php:72
+msgid "Version"
+msgstr ""
 
-#: ../templates/provider/general.php:43
-msgid "Country"
-msgstr "Țara"
+#: templates/about/general.php:74
+msgid "Installed"
+msgstr "Instalat"
 
-#: ../templates/provider/status.php:3
-#, php-format
-msgid "%s status"
-msgstr "%s statut"
+#: templates/about/general.php:77
+msgid "Project"
+msgstr ""
 
-#: ../templates/provider/status.php:5
-#, php-format
-msgid "Installed Linux CLI: <code>%s</code>"
-msgstr "Instalat Linux CLI: <code>%s</code>"
+#: templates/about/general.php:85
+msgid "OpenAP links"
+msgstr ""
 
-#: ../templates/provider/status.php:6
-#, php-format
-msgid "Current <code>%s</code> connection status is displayed below."
-msgstr "Starea curentă <code>%s</code> starea curentă a conexiunii este afișată mai jos."
+#: templates/about/general.php:85
+msgid "Official project resources"
+msgstr ""
 
-#: ../templates/openvpn/general.php:13
-msgid "Authentification Method"
+#: templates/about/general.php:90
+msgid "Documentation"
+msgstr ""
+
+#: templates/about/general.php:100
+msgid "License"
+msgstr ""
+
+#: templates/about/general.php:100
+msgid "Free and open source"
+msgstr ""
+
+#: templates/about/general.php:105
+msgid ""
+"You may use, study, modify and redistribute the software under its license "
+"terms."
+msgstr ""
+
+#: templates/about/general.php:106
+msgid "Read license"
+msgstr ""
+
+#: templates/admin.php:14
+msgid "Authentication"
+msgstr ""
+
+#: templates/admin.php:20
+#, fuzzy
+msgid "Authentication settings"
 msgstr "Metoda de autentificare"
 
-#: ../templates/openvpn/general.php:16
-msgid "Username and password"
-msgstr "Nume utilizator și parolă"
-
-#: ../templates/openvpn/general.php:20
-msgid "Certificates"
-msgstr "Certificatele"
-
-#: ../templates/openvpn/general.php:26
-msgid "Enter username and password"
-msgstr "Introduceți numele de utilizator și parola"
-
-#: ../templates/openvpn/general.php:30 ../templates/networking/mobile.php:17
-#: ../templates/admin/general.php:15 ../templates/admin/login.php:12
-#: ../templates/login.php:22 ../templates/about.php:85
-msgid "Username"
-msgstr "Nume utilizator"
-
-#: ../templates/openvpn/general.php:34 ../templates/networking/mobile.php:21
-#: ../templates/admin/login.php:21 ../templates/login.php:25
-#: ../app/lib/signprint.php:67
-msgid "Password"
-msgstr "Parolă"
-
-#: ../templates/openvpn/general.php:42
-msgid "Certificates in the configuration file"
-msgstr "Certificate în fișierul de configurare"
-
-#: ../templates/openvpn/general.php:44
-msgid "RaspAP supports certificates by including them in the configuration file."
-msgstr "RaspAP acceptă certificate prin includerea acestora în fișierul de configurare."
-
-#: ../templates/openvpn/general.php:47
-msgid "Signing certification authority (CA) certificate (e.g. <code>ca.crt</code>): enclosed in <code>&lt;ca> ... &lt;/ca></code> tags."
-msgstr "Semnarea certificatului autorității de certificare (CA) (de exemplu, <code>ca.crt</code>): inclus în <code>&lt;ca> ... &lt;/ca></code>."
-
-#: ../templates/openvpn/general.php:48
-msgid "Client certificate (public key) (e.g. <code>client.crt</code>): enclosed in <code>&lt;cert> ... &lt;/cert></code> tags."
-msgstr "Certificat client (cheie publică) (de exemplu, <code>client.crt</code>): inclus în <code>&lt;cert> ... &lt;/cert></code>."
-
-#: ../templates/openvpn/general.php:49
-msgid "Private key of the client certificate (e.g. <code>client.key</code>): enclosed in <code>&lt;key> ... &lt;/key></code> tags."
-msgstr "Cheia privată a certificatului clientului (de exemplu, <code>client.key</code>): inclusă în <code>&lt;key> ... &lt;/key></code>."
-
-#: ../templates/openvpn/general.php:59 ../templates/wg/general.php:59
-msgid "Configuration File"
-msgstr "Fișier de configurare"
-
-#: ../templates/openvpn/general.php:62
-msgid "Select OpenVPN configuration file (.ovpn)"
-msgstr "Selectați fișierul de configurare OpenVPN (.ovpn)"
-
-#: ../templates/openvpn/logging.php:4
-msgid "Enable this option to log <code>openvpn</code> activity."
-msgstr "Activați această opțiune pentru a înregistra activitatea <code>openvpn</code>."
-
-#: ../templates/openvpn/logging.php:8
-msgid "Enable logging"
-msgstr "Activarea înregistrării"
-
-#: ../templates/openvpn/logging.php:9 ../templates/hostapd/logging.php:10
-#: ../templates/dhcp/logging.php:13
-msgid "Clear log"
-msgstr "Ștergeți jurnalul"
-
-#: ../templates/openvpn/configs.php:4 ../templates/wireguard.php:48
-#: ../templates/openvpn.php:47 ../templates/wg/configs.php:4
-msgid "Configurations"
-msgstr "Configurații"
-
-#: ../templates/openvpn/configs.php:6
-msgid "Currently available OpenVPN client configurations are displayed below."
-msgstr "Configurațiile de client OpenVPN disponibile în prezent sunt afișate mai jos."
-
-#: ../templates/openvpn/configs.php:7
-msgid "Activating a configuration will restart the <code>openvpn-client</code> service."
-msgstr "Activarea unei configurații va reporni serviciul <code>openvpn-client</code>."
-
-#: ../templates/dhcp.php:21
-msgid "Stop dnsmasq"
-msgstr "Opriți dnsmasq"
-
-#: ../templates/dhcp.php:24
-msgid "Restart dnsmasq"
-msgstr "Reporniți dnsmasq"
-
-#: ../templates/dhcp.php:28
-msgid "Start dnsmasq"
-msgstr "Start dnsmasq"
-
-#: ../templates/dhcp.php:50 ../templates/networking.php:20
-#: ../templates/dhcp/summary.php:2
-msgid "Summary"
-msgstr "Rezumat"
-
-#: ../templates/dhcp.php:51
-msgid "Server settings"
-msgstr "Setări server"
-
-#: ../templates/dhcp.php:53
-msgid "Static Leases"
-msgstr "Leasinguri statice"
-
-#: ../templates/dhcp.php:54 ../templates/dhcp/clients.php:2
-msgid "Client list"
-msgstr "Lista clienților"
-
-#: ../templates/dhcp.php:72
-msgid "Information provided by Dnsmasq"
-msgstr "Informații furnizate de Dnsmasq"
-
-#: ../templates/data_usage.php:7
-msgid "Data usage monitoring"
-msgstr "Monitorizarea utilizării datelor"
-
-#: ../templates/data_usage.php:14
-msgid "Hourly"
-msgstr "Cu ora"
-
-#: ../templates/data_usage.php:15
-msgid "Daily"
-msgstr "Zilnic"
-
-#: ../templates/data_usage.php:16
-msgid "Monthly"
-msgstr "Lunar"
-
-#: ../templates/data_usage.php:23
-msgid "Hourly traffic amount"
-msgstr "Valoarea orară a traficului"
-
-#: ../templates/data_usage.php:24 ../templates/data_usage.php:43
-#: ../templates/data_usage.php:62
-msgid "interface"
-msgstr "interfață"
-
-#: ../templates/data_usage.php:32 ../templates/data_usage.php:51
-#: ../templates/data_usage.php:70
-#, php-format
-msgid "Loading %s bandwidth chart"
-msgstr "Încărcare %s diagramă lățime de bandă"
-
-#: ../templates/data_usage.php:32
-msgid "hourly"
-msgstr "orar"
-
-#: ../templates/data_usage.php:42
-msgid "Daily traffic amount"
-msgstr "Valoarea traficului zilnic"
-
-#: ../templates/data_usage.php:51
-msgid "daily"
-msgstr "zilnic"
-
-#: ../templates/data_usage.php:61
-msgid "Monthly traffic amount"
-msgstr "Valoarea lunară a traficului"
-
-#: ../templates/data_usage.php:70
-msgid "monthly"
-msgstr "lunar"
-
-#: ../templates/data_usage.php:79
-msgid "Information provided by vnstat"
-msgstr "Informații furnizate de vnstat"
-
-#: ../templates/data_usage.php:86
-msgid "Send"
-msgstr "Trimiteți"
-
-#: ../templates/data_usage.php:87
-msgid "Receive"
-msgstr "Primiți"
-
-#: ../templates/networking.php:22
-msgid "Devices"
-msgstr "Dispozitive"
-
-#: ../templates/networking.php:23
-msgid "Mobile Data"
-msgstr "Date mobile"
-
-#: ../templates/networking.php:24
-msgid "WLAN Routing"
-msgstr "Rutare WLAN"
-
-#: ../templates/networking.php:25
-msgid "Diagnostics"
-msgstr "Diagnosticare"
-
-#: ../templates/networking.php:41
-msgid "Information provided by /sys/class/net"
-msgstr "Informații furnizate de /sys/class/net"
-
-#: ../templates/wifi_stations/network.php:42
-msgid "Not configured"
+#: templates/admin.php:34
+msgid "Old password"
 msgstr ""
 
-#: ../templates/wifi_stations/network.php:46 ../templates/hostapd/basic.php:30
-msgid "Channel"
-msgstr "Canal"
-
-#: ../templates/wifi_stations/network.php:55
-msgid "RSSI"
+#: templates/admin.php:58
+msgid "Repeat new password"
 msgstr ""
 
-#: ../templates/wifi_stations/network.php:73 ../templates/hostapd.php:50
-msgid "Security"
-msgstr "Securitate"
-
-#: ../templates/wifi_stations/network.php:77
-msgid "Passphrase"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:90
-#: ../templates/networking/devices.php:55
-msgid "Update"
-msgstr "Actualizare"
-
-#: ../templates/wifi_stations/network.php:92
-msgid "Disconnect"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:94
-msgid "Connect"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:97
-msgid "Add"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:112
-msgid "Login Information Required"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:115
-msgid "This wireless network requires a login or the acceptance of terms of usage on a separate webpage"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:118
-msgid "Goto Webpage"
-msgstr ""
-
-#: ../templates/wifi_stations/network.php:119 ../templates/hostapd.php:90
-#: ../templates/configure_client.php:65 ../templates/system.php:56
-#: ../templates/system.php:74 ../templates/system.php:109
-#: ../templates/system.php:127 ../templates/system.php:159
-msgid "Close"
-msgstr "Închidere"
-
-#: ../templates/wifi_stations.php:3
-msgid "No Wifi stations found"
-msgstr "Nu s-au găsit stații Wifi"
-
-#: ../templates/wifi_stations.php:4
-msgid "Click 'Rescan' to search for nearby Wifi stations."
-msgstr "Faceți clic pe \"Rescan\" pentru a căuta stații Wifi în apropiere."
-
-#: ../templates/wifi_stations.php:6
-msgid "Click 'Reinitialize' to force reinitialize <code>wpa_supplicant</code>."
-msgstr "Faceți clic pe \"Reinitializare\" pentru a forța reinitializarea <code>wpa_supplicant</code>."
-
-#: ../templates/wifi_stations.php:10
-msgid "Reinitialize"
-msgstr "Reinițializare"
-
-#: ../templates/wifi_stations.php:18 ../templates/configure_client.php:12
-msgid "Connected"
-msgstr "Conectat"
-
-#: ../templates/wifi_stations.php:29
-msgid "Known"
-msgstr "Cunoscute"
-
-#: ../templates/wifi_stations.php:40
-msgid "Nearby"
-msgstr "În apropiere"
-
-#: ../templates/wireguard.php:21
-msgid "Stop WireGuard"
-msgstr "Opriți WireGuard"
-
-#: ../templates/wireguard.php:25
-msgid "Start WireGuard"
-msgstr "Porniți WireGuard"
-
-#: ../templates/wireguard.php:47 ../templates/wg/peers.php:5
-msgid "Peer"
-msgstr "Peer"
-
-#: ../templates/wireguard.php:67
-msgid "Information provided by wireguard"
-msgstr "Informații furnizate de wireguard"
-
-#: ../templates/wireguard.php:77
-msgid "Delete WireGuard configuration"
-msgstr "Ștergeți configurația WireGuard"
-
-#: ../templates/wireguard.php:80
-msgid "Delete this configuration? This cannot be undone."
-msgstr "Ștergeți această configurație? Acest lucru nu poate fi anulat."
-
-#: ../templates/wireguard.php:95
-msgid "Activate WireGuard configuration"
-msgstr "Activați configurația WireGuard"
-
-#: ../templates/wireguard.php:98
-msgid "Activate this configuration? This will restart the wg-quick service."
-msgstr "Activați această configurație? Aceasta va reporni serviciul wg-quick."
-
-#: ../templates/wireguard.php:102 ../templates/openvpn.php:100
-msgid "Activate"
-msgstr "Activați"
-
-#: ../templates/networking/devices.php:3
-msgid "Network devices"
-msgstr "Dispozitive de rețea"
-
-#: ../templates/networking/devices.php:16
-msgid "Device"
-msgstr "Dispozitiv"
-
-#: ../templates/networking/devices.php:17
-#: ../templates/networking/general.php:12 ../templates/hostapd/basic.php:5
-#: ../templates/configure_client.php:31 ../templates/dhcp/general.php:5
-#: ../templates/dhcp/summary.php:18 ../templates/dhcp/settings.php:5
-msgid "Interface"
-msgstr "Interfață"
-
-#: ../templates/networking/devices.php:19
-#: ../templates/dhcp/static_leases.php:16
-#: ../templates/dhcp/static_leases.php:33
-#: ../templates/dhcp/static_leases.php:64
-msgid "MAC address"
-msgstr "Adresa MAC"
-
-#: ../templates/networking/devices.php:20
-msgid "USB vid/pid"
-msgstr "USB vid/pid"
-
-#: ../templates/networking/devices.php:21
-msgid "Device type"
-msgstr "Tip dispozitiv"
-
-#: ../templates/networking/general.php:3
-msgid "Internet connection"
-msgstr "Conexiune la internet"
-
-#: ../templates/networking/general.php:13 ../templates/dashboard.php:54
-#: ../templates/dashboard.php:60 ../templates/dhcp/general.php:39
-#: ../templates/dhcp/clients.php:20 ../templates/dhcp/settings.php:39
-#: ../templates/wg/peers.php:38 ../templates/wg/general.php:103
-msgid "IP Address"
-msgstr "Adresa IP"
-
-#: ../templates/networking/general.php:14 ../templates/hostapd/advanced.php:52
-msgid "Gateway"
-msgstr "Gateway"
-
-#: ../templates/networking/general.php:15
-msgid "Internet Access"
-msgstr "Acces la internet"
-
-#: ../templates/networking/general.php:53
-msgid "Routing table"
-msgstr "Tabelul de rutare"
-
-#: ../templates/networking/general.php:57
-msgid "raw output"
-msgstr "ieșire brută"
-
-#: ../templates/networking/general.php:80
-msgid "Current settings"
-msgstr "Setări curente"
-
-#: ../templates/networking/wlanrouting.php:5
-msgid "Restart WLAN routing"
-msgstr "Reporniți rutarea WLAN"
-
-#: ../templates/networking/wlanrouting.php:6
-msgid "Stop WLAN routing"
-msgstr "Opriți rutarea WLAN"
-
-#: ../templates/networking/wlanrouting.php:8
-msgid "Start WLAN routing"
-msgstr "Începeți rutarea WLAN"
-
-#: ../templates/networking/wlanrouting.php:17
-msgid "Wireless LAN routing"
+#: templates/ap_configuration.php:30
+#, fuzzy
+msgid "Wireless access point settings"
 msgstr "Rutare LAN fără fir"
 
-#: ../templates/networking/wlanrouting.php:22
-msgid "routing"
-msgstr "rutare"
-
-#: ../templates/networking/wlanrouting.php:27
-msgid "This option configures RaspAP to <b>route network traffic from your wireless client (STA) interface</b> to another available interface."
-msgstr "Această opțiune configurează RaspAP pentru a <b>direcționa traficul de rețea de la interfața clientului dvs. fără fir (STA)</b> către o altă interfață disponibilă."
-
-#: ../templates/networking/wlanrouting.php:29
-msgid "When an output interface is selected, <code>iptables</code> rules are added to route packets using network address translation (NAT). This is often done to share internet connectivity from a WLAN with devices on an <code>eth0</code>, <code>usb0</code> or predictable <code>enx</code> interface."
-msgstr "Atunci când este selectată o interfață de ieșire, sunt adăugate reguli <code>iptables</code> pentru direcționarea pachetelor utilizând traducerea adreselor de rețea (NAT). Acest lucru se face adesea pentru a partaja conectivitatea la internet de la un WLAN cu dispozitive pe o interfață <code>eth0</code>, <code>usb0</code> sau <code>enx</code> previzibilă."
-
-#: ../templates/networking/wlanrouting.php:34
-msgid "Wireless client interface"
-msgstr "Interfață client fără fir"
-
-#: ../templates/networking/wlanrouting.php:42
-msgid "Output interface"
-msgstr "Interfață de ieșire"
-
-#: ../templates/networking/wlanrouting.php:47
-msgid "Configure a static IP address and DHCP for output interface"
-msgstr "Configurați o adresă IP statică și DHCP pentru interfața de ieșire"
-
-#: ../templates/networking/diagnostics.php:3
-msgid "Speedtest"
-msgstr "Speedtest"
-
-#: ../templates/networking/diagnostics.php:8
-msgid "Selecting a server"
-msgstr "Selectarea unui server"
-
-#: ../templates/networking/diagnostics.php:12
-msgid "Privacy"
-msgstr "Confidențialitate"
-
-#: ../templates/networking/diagnostics.php:16
-msgid "Server"
-msgstr "Server"
-
-#: ../templates/networking/diagnostics.php:22
-msgid "Ping"
-msgstr "Ping"
-
-#: ../templates/networking/diagnostics.php:24
-#: ../templates/networking/diagnostics.php:29
-msgid "ms"
-msgstr "ms"
-
-#: ../templates/networking/diagnostics.php:27
-msgid "Jitter"
-msgstr "Jitter"
-
-#: ../templates/networking/diagnostics.php:37
-#: ../templates/networking/diagnostics.php:43
-msgid "Mbps"
-msgstr "Mbps"
-
-#: ../templates/networking/mobile.php:4
-msgid "Mobile data settings"
-msgstr "Setări date mobile"
-
-#: ../templates/networking/mobile.php:8
-msgid "SIM card PIN number"
-msgstr "Numărul PIN al cartelei SIM"
-
-#: ../templates/networking/mobile.php:11
-msgid "APN Settings"
-msgstr "Setări APN"
-
-#: ../templates/networking/mobile.php:13
-msgid "Access Point Name (APN)"
-msgstr "Numele punctului de acces (APN)"
-
-#: ../templates/hostapd.php:20
-msgid "Start hotspot"
-msgstr "Start hotspot"
-
-#: ../templates/hostapd.php:20
-msgid "Starting hotspot"
-msgstr "Pornirea hotspotului"
-
-#: ../templates/hostapd.php:24
-msgid "Stop hotspot"
-msgstr "Oprire hotspot"
-
-#: ../templates/hostapd.php:27
-msgid "Restart hotspot"
-msgstr "Reporniți hotspotul"
-
-#: ../templates/hostapd.php:27
-msgid "Restarting hotspot"
-msgstr "Repornirea hotspotului"
-
-#: ../templates/hostapd.php:70
-msgid "Information provided by hostapd"
-msgstr "Informații furnizate de hostapd"
-
-#: ../templates/hostapd.php:84
-msgid "Executing RaspAP service start"
-msgstr "Executarea pornirii serviciului RaspAP"
-
-#: ../templates/restapi/general.php:12
-msgid "API Key"
-msgstr "Cheie API"
-
-#: ../templates/restapi/general.php:17
-msgid "Please provide a valid API key."
-msgstr "Vă rugăm să furnizați o cheie API validă."
-
-#: ../templates/restapi/status.php:3
-msgid "RestAPI status"
-msgstr "Starea RestAPI"
-
-#: ../templates/restapi/status.php:4
-msgid "Current <code>restapi.service</code> status is displayed below."
-msgstr "Starea curentă a <code>restapi.service</code> este afișată mai jos."
-
-#: ../templates/system/plugins.php:3 ../templates/system.php:23
-msgid "Plugins"
-msgstr "Plugin-uri"
-
-#: ../templates/system/plugins.php:8
-msgid "The following user plugins are available to extend RaspAP's functionality."
-msgstr "Următoarele plugin-uri de utilizator sunt disponibile pentru a extinde funcționalitatea RaspAP."
-
-#: ../templates/system/plugins.php:12
-msgid "Choose <strong>Details</strong> for more information and to install a plugin."
-msgstr "Alegeți <strong>Detalii</strong> pentru mai multe informații și pentru a instala un plugin."
-
-#: ../templates/system/advanced.php:9
-msgid "Web server port"
-msgstr "Portul serverului web"
-
-#: ../templates/system/advanced.php:15
-msgid "Web server bind address"
-msgstr "Adresa bind a serverului web"
-
-#: ../templates/system/advanced.php:21
-msgid "Diagnostic log size limit (KB)"
-msgstr "Limita dimensiunii jurnalului de diagnosticare (KB)"
-
-#: ../templates/system/advanced.php:28
-msgid "SSL Certificate (HTTPS)"
-msgstr ""
-
-#: ../templates/system/advanced.php:30
-#, php-format
-msgid "An SSL Certificate has been created for this system. To download and install it on your system, use the button below and the <a href=\"%s\" target=\"_blank\">documentation</a> to install the certificate on your device."
-msgstr ""
-
-#: ../templates/system/advanced.php:31
-msgid "Download rootCA.pem"
-msgstr ""
-
-#: ../templates/system/advanced.php:33
-#, php-format
-msgid "To install an SSL Certificate and access the RaspAP Admin Panel via HTTPS, please refer to the <a href=\"%s\" target=\"_blank\">documentation</a>."
-msgstr ""
-
-#: ../templates/system/advanced.php:40
-msgid "Restart lighttpd"
-msgstr "Reporniți lighttpd"
-
-#: ../templates/system/tools.php:3
-msgid "System tools"
-msgstr "Instrumente de sistem"
-
-#: ../templates/system/tools.php:10
-#, php-format
-msgid "To generate a system <a href=\"%s\" target=\"_blank\">debug log</a>, click or tap the button below."
-msgstr "Pentru a genera un <a href=\"%s\" target=\"_blank\">jurnal de depanare</a> a sistemului, faceți clic sau atingeți butonul de mai jos."
-
-#: ../templates/system/tools.php:13
-msgid "Debug log information contains the RaspAP version, current state and configuration of AP related services, installed system packages, Linux kernel version and networking details. No passwords or other sensitive data are included."
-msgstr "Informațiile din jurnalul de depanare conțin versiunea RaspAP, starea și configurația curentă a serviciilor legate de AP, pachetele de sistem instalate, versiunea kernel-ului Linux și detalii despre rețea. Nu sunt incluse parole sau alte date sensibile."
-
-#: ../templates/system/tools.php:18 ../templates/system.php:121
-msgid "Generate debug log"
-msgstr "Generarea jurnalului de depanare"
-
-#: ../templates/system/tools.php:24
-#, php-format
-msgid "To <a href=\"%s\" target=\"_blank\">inspect adapters</a> attached to this device, click or tap the button below."
-msgstr "Pentru a <a href=\"%s\" target=\"_blank\">inspecta adaptoarele</a> atașate la acest dispozitiv, faceți clic sau atingeți butonul de mai jos."
-
-#: ../templates/system/tools.php:27
-msgid "The adapter inspection tool returns details about external WLAN devices including drivers, supported modes and so on."
-msgstr "Instrumentul de inspecție a adaptorului returnează detalii despre dispozitivele WLAN externe, inclusiv driverele, modurile acceptate și așa mai departe."
-
-#: ../templates/system/tools.php:32 ../templates/system.php:138
-msgid "Inspect adapters"
-msgstr "Inspectați adaptoarele"
-
-#: ../templates/system/tools.php:38
-#, php-format
-msgid "To reset RaspAP to its <a href=\"%s\" target=\"_blank\">initial configuration</a>, click or tap the button below."
-msgstr "Pentru a reseta RaspAP la <a href=\"%s\" target=\"_blank\">configurația</a> sa <a href=\" %s \" target=\"_blank\">inițială</a>, faceți clic sau atingeți butonul de mai jos."
-
-#: ../templates/system/tools.php:40
-msgid "Restores all access point (AP) service settings to their default values. This applies to hostapd, dhcpcd and dnsmasq."
-msgstr "Restabilește toate setările serviciilor punctului de acces (AP) la valorile implicite. Acest lucru se aplică la hostapd, dhcpcd și dnsmasq."
-
-#: ../templates/system/tools.php:42
-msgid "Custom files for optional components such as Ad Blocking, WireGuard or OpenVPN will remain on the system."
-msgstr "Fișierele personalizate pentru componentele opționale, cum ar fi Ad Blocking, WireGuard sau OpenVPN, vor rămâne pe sistem."
-
-#: ../templates/system/tools.php:47
-msgid "Perform reset"
-msgstr "Efectuați resetarea"
-
-#: ../templates/system/theme.php:3
-msgid "Theme settings"
-msgstr "Setări temă"
-
-#: ../templates/system/theme.php:8
-msgid "Select a theme"
-msgstr "Selectați o temă"
-
-#: ../templates/system/theme.php:12
-msgid "Color"
-msgstr "Culoare"
-
-#: ../templates/system/theme.php:18
-msgid "Dark Mode"
-msgstr "Mod întunecat"
-
-#: ../templates/system/theme.php:25
-msgid "Use the dark mode from the current theme"
-msgstr "Utilizați modul întunecat din tema curentă"
-
-#: ../templates/system/theme.php:28
-msgid "System Theme"
-msgstr "Tema sistemului"
-
-#: ../templates/system/theme.php:35
-msgid "Uses the color mode of your system"
-msgstr "Folosește modul de culoare al sistemului dvs."
-
-#: ../templates/system/theme.php:40
-msgid "Alert messages"
-msgstr "Mesaje de alertă"
-
-#: ../templates/system/theme.php:44
-msgid "Automatically close alerts after a specified timeout"
-msgstr "Închideți automat alertele după un interval de timp specificat"
-
-#: ../templates/system/theme.php:50
-msgid "Alert close timeout (milliseconds)"
-msgstr "Timeout închidere alertă (milisecunde)"
-
-#: ../templates/system/basic.php:10
-msgid "System Information"
-msgstr "Informații despre sistem"
-
-#: ../templates/system/basic.php:23 ../templates/system.php:75
-msgid "Reboot"
-msgstr "Reboot"
-
-#: ../templates/system/basic.php:27 ../templates/system.php:110
-msgid "Shutdown"
-msgstr "Închidere"
-
-#: ../templates/system/basic.php:36
-msgid "Hostname"
-msgstr "Nume gazdă"
-
-#: ../templates/system/basic.php:40
-msgid "Pi Revision"
-msgstr "Revizuirea Pi"
-
-#: ../templates/system/basic.php:44
-msgid "OS"
-msgstr "SO"
-
-#: ../templates/system/basic.php:48
-msgid "Kernel"
-msgstr "Kernel"
-
-#: ../templates/system/basic.php:52
-msgid "Uptime"
-msgstr "Uptime"
-
-#: ../templates/system/basic.php:56
-msgid "System Time"
-msgstr "Timpul sistemului"
-
-#: ../templates/system/basic.php:65
-msgid "Memory Used"
-msgstr "Memorie utilizată"
-
-#: ../templates/system/basic.php:77
-msgid "Storage Used"
-msgstr "Stocare utilizată"
-
-#: ../templates/system/basic.php:89
-msgid "CPU Load"
-msgstr "Sarcina CPU"
-
-#: ../templates/system/basic.php:101
-msgid "CPU Temp"
-msgstr "Temperatură CPU"
-
-#: ../templates/system/language.php:3
-msgid "Language settings"
-msgstr "Setări de limbă"
-
-#: ../templates/system/language.php:6
-msgid "Select a language"
-msgstr "Selectați o limbă"
-
-#: ../templates/provider.php:5
-#, php-format
-msgid "Connect %s"
-msgstr "Conectați %s"
-
-#: ../templates/provider.php:7
-#, php-format
-msgid "Disconnect %s"
-msgstr "Deconectați %s"
-
-#: ../templates/provider.php:51
-#, php-format
-msgid "Information provided by %s"
-msgstr "Informații furnizate de %s"
-
-#: ../templates/hostapd/security.php:2
-msgid "Security settings"
-msgstr "Setări de securitate"
-
-#: ../templates/hostapd/security.php:6
-msgid "Security type"
-msgstr "Tipul de securitate"
-
-#: ../templates/hostapd/security.php:10
-msgid "Encryption Type"
-msgstr "Tip de criptare"
-
-#: ../templates/hostapd/security.php:14
-msgid "802.11w"
-msgstr "802.11w"
-
-#: ../templates/hostapd/security.php:15
-msgid "802.11w extends strong cryptographic protection to a select set of robust management frames, including Deauthentication, Disassociation and certain categories of Action Management frames. Collectively, this is known as Management Frame Protection (MFP)."
-msgstr "802.11w extinde protecția criptografică puternică la un set selectat de cadre de gestionare robuste, inclusiv dezautentificare, disociere și anumite categorii de cadre de gestionare a acțiunilor. În mod colectiv, acest lucru este cunoscut sub denumirea de Management Frame Protection (MFP)."
-
-#: ../templates/hostapd/security.php:19
-msgid "Pre-shared key (PSK)"
-msgstr "Cheie pre-partajată (PSK)"
-
-#: ../templates/hostapd/security.php:24
-msgid "Please provide a valid PSK."
-msgstr "Vă rugăm să furnizați un PSK valid."
-
-#: ../templates/hostapd/security.php:32
-#, php-format
-msgid "Scan this QR code directly or %s %sprint a sign%s for your users."
-msgstr "Scanați direct acest cod QR sau %s %simprimați un semn%s pentru utilizatorii dvs."
-
-#: ../templates/hostapd/logging.php:4
-msgid "Enable this option to log <code>hostapd</code> activity."
-msgstr "Activați această opțiune pentru a înregistra activitatea <code>hostapd</code>."
-
-#: ../templates/hostapd/logging.php:9 ../templates/wg/logging.php:9
-msgid "Logfile output"
-msgstr "Ieșire fișier jurnal"
-
-#: ../templates/hostapd/logging.php:15
-msgid "Log level"
-msgstr "Nivelul jurnalului"
-
-#: ../templates/hostapd/logging.php:16
-msgid "Higher levels reduce log verbosity. Informational is recommended."
-msgstr "Nivelurile mai ridicate reduc verbozitatea jurnalului. Se recomandă nivelul informațional."
-
-#: ../templates/hostapd/advanced.php:9
-msgid "Bridged AP mode"
-msgstr "Mod AP cu punte"
-
-#: ../templates/hostapd/advanced.php:19
-msgid "Bridge interface configuration"
-msgstr "Configurarea interfeței punte"
-
-#: ../templates/hostapd/advanced.php:21
-msgid "Configure a static IP address for the <code>br0</code> interface to maintain connectivity during bridge mode activation."
-msgstr "Configurați o adresă IP statică pentru interfața <code>br0</code> pentru a menține conectivitatea în timpul activării modului bridge."
-
-#: ../templates/hostapd/advanced.php:26
-msgid "Static IP Address"
-msgstr "Adresă IP statică"
-
-#: ../templates/hostapd/advanced.php:32 ../templates/hostapd/advanced.php:58
-#: ../templates/hostapd/advanced.php:71
-msgid "Please enter a valid IPv4 address"
-msgstr "Vă rugăm să introduceți o adresă IPv4 validă"
-
-#: ../templates/hostapd/advanced.php:35
-msgid "Example: 192.168.1.100"
-msgstr "Exemplu: 192.168.1.100"
-
-#: ../templates/hostapd/advanced.php:39
-msgid "Netmask / CIDR"
-msgstr "Mască de rețea / CIDR"
-
-#: ../templates/hostapd/advanced.php:45
-msgid "Please enter a valid netmask"
-msgstr "Vă rugăm să introduceți o mască de rețea validă"
-
-#: ../templates/hostapd/advanced.php:48
-msgid "CIDR notation (e.g., 24 for 255.255.255.0)"
-msgstr "Notația CIDR (de exemplu, 24 pentru 255.255.255.0)"
-
-#: ../templates/hostapd/advanced.php:61
-msgid "Your router's IP address"
-msgstr "Adresa IP a routerului dvs."
-
-#: ../templates/hostapd/advanced.php:65 ../templates/dhcp/general.php:149
-#: ../templates/dhcp/general.php:156 ../templates/dhcp/settings.php:150
-#: ../templates/dhcp/settings.php:157
-msgid "DNS Server"
-msgstr "Server DNS"
-
-#: ../templates/hostapd/advanced.php:74
-msgid "Usually same as gateway"
-msgstr "De obicei la fel ca gateway-ul"
-
-#: ../templates/hostapd/advanced.php:89
-msgid "WiFi repeater mode"
-msgstr "Modul repetitor WiFi"
-
-#: ../templates/hostapd/advanced.php:99
-msgid "WiFi client AP mode"
-msgstr "Modul AP al clientului WiFi"
-
-#: ../templates/hostapd/advanced.php:108
-msgid "Dual band AP mode"
-msgstr "Mod AP cu bandă dublă"
-
-#: ../templates/hostapd/advanced.php:117
-msgid "Hide SSID in broadcast"
-msgstr "Ascunde SSID în difuzare"
-
-#: ../templates/hostapd/advanced.php:126
-msgid "Enable AP isolation"
-msgstr "Activați izolarea AP"
-
-#: ../templates/hostapd/advanced.php:127
-msgid "Blocks wireless clients from seeing or connecting to each other. Recommended for guest networks and public access points."
-msgstr "Blochează clienții fără fir să se vadă sau să se conecteze între ei. Recomandat pentru rețelele de oaspeți și punctele de acces publice."
-
-#: ../templates/hostapd/advanced.php:136
-msgid "Beacon interval"
-msgstr "Intervalul balizelor"
-
-#: ../templates/hostapd/advanced.php:148
-msgid "Disable <code>disassoc_low_ack</code>"
-msgstr "Dezactivați <code>disassoc_low_ack</code>"
-
-#: ../templates/hostapd/advanced.php:151
-msgid "Do not disassociate stations based on excessive transmission failures."
-msgstr "Nu disociați stațiile pe baza eșecurilor excesive de transmisie."
-
-#: ../templates/hostapd/advanced.php:157
-msgid "Transmit power (dBm)"
-msgstr "Putere de emisie (dBm)"
-
-#: ../templates/hostapd/advanced.php:158
-msgid "dBm is a unit of level used to indicate that a power ratio is expressed in decibels (dB) with reference to one milliwatt (mW). 30 dBm is equal to 1000 mW, while 0 dBm equals 1.25 mW."
-msgstr "dBm este o unitate de nivel utilizată pentru a indica faptul că un raport de putere este exprimat în decibeli (dB) cu referire la un miliwatt (mW). 30 dBm este egal cu 1000 mW, în timp ce 0 dBm este egal cu 1,25 mW."
-
-#: ../templates/hostapd/advanced.php:160
-msgid "Sets the <code>txpower</code> option for the AP interface and the configured country."
-msgstr "Setează opțiunea <code>txpower</code> pentru interfața AP și țara configurată."
-
-#: ../templates/hostapd/advanced.php:166
-msgid "Maximum number of clients"
-msgstr "Numărul maxim de clienți"
-
-#: ../templates/hostapd/advanced.php:168
-msgid "Configures the <code>max_num_sta</code> option of hostapd. The default and maximum is 2007. If empty or 0, the default applies."
-msgstr "Configurează opțiunea <code>max_num_sta</code> a hostapd. Valoarea implicită și maximă este 2007. Dacă este gol sau 0, se aplică valoarea implicită."
-
-#: ../templates/hostapd/advanced.php:173
-msgid "Country Code"
-msgstr "Codul țării"
-
-#: ../templates/hostapd/basic.php:11 ../templates/dashboard.php:57
-#: ../templates/dashboard.php:63
+#: templates/ap_configuration.php:41 templates/dashboard.php:833
+#: templates/dhcp_setting.php:117 templates/hostapd.php:52
+msgid "Basic"
+msgstr "De bază"
+
+#: templates/ap_configuration.php:43 templates/dashboard.php:845
+#: templates/hostapd/basic.php:16 templates/repeater.php:80
+#: templates/repeater.php:110 templates/repeater.php:126
+#: templates/wizard_repeater.php:52 templates/wizard_uplink.php:154
 msgid "SSID"
 msgstr "SSID"
 
-#: ../templates/hostapd/basic.php:14
-msgid "Please provide a valid SSID."
-msgstr "Vă rugăm să furnizați un SSID valid."
+#: templates/ap_configuration.php:44 templates/dashboard.php:340
+#: templates/dashboard.php:849 templates/wifi_hotspot.php:62
+msgid "Band"
+msgstr ""
 
-#: ../templates/hostapd/basic.php:20
+#: templates/ap_configuration.php:45 templates/dashboard.php:347
+#: templates/dashboard.php:857 templates/wifi_hotspot.php:62
+msgid "Ch"
+msgstr ""
+
+#: templates/ap_configuration.php:48 templates/dashboard.php:880
+#: templates/hostapd/basic.php:67
 msgid "Wireless Mode"
 msgstr "Mod fără fir"
 
-#: ../templates/hostapd/basic.php:21
-msgid "Wireless standards which are not compatible with your adapter may be disabled"
-msgstr "Standardele fără fir care nu sunt compatibile cu adaptorul dvs. pot fi dezactivate"
+#: templates/ap_configuration.php:49 templates/dashboard.php:351
+#: templates/dashboard.php:887
+msgid "Width"
+msgstr ""
 
-#: ../templates/hostapd/basic.php:24
+#: templates/ap_configuration.php:50 templates/dashboard.php:893
+msgid "TX dBm"
+msgstr ""
+
+#: templates/ap_configuration.php:57 templates/dashboard.php:906
+#, fuzzy
+msgid "Security Type"
+msgstr "Tipul de securitate"
+
+#: templates/ap_configuration.php:57 templates/ap_configuration.php:148
+#: templates/dashboard.php:910
+#, fuzzy
+msgid "Encryption"
+msgstr "Tip de criptare"
+
+#: templates/ap_configuration.php:58 templates/dashboard.php:916
+#, fuzzy
+msgid "Pre-shared Key (PSK)"
+msgstr "Cheie pre-partajată (PSK)"
+
+#: templates/ap_configuration.php:58 templates/dashboard.php:919
+msgid "Toggle visibility"
+msgstr ""
+
+#: templates/ap_configuration.php:58
+msgid "Toggle password visibility"
+msgstr ""
+
+#: templates/ap_configuration.php:58 templates/dashboard.php:922
+#, fuzzy
+msgid "WiFi QR code"
+msgstr "Client WiFi"
+
+#: templates/ap_configuration.php:58 templates/dashboard.php:922
+msgid "Open WiFi QR code"
+msgstr ""
+
+#: templates/ap_configuration.php:59
+msgid ""
+"Open networks have no password or traffic encryption. Anyone within range "
+"can connect."
+msgstr ""
+
+#: templates/ap_configuration.php:59
+msgid "WPA2-PSK with AES/CCMP is used for client compatibility."
+msgstr ""
+
+#: templates/ap_configuration.php:64 templates/ap_configuration.php:69
+#: templates/dashboard.php:984
+#, fuzzy
+msgid "AP Isolation"
+msgstr "Activați izolarea AP"
+
+#: templates/ap_configuration.php:65
+msgid "Prevents wireless clients from communicating directly with each other."
+msgstr ""
+
+#: templates/ap_configuration.php:76 templates/ap_configuration.php:81
+msgid "Hidden SSID"
+msgstr ""
+
+#: templates/ap_configuration.php:77
+msgid "Stops the network name from appearing in normal WiFi scans."
+msgstr ""
+
+#: templates/ap_configuration.php:90 templates/dashboard.php:1035
+#, fuzzy
+msgid "Restart"
+msgstr "Reporniți dnsmasq"
+
+#: templates/ap_configuration.php:91 templates/dashboard.php:1043
+#: templates/dhcp_setting.php:180 templates/wizard_ap_ethernet.php:94
+msgid "Save"
+msgstr ""
+
+#: templates/ap_configuration.php:107 templates/dashboard.php:129
+#: templates/dhcp_setting.php:252 templates/logging.php:56
+#, fuzzy
+msgid "DHCP setting"
+msgstr "%s setări"
+
+#: templates/ap_configuration.php:107 templates/dashboard.php:130
+#: templates/dhcp_setting.php:103 templates/dhcp_setting.php:252
+#: templates/logging.php:56
+#, fuzzy
+msgid "Hotspot address pool"
+msgstr "Controlul adresei MAC"
+
+#: templates/ap_configuration.php:111 templates/dashboard.php:148
+#: templates/dhcp_setting.php:256 templates/logging.php:57
+msgid "Leases active"
+msgstr ""
+
+#: templates/ap_configuration.php:112 templates/dashboard.php:151
+#: templates/dhcp_setting.php:257 templates/logging.php:57
+msgid "Lease"
+msgstr ""
+
+#: templates/ap_configuration.php:114 templates/dashboard.php:155
+#: templates/dhcp_setting.php:259
+msgid "DHCP leases in use"
+msgstr ""
+
+#: templates/ap_configuration.php:116 templates/dashboard.php:165
+#: templates/dhcp_setting.php:261 templates/logging.php:59
+msgid "Pool"
+msgstr ""
+
+#: templates/ap_configuration.php:128
+#, fuzzy
+msgid "Open network"
+msgstr "Rețea"
+
+#: templates/ap_configuration.php:129
+msgid "Confirm hotspot security"
+msgstr ""
+
+#: templates/ap_configuration.php:137
+#, fuzzy
+msgid "Security mode"
+msgstr "Tipul de securitate"
+
+#: templates/ap_configuration.php:141
+msgid "No password or encryption"
+msgstr ""
+
+#: templates/ap_configuration.php:142
+msgid ""
+"Anyone within range will be able to connect to this hotspot and inspect "
+"unencrypted wireless traffic."
+msgstr ""
+
+#: templates/ap_configuration.php:145
+msgid "Only continue if an open network is intentional."
+msgstr ""
+
+#: templates/ap_configuration.php:152
+msgid "Create open network"
+msgstr ""
+
+#: templates/ap_configuration.php:164 templates/dashboard.php:1058
+#, fuzzy
+msgid "WiFi access"
+msgstr "Client WiFi"
+
+#: templates/ap_configuration.php:171 templates/dashboard.php:1065
+msgid "OpenAP WiFi QR code"
+msgstr ""
+
+#: templates/ap_configuration.php:177 templates/dashboard.php:1071
+msgid "Scan with a phone camera to join the hotspot."
+msgstr ""
+
+#: templates/ap_configuration.php:180 templates/dashboard.php:1074
+msgid "Open full page"
+msgstr ""
+
+#: templates/ap_configuration.php:181 templates/dashboard.php:1075
+#, fuzzy
+msgid "Download SVG"
+msgstr "Descărcare"
+
+#: templates/clients.php:5
+#, fuzzy
+msgid "Hotspot clients"
+msgstr "Hotspot"
+
+#: templates/clients.php:12 templates/dashboard.php:527 templates/system.php:93
+msgid "Hostname"
+msgstr "Nume gazdă"
+
+#: templates/clients.php:13 templates/dashboard.php:528
+#: templates/repeater.php:53 templates/repeater.php:112
+msgid "IP"
+msgstr ""
+
+#: templates/clients.php:14 templates/dashboard.php:530
+#: templates/repeater.php:52 templates/repeater.php:77
+#: templates/wizard_repeater.php:27 templates/wizard_repeater.php:36
+#: templates/wizard_repeater.php:49
+msgid "MAC"
+msgstr ""
+
+#: templates/clients.php:15 templates/dashboard.php:531
+#: templates/repeater.php:114 templates/wizard_uplink.php:35
+msgid "Signal"
+msgstr ""
+
+#: templates/clients.php:16
+msgid "RX rate"
+msgstr ""
+
+#: templates/clients.php:17
+msgid "TX rate"
+msgstr ""
+
+#: templates/clients.php:18 templates/dashboard.php:475
+#: templates/dashboard.php:666 templates/wizard_ap_ethernet.php:85
+msgid "Connected"
+msgstr "Conectat"
+
+#: templates/clients.php:19 templates/repeater.php:111
+#: templates/repeater.php:127 templates/system.php:133
+#, fuzzy
+msgid "State"
+msgstr "Statut"
+
+#: templates/clients.php:37
+msgid "No hotspot clients found."
+msgstr ""
+
+#: templates/clients.php:44
+#, fuzzy
+msgid "Information provided by hostapd, dnsmasq and ARP."
+msgstr "Informații furnizate de hostapd"
+
+#: templates/dashboard.php:42
+msgid "Uplink AP"
+msgstr ""
+
+#: templates/dashboard.php:45
+msgid "Uplink unavailable"
+msgstr ""
+
+#: templates/dashboard.php:61 templates/wifi_hotspot.php:16
+#: templates/wizard_ap_ethernet.php:35 templates/wizard_ap_ethernet.php:56
+#, fuzzy
+msgid "Ethernet Bridge"
+msgstr "Ethernet"
+
+#: templates/dashboard.php:62 templates/dashboard.php:276
+#: templates/wifi_hotspot.php:16 templates/wizard_ap_ethernet.php:86
+#, fuzzy
+msgid "AP Ethernet"
+msgstr "Ethernet"
+
+#: templates/dashboard.php:62 templates/repeater.php:6
+#: templates/wifi_hotspot.php:16
+msgid "Repeater"
+msgstr "Repetitor"
+
+#: templates/dashboard.php:64 templates/logging.php:33
+#: templates/wifi_hotspot.php:33
+msgid "Live"
+msgstr ""
+
+#: templates/dashboard.php:88 templates/dashboard.php:138
+#: templates/dashboard.php:516
+msgid "Upstream DHCP"
+msgstr ""
+
+#: templates/dashboard.php:130
+msgid "Upstream managed"
+msgstr ""
+
+#: templates/dashboard.php:141
+msgid "Addresses and leases are managed by the upstream router."
+msgstr ""
+
+#: templates/dashboard.php:162
+msgid "Managed upstream"
+msgstr ""
+
+#: templates/dashboard.php:163
+msgid "Local DHCP disabled"
+msgstr ""
+
+#: templates/dashboard.php:187
+#, fuzzy
+msgid "Network Topology"
+msgstr "Rețele"
+
+#: templates/dashboard.php:187
+#, fuzzy
+msgid "Interfaces and connectivity"
+msgstr "Conexiune la internet"
+
+#: templates/dashboard.php:191 templates/wifi_hotspot.php:29
+msgid "Status"
+msgstr "Statut"
+
+#: templates/dashboard.php:191 templates/wifi_hotspot.php:29
+msgid "Healthy"
+msgstr ""
+
+#: templates/dashboard.php:191 templates/dhcp_setting.php:76
+#: templates/wifi_hotspot.php:29
+msgid "Degraded"
+msgstr ""
+
+#: templates/dashboard.php:207 templates/dashboard.php:221
+#, fuzzy
+msgid "Active"
+msgstr "Activați"
+
+#: templates/dashboard.php:207 templates/dashboard.php:221
+#, fuzzy
+msgid "Interrupted"
+msgstr "Interfață"
+
+#: templates/dashboard.php:209 templates/dashboard.php:1175
+#, fuzzy
+msgid "Internet"
+msgstr "Ethernet"
+
+#: templates/dashboard.php:210
+msgid "Upstream"
+msgstr ""
+
+#: templates/dashboard.php:210
+msgid "Offline"
+msgstr ""
+
+#: templates/dashboard.php:253 templates/dashboard.php:376
+#: templates/repeater.php:131 templates/wifi_hotspot.php:78
+msgid "Clients"
+msgstr "Clienți"
+
+#: templates/dashboard.php:264 templates/dashboard.php:270
+#, fuzzy
+msgid "Operating Mode"
+msgstr "Actualizarea surselor"
+
+#: templates/dashboard.php:265
+msgid "Choose the active uplink path"
+msgstr ""
+
+#: templates/dashboard.php:269
+#, fuzzy
+msgid "● Bridge"
+msgstr "Îmbinat"
+
+#: templates/dashboard.php:269
+msgid "● Routed / NAT"
+msgstr ""
+
+#: templates/dashboard.php:283
+#, fuzzy
+msgid "Configure repeater mode"
+msgstr "Configurarea noului nod de ieșire"
+
+#: templates/dashboard.php:283
+msgid "Switch AP Ethernet to Routed / NAT first"
+msgstr ""
+
+#: templates/dashboard.php:283
+msgid "Repeater mode requires at least 2 WiFi interfaces."
+msgstr ""
+
+#: templates/dashboard.php:285 templates/dashboard.php:1131
+#, fuzzy
+msgid "Repeater Mode"
+msgstr "Repetitor"
+
+#: templates/dashboard.php:286
+msgid "Routed first"
+msgstr ""
+
+#: templates/dashboard.php:286
+msgid "2 WiFi required"
+msgstr ""
+
+#: templates/dashboard.php:297 templates/wifi_hotspot.php:25
+#: templates/wifi_hotspot.php:39
+#, fuzzy
+msgid "WiFi Hotspot"
+msgstr "Hotspot"
+
+#: templates/dashboard.php:305 templates/wifi_hotspot.php:51
+msgid "Running"
+msgstr ""
+
+#: templates/dashboard.php:307 templates/wifi_hotspot.php:53
+#, fuzzy
+msgid "Stopped"
+msgstr "Opriți captura"
+
+#: templates/dashboard.php:310 templates/wifi_hotspot.php:55
+msgid "Hidden"
+msgstr ""
+
+#: templates/dashboard.php:317
+#, fuzzy
+msgid "Restart AP service"
+msgstr "Porniți serviciul RestAPI"
+
+#: templates/dashboard.php:318 templates/repeater.php:82
+#: templates/wizard_repeater.php:54
+msgid "AP"
+msgstr "AP"
+
+#: templates/dashboard.php:324
+#, fuzzy
+msgid "Restart DHCP/DNS service"
+msgstr "Porniți serviciul RestAPI"
+
+#: templates/dashboard.php:328
+msgid "Show AP and DHCP logs"
+msgstr ""
+
+#: templates/dashboard.php:329
+msgid "Logs"
+msgstr ""
+
+#: templates/dashboard.php:332
+#, fuzzy
+msgid "Configure"
+msgstr "Configurați dispozitivul"
+
+#: templates/dashboard.php:370 templates/wifi_hotspot.php:74
+msgid "TX Power"
+msgstr ""
+
+#: templates/dashboard.php:379 templates/dashboard.php:641
+#: templates/wifi_hotspot.php:78
+#, fuzzy
+msgid "connected"
+msgstr "Conectat"
+
+#: templates/dashboard.php:391 templates/repeater.php:105
+#: templates/wifi_hotspot.php:83 templates/wizard_ap_ethernet.php:85
+msgid "Uplink"
+msgstr ""
+
+#: templates/dashboard.php:400 templates/wifi_hotspot.php:89
+#, fuzzy
+msgid "Not connected"
+msgstr "Conectat"
+
+#: templates/dashboard.php:414
+msgid "Live Network Traffic"
+msgstr ""
+
+#: templates/dashboard.php:415
+msgid "Real-time throughput by interface"
+msgstr ""
+
+#: templates/dashboard.php:438 templates/dashboard.php:480
+msgid "Download"
+msgstr "Descărcare"
+
+#: templates/dashboard.php:442 templates/dashboard.php:484
+msgid "Upload"
+msgstr "Încărcare"
+
+#: templates/dashboard.php:454 templates/dashboard.php:496
+msgid "Traffic total"
+msgstr ""
+
+#: templates/dashboard.php:456 templates/dashboard.php:498
+#, fuzzy
+msgid "since interface start"
+msgstr "interfață"
+
+#: templates/dashboard.php:475
+msgid "Disconnected"
+msgstr "Deconectat"
+
+#: templates/dashboard.php:511 templates/dashboard.php:589
+#, fuzzy
+msgid "Connected Clients"
+msgstr "Conectat"
+
+#: templates/dashboard.php:511
+msgid "Associated hotspot devices"
+msgstr ""
+
+#: templates/dashboard.php:514
+msgid "total"
+msgstr ""
+
+#: templates/dashboard.php:518
+msgid "leased"
+msgstr ""
+
+#: templates/dashboard.php:529
+#, fuzzy
+msgid "Traffic"
+msgstr "Tot traficul"
+
+#: templates/dashboard.php:552 templates/dashboard.php:617
+msgid "Total"
+msgstr ""
+
+#: templates/dashboard.php:552 templates/dashboard.php:617
+#, fuzzy
+msgid "Top usage"
+msgstr "Utilizarea datelor"
+
+#: templates/dashboard.php:560 templates/dashboard.php:626
+msgid "Online"
+msgstr ""
+
+#: templates/dashboard.php:569 templates/dashboard.php:635
+#, fuzzy
+msgid "No clients connected"
+msgstr "Deconectat"
+
+#: templates/dashboard.php:577
+#, fuzzy
+msgid "View all clients"
+msgstr "Setări Firewall"
+
+#: templates/dashboard.php:590
+#, php-format
+msgid "%d devices currently associated with the hotspot"
+msgstr ""
+
+#: templates/dashboard.php:608
+#, fuzzy
+msgid "Unknown device"
+msgstr "Configurați dispozitivul"
+
+#: templates/dashboard.php:636
+msgid "Associated hotspot devices will appear here."
+msgstr ""
+
+#: templates/dashboard.php:658
+#, fuzzy
+msgid "Connected clients"
+msgstr "Conectat"
+
+#: templates/dashboard.php:659
+#, fuzzy
+msgid "Stations on the hotspot"
+msgstr "Pornirea hotspotului"
+
+#: templates/dashboard.php:667
+#, fuzzy
+msgid "WiFi stations"
+msgstr "Nu s-au găsit stații Wifi"
+
+#: templates/dashboard.php:687
+#, fuzzy
+msgid "Hotspot traffic"
+msgstr "Hotspot"
+
+#: templates/dashboard.php:688
+msgid "Totals since interface start"
+msgstr ""
+
+#: templates/dashboard.php:695
+msgid "Sent"
+msgstr ""
+
+#: templates/dashboard.php:696
+#, fuzzy
+msgid "AP → clients"
+msgstr "client"
+
+#: templates/dashboard.php:703
+#, fuzzy
+msgid "Received"
+msgstr "Primiți"
+
+#: templates/dashboard.php:704
+#, fuzzy
+msgid "Clients → AP"
+msgstr "Clienți"
+
+#: templates/dashboard.php:710
+msgid "Sent through the uplink"
+msgstr ""
+
+#: templates/dashboard.php:710
+msgid "Uplink sent"
+msgstr ""
+
+#: templates/dashboard.php:711
+msgid "Received through the uplink"
+msgstr ""
+
+#: templates/dashboard.php:711
+msgid "Uplink received"
+msgstr ""
+
+#: templates/dashboard.php:721 templates/wizard_ap_ethernet.php:69
+msgid "Active network path"
+msgstr ""
+
+#: templates/dashboard.php:737 templates/dashboard.php:754
+#: templates/dhcp_setting.php:120 templates/hostapd/advanced.php:52
+#: templates/repeater.php:141
+msgid "Gateway"
+msgstr "Gateway"
+
+#: templates/dashboard.php:738 templates/dashboard.php:755
+msgid "Default route"
+msgstr ""
+
+#: templates/dashboard.php:746 templates/hostapd/basic.php:5
+#: templates/repeater.php:76 templates/repeater.php:108
+#: templates/repeater.php:124 templates/wizard_ap_ethernet.php:68
+#: templates/wizard_repeater.php:26 templates/wizard_repeater.php:35
+#: templates/wizard_repeater.php:48 templates/wizard_uplink.php:150
+msgid "Interface"
+msgstr "Interfață"
+
+#: templates/dashboard.php:772 templates/system.php:212
+#, fuzzy
+msgid "System health"
+msgstr "Tema sistemului"
+
+#: templates/dashboard.php:773 templates/system.php:213
+msgid "Live resource usage"
+msgstr ""
+
+#: templates/dashboard.php:778 templates/system.php:218
+#, fuzzy
+msgid "CPU used"
+msgstr "Sarcina CPU"
+
+#: templates/dashboard.php:779 templates/system.php:219
+msgid "RAM used"
+msgstr ""
+
+#: templates/dashboard.php:780 templates/system.php:80 templates/system.php:220
+msgid "Temperature"
+msgstr ""
+
+#: templates/dashboard.php:781 templates/system.php:99 templates/system.php:221
+msgid "Uptime"
+msgstr "Uptime"
+
+#: templates/dashboard.php:785 templates/system.php:75 templates/system.php:225
+msgid "Disk"
+msgstr ""
+
+#: templates/dashboard.php:786 templates/system.php:226
+#, fuzzy
+msgid "Load"
+msgstr "Sarcina CPU"
+
+#: templates/dashboard.php:817
+#, fuzzy
+msgid "WiFi Hotspot Settings"
+msgstr "Editarea setărilor rutei"
+
+#: templates/dashboard.php:832
+#, fuzzy
+msgid "WiFi hotspot settings"
+msgstr "Editarea setărilor rutei"
+
+#: templates/dashboard.php:835 templates/hostapd.php:54
+msgid "Advanced"
+msgstr "Avansat"
+
+#: templates/dashboard.php:872
+msgid "No channels available"
+msgstr ""
+
+#: templates/dashboard.php:937
+msgid "recommended for compatibility"
+msgstr ""
+
+#: templates/dashboard.php:945
+msgid "Country"
+msgstr "Țara"
+
+#: templates/dashboard.php:949
+#, fuzzy
+msgid "Beacon Interval"
+msgstr "Intervalul balizelor"
+
+#: templates/dashboard.php:959
+msgid "RTS Threshold"
+msgstr ""
+
+#: templates/dashboard.php:963
+msgid "Frag. Threshold"
+msgstr ""
+
+#: templates/dashboard.php:967
+msgid "Max STA"
+msgstr ""
+
+#: templates/dashboard.php:973
+#, fuzzy
+msgid "Options"
+msgstr "Acțiuni"
+
+#: templates/dashboard.php:990
+#, fuzzy
+msgid "Ign. Broadcast"
+msgstr "Ascunde SSID în difuzare"
+
+#: templates/dashboard.php:996
+msgid "Probe Resp."
+msgstr ""
+
+#: templates/dashboard.php:1003
+#, fuzzy
+msgid "Edit full configuration in"
+msgstr "Configurarea interfeței punte"
+
+#: templates/dashboard.php:1014
+msgid "Enable logging"
+msgstr "Activarea înregistrării"
+
+#: templates/dashboard.php:1016
+msgid "live"
+msgstr ""
+
+#: templates/dashboard.php:1021
+#, fuzzy
+msgid "Started"
+msgstr "Porniți WireGuard"
+
+#: templates/dashboard.php:1024
+msgid "Full log"
+msgstr ""
+
+#: templates/dashboard.php:1089
+msgid "AP and DHCP logs"
+msgstr ""
+
+#: templates/dashboard.php:1093
+msgid "No recent AP/DHCP logs."
+msgstr ""
+
+#: templates/dashboard.php:1105 templates/dashboard.php:1116
+#: templates/wizard_ap_ethernet.php:17
+#, fuzzy
+msgid "AP via Ethernet"
+msgstr "Ethernet"
+
+#: templates/dashboard.php:1106
+#, fuzzy
+msgid "Configure wired uplink"
+msgstr "Configurați dispozitivul"
+
+#: templates/dashboard.php:1117
+#, fuzzy
+msgid "Loading configuration..."
+msgstr "Configurații"
+
+#: templates/dashboard.php:1132
+msgid "Select the WiFi uplink network"
+msgstr ""
+
+#: templates/dashboard.php:1137 templates/repeater.php:23
+#, fuzzy
+msgid "Change uplink"
+msgstr "Canal"
+
+#: templates/dashboard.php:1150
+msgid "Scanning for available networks"
+msgstr ""
+
+#: templates/dashboard.php:1164
+#, fuzzy
+msgid "Restoring Internet connection"
+msgstr "Conexiune la internet"
+
+#: templates/dashboard.php:1165
+msgid "The OpenAP hotspot remains active while the uplink recovers."
+msgstr ""
+
+#: templates/dashboard.php:1180
+msgid "WiFi uplink is unavailable"
+msgstr ""
+
+#: templates/dashboard.php:1181
+msgid "OpenAP is checking the saved network"
+msgstr ""
+
+#: templates/dashboard.php:1185
+msgid "Uplink loss detected"
+msgstr ""
+
+#: templates/dashboard.php:1186
+msgid "Trying the saved WiFi uplink"
+msgstr ""
+
+#: templates/dashboard.php:1187
+msgid "Waiting for IP and Internet"
+msgstr ""
+
+#: templates/dashboard.php:1192
+msgid "AP Ethernet fallback"
+msgstr ""
+
+#: templates/dashboard.php:1193
+#, fuzzy
+msgid "Checking the Ethernet connection…"
+msgstr "Conexiune la internet"
+
+#: templates/dashboard.php:1196
+msgid "Switch to AP Ethernet"
+msgstr ""
+
+#: templates/dashboard.php:1209
+#, fuzzy
+msgid "System is rebooting"
+msgstr "Timpul sistemului"
+
+#: templates/dashboard.php:1211
+msgid "Waiting for OpenAP to become reachable again."
+msgstr ""
+
+#: templates/dashboard.php:1248
+msgid "Connection restored. Reloading dashboard..."
+msgstr ""
+
+#: templates/dashboard.php:1268
+msgid "Reboot command sent. Waiting for services to restart..."
+msgstr ""
+
+#: templates/dashboard.php:1273
+msgid "OpenAP is going offline..."
+msgstr ""
+
+#: templates/dashboard.php:1274
+msgid "Reconnecting to OpenAP..."
+msgstr ""
+
+#: templates/dhcp_setting.php:42 templates/dhcp_setting.php:52
+#: templates/dhcp_setting.php:169
+msgid "Local DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:42 templates/dhcp_setting.php:169
+msgid "External DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:73
+msgid "Ready, not enforced"
+msgstr ""
+
+#: templates/dhcp_setting.php:75
+#, fuzzy
+msgid "Protected"
+msgstr "Conectat"
+
+#: templates/dhcp_setting.php:108
+#, fuzzy
+msgid "Ethernet Bridge mode"
+msgstr "Mod AP cu punte"
+
+#: templates/dhcp_setting.php:108
+msgid ""
+"Subnet, gateway, DHCP pool and client DNS are assigned by the upstream "
+"router. The values below are shown for reference and cannot be edited."
+msgstr ""
+
+#: templates/dhcp_setting.php:119
+#, fuzzy
+msgid "Hotspot subnet"
+msgstr "Hotspot"
+
+#: templates/dhcp_setting.php:121
+#, fuzzy
+msgid "AP interface"
+msgstr "interfață"
+
+#: templates/dhcp_setting.php:126
+msgid "DHCP Pool"
+msgstr ""
+
+#: templates/dhcp_setting.php:128
+#, fuzzy
+msgid "Range start"
+msgstr "Starea capotei"
+
+#: templates/dhcp_setting.php:129
+msgid "Range end"
+msgstr ""
+
+#: templates/dhcp_setting.php:130
+msgid "Lease time"
+msgstr ""
+
+#: templates/dhcp_setting.php:135 templates/dhcp_setting.php:140
+msgid "Protected DNS path"
+msgstr ""
+
+#: templates/dhcp_setting.php:135
+msgid "Standard DNS (compatibility)"
+msgstr ""
+
+#: templates/dhcp_setting.php:143
+#, fuzzy
+msgid "Client DNS"
+msgstr "Clienți"
+
+#: templates/dhcp_setting.php:149
+#, fuzzy
+msgid "Encrypted proxy"
+msgstr "Tip de criptare"
+
+#: templates/dhcp_setting.php:155
+msgid "Secure provider"
+msgstr ""
+
+#: templates/dhcp_setting.php:161 templates/dhcp_setting.php:216
+#, fuzzy
+msgid "Transport"
+msgstr "traducător"
+
+#: templates/dhcp_setting.php:165
+msgid "These values are managed automatically while Encrypted DNS is active."
+msgstr ""
+
+#: templates/dhcp_setting.php:168
+#, fuzzy
+msgid "DNS provider"
+msgstr "Server DNS"
+
+#: templates/dhcp_setting.php:168
+msgid "Custom"
+msgstr ""
+
+#: templates/dhcp_setting.php:169
+msgid "DNS policy"
+msgstr ""
+
+#: templates/dhcp_setting.php:170
+msgid "Advertised DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:171
+msgid "Upstream DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:173
+msgid ""
+"Standard DNS uses unencrypted port 53 and may be intercepted or redirected "
+"by the network provider."
+msgstr ""
+
+#: templates/dhcp_setting.php:179
+msgid "Managed by upstream router"
+msgstr ""
+
+#: templates/dhcp_setting.php:179
+msgid "Validated before applying"
+msgstr ""
+
+#: templates/dhcp_setting.php:187
+msgid "Encrypted DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:187
+msgid "Bypass ISP resolvers with DNS over HTTPS"
+msgstr ""
+
+#: templates/dhcp_setting.php:194
+#, fuzzy
+msgid "Resolver protection"
+msgstr "Locația serverului"
+
+#: templates/dhcp_setting.php:199
+msgid "Use Encrypted DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:200
+msgid ""
+"OpenAP remains the DNS server for hotspot clients and encrypts upstream "
+"queries. Apply the selection with the button below."
+msgstr ""
+
+#: templates/dhcp_setting.php:209
+msgid "Provider"
+msgstr ""
+
+#: templates/dhcp_setting.php:217
+msgid "Standard DNS"
+msgstr ""
+
+#: templates/dhcp_setting.php:220
+msgid "Local endpoint"
+msgstr ""
+
+#: templates/dhcp_setting.php:221
+msgid "Not active"
+msgstr ""
+
+#: templates/dhcp_setting.php:227
+msgid ""
+"Bridge clients use the DNS assigned by the upstream router. This resolver is "
+"configurable but is not enforced on bridged clients."
+msgstr ""
+
+#: templates/dhcp_setting.php:229
+msgid ""
+"dnsmasq forwards only to the local encrypted proxy; system and ISP DNS are "
+"ignored."
+msgstr ""
+
+#: templates/dhcp_setting.php:230
+msgid ""
+"When disabled, OpenAP uses the selected public resolver over standard DNS."
+msgstr ""
+
+#: templates/dhcp_setting.php:236
+msgid "Automatic rollback on validation failure"
+msgstr ""
+
+#: templates/dhcp_setting.php:237
+msgid "Apply DNS provider"
+msgstr ""
+
+#: templates/dhcp_setting.php:262
+msgid "available"
+msgstr ""
+
+#: templates/exception.php:6 templates/exception.php:17
+#, fuzzy
+msgid "OpenAP Exception"
+msgstr "Excepție RaspAP"
+
+#: templates/exception.php:20
+msgid "An exception occurred"
+msgstr ""
+
+#: templates/hostapd.php:14 templates/repeater.php:121
+#: templates/wizard_uplink.php:36
+msgid "Hotspot"
+msgstr "Hotspot"
+
+#: templates/hostapd.php:22
+msgid "Start hotspot"
+msgstr "Start hotspot"
+
+#: templates/hostapd.php:22
+msgid "Starting hotspot"
+msgstr "Pornirea hotspotului"
+
+#: templates/hostapd.php:26
+msgid "Stop hotspot"
+msgstr "Oprire hotspot"
+
+#: templates/hostapd.php:29
+msgid "Restart hotspot"
+msgstr "Reporniți hotspotul"
+
+#: templates/hostapd.php:29
+msgid "Restarting hotspot"
+msgstr "Repornirea hotspotului"
+
+#: templates/hostapd.php:73
+msgid "Information provided by hostapd"
+msgstr "Informații furnizate de hostapd"
+
+#: templates/hostapd.php:87
+#, fuzzy
+msgid "Executing OpenAP service start"
+msgstr "Executarea pornirii serviciului RaspAP"
+
+#: templates/hostapd/advanced.php:2
+msgid "Advanced settings"
+msgstr "Setări avansate"
+
+#: templates/hostapd/advanced.php:9
+msgid "Bridged AP mode"
+msgstr "Mod AP cu punte"
+
+#: templates/hostapd/advanced.php:19
+msgid "Bridge interface configuration"
+msgstr "Configurarea interfeței punte"
+
+#: templates/hostapd/advanced.php:21
+msgid ""
+"Configure a static IP address for the <code>br0</code> interface to maintain "
+"connectivity during bridge mode activation."
+msgstr ""
+"Configurați o adresă IP statică pentru interfața <code>br0</code> pentru a "
+"menține conectivitatea în timpul activării modului bridge."
+
+#: templates/hostapd/advanced.php:26
+msgid "Static IP Address"
+msgstr "Adresă IP statică"
+
+#: templates/hostapd/advanced.php:32 templates/hostapd/advanced.php:58
+#: templates/hostapd/advanced.php:71
+msgid "Please enter a valid IPv4 address"
+msgstr "Vă rugăm să introduceți o adresă IPv4 validă"
+
+#: templates/hostapd/advanced.php:35
+msgid "Example: 192.168.1.100"
+msgstr "Exemplu: 192.168.1.100"
+
+#: templates/hostapd/advanced.php:39
+msgid "Netmask / CIDR"
+msgstr "Mască de rețea / CIDR"
+
+#: templates/hostapd/advanced.php:45
+msgid "Please enter a valid netmask"
+msgstr "Vă rugăm să introduceți o mască de rețea validă"
+
+#: templates/hostapd/advanced.php:48
+msgid "CIDR notation (e.g., 24 for 255.255.255.0)"
+msgstr "Notația CIDR (de exemplu, 24 pentru 255.255.255.0)"
+
+#: templates/hostapd/advanced.php:61
+msgid "Your router's IP address"
+msgstr "Adresa IP a routerului dvs."
+
+#: templates/hostapd/advanced.php:65
+msgid "DNS Server"
+msgstr "Server DNS"
+
+#: templates/hostapd/advanced.php:74
+msgid "Usually same as gateway"
+msgstr "De obicei la fel ca gateway-ul"
+
+#: templates/hostapd/advanced.php:89
+msgid "WiFi client AP mode"
+msgstr "Modul AP al clientului WiFi"
+
+#: templates/hostapd/advanced.php:98
+msgid "Hide SSID in broadcast"
+msgstr "Ascunde SSID în difuzare"
+
+#: templates/hostapd/advanced.php:107
+msgid "Beacon interval"
+msgstr "Intervalul balizelor"
+
+#: templates/hostapd/advanced.php:119
+msgid "Disable <code>disassoc_low_ack</code>"
+msgstr "Dezactivați <code>disassoc_low_ack</code>"
+
+#: templates/hostapd/advanced.php:122
+msgid "Do not disassociate stations based on excessive transmission failures."
+msgstr "Nu disociați stațiile pe baza eșecurilor excesive de transmisie."
+
+#: templates/hostapd/advanced.php:128
+msgid "Transmit power (dBm)"
+msgstr "Putere de emisie (dBm)"
+
+#: templates/hostapd/advanced.php:129
+msgid ""
+"dBm is a unit of level used to indicate that a power ratio is expressed in "
+"decibels (dB) with reference to one milliwatt (mW). 30 dBm is equal to 1000 "
+"mW, while 0 dBm equals 1.25 mW."
+msgstr ""
+"dBm este o unitate de nivel utilizată pentru a indica faptul că un raport de "
+"putere este exprimat în decibeli (dB) cu referire la un miliwatt (mW). 30 "
+"dBm este egal cu 1000 mW, în timp ce 0 dBm este egal cu 1,25 mW."
+
+#: templates/hostapd/advanced.php:131
+msgid ""
+"Sets the <code>txpower</code> option for the AP interface and the configured "
+"country."
+msgstr ""
+"Setează opțiunea <code>txpower</code> pentru interfața AP și țara "
+"configurată."
+
+#: templates/hostapd/advanced.php:137
+msgid "Maximum number of clients"
+msgstr "Numărul maxim de clienți"
+
+#: templates/hostapd/advanced.php:139
+msgid ""
+"Configures the <code>max_num_sta</code> option of hostapd. The default and "
+"maximum is 2007. If empty or 0, the default applies."
+msgstr ""
+"Configurează opțiunea <code>max_num_sta</code> a hostapd. Valoarea implicită "
+"și maximă este 2007. Dacă este gol sau 0, se aplică valoarea implicită."
+
+#: templates/hostapd/advanced.php:144
+msgid "Country Code"
+msgstr "Codul țării"
+
+#: templates/hostapd/basic.php:2
+msgid "Basic settings"
+msgstr "Setări de bază"
+
+#: templates/hostapd/basic.php:19
+msgid "Please provide a valid SSID."
+msgstr "Vă rugăm să furnizați un SSID valid."
+
+#: templates/hostapd/basic.php:30
+#, fuzzy
+msgid "Wi-Fi band"
+msgstr "Conectare Wi-Fi"
+
+#: templates/hostapd/basic.php:32
+msgid "2.4 GHz — longer range and widest compatibility"
+msgstr ""
+
+#: templates/hostapd/basic.php:33
+msgid "5 GHz — higher speed and less interference"
+msgstr ""
+
+#: templates/hostapd/basic.php:40
+#, fuzzy
+msgid "Wireless mode"
+msgstr "Mod fără fir"
+
+#: templates/hostapd/basic.php:42
+msgid "The wireless mode follows the selected band automatically."
+msgstr ""
+
+#: templates/hostapd/basic.php:47 templates/wifi_hotspot.php:66
+#, fuzzy
+msgid "Channel width"
+msgstr "Canal"
+
+#: templates/hostapd/basic.php:49
+msgid ""
+"OpenAP defaults to 20 MHz after a channel change. Wider compatible widths "
+"remain available."
+msgstr ""
+
+#: templates/hostapd/basic.php:54 templates/hostapd/basic.php:77
+#: templates/repeater.php:81 templates/repeater.php:130
+#: templates/wizard_repeater.php:53 templates/wizard_uplink.php:88
+msgid "Channel"
+msgstr "Canal"
+
+#: templates/hostapd/basic.php:57
+msgid "Loading channels supported by this adapter..."
+msgstr ""
+
+#: templates/hostapd/basic.php:62
+msgid ""
+"Changing band, mode, width or channel restarts the hotspot. Connected Wi-Fi "
+"devices must reconnect afterward."
+msgstr ""
+
+#: templates/hostapd/basic.php:68
+msgid ""
+"Wireless standards which are not compatible with your adapter may be disabled"
+msgstr ""
+"Standardele fără fir care nu sunt compatibile cu adaptorul dvs. pot fi "
+"dezactivate"
+
+#: templates/hostapd/basic.php:71
 #, php-format
 msgid "Based on the selected interface, 802.11%s is suggested."
 msgstr "Pe baza interfeței selectate, se sugerează 802.11%s."
 
-#: ../templates/configure_client.php:12
-msgid "Disconnected"
-msgstr "Deconectat"
+#: templates/hostapd/logging.php:4
+msgid "Enable this option to log <code>hostapd</code> activity."
+msgstr ""
+"Activați această opțiune pentru a înregistra activitatea <code>hostapd</"
+"code>."
 
-#: ../templates/configure_client.php:24
-msgid "Rescan"
-msgstr "Rescan"
+#: templates/hostapd/logging.php:9
+msgid "Logfile output"
+msgstr "Ieșire fișier jurnal"
 
-#: ../templates/configure_client.php:34
-msgid "Set"
-msgstr "Set"
+#: templates/hostapd/logging.php:10
+msgid "Clear log"
+msgstr "Ștergeți jurnalul"
 
-#: ../templates/configure_client.php:49
-msgid "<strong>Note:</strong> WEP access points appear as 'Open'. RaspAP does not currently support connecting to WEP"
-msgstr "<strong>Notă:</strong> Punctele de acces WEP apar ca \"deschise\". RaspAP nu acceptă în prezent conectarea la puncte de acces WEP"
+#: templates/hostapd/security.php:2
+msgid "Security settings"
+msgstr "Setări de securitate"
 
-#: ../templates/configure_client.php:59
-msgid "Configuring WiFi Client"
-msgstr "Configurarea clientului WiFi"
+#: templates/hostapd/security.php:6
+msgid "Security type"
+msgstr "Tipul de securitate"
 
-#: ../templates/configure_client.php:62
-msgid "Configuring Wifi Client Interface..."
-msgstr "Configurarea interfeței Wifi Client..."
+#: templates/hostapd/security.php:10
+msgid "Encryption Type"
+msgstr "Tip de criptare"
 
-#: ../templates/about/general.php:8
-msgid "RaspAP"
-msgstr "RaspAP"
+#: templates/hostapd/security.php:14
+msgid "802.11w"
+msgstr "802.11w"
 
-#: ../templates/about/general.php:11 ../templates/about.php:47
-msgid "Check for update"
-msgstr "Verificare pentru actualizare"
+#: templates/hostapd/security.php:15
+msgid ""
+"802.11w extends strong cryptographic protection to a select set of robust "
+"management frames, including Deauthentication, Disassociation and certain "
+"categories of Action Management frames. Collectively, this is known as "
+"Management Frame Protection (MFP)."
+msgstr ""
+"802.11w extinde protecția criptografică puternică la un set selectat de "
+"cadre de gestionare robuste, inclusiv dezautentificare, disociere și anumite "
+"categorii de cadre de gestionare a acțiunilor. În mod colectiv, acest lucru "
+"este cunoscut sub denumirea de Management Frame Protection (MFP)."
 
-#: ../templates/about/general.php:20
+#: templates/hostapd/security.php:19
+msgid "Pre-shared key (PSK)"
+msgstr "Cheie pre-partajată (PSK)"
+
+#: templates/hostapd/security.php:24
+msgid "Please provide a valid PSK."
+msgstr "Vă rugăm să furnizați un PSK valid."
+
+#: templates/hostapd/security.php:32
 #, php-format
-msgid "RaspAP is a co-creation of %1$s and %2$s with the contributions of our %3$s and %4$s. Learn more about joining the project as a %5$s, %6$s or %7$s with immediate access to %8$s available to %9$s."
-msgstr "RaspAP este o co-creare a %1$s și %2$s cu contribuțiile noastre %3$s și %4$s. Aflați mai multe despre aderarea la proiect ca %5$s, %6$s sau %7$s cu acces imediat la %8$s disponibil la %9$s."
+msgid "Scan this QR code directly or %s %sprint a sign%s for your users."
+msgstr ""
+"Scanați direct acest cod QR sau %s %simprimați un semn%s pentru utilizatorii "
+"dvs."
 
-#: ../templates/about/general.php:23
-msgid "developer community"
-msgstr "comunitatea dezvoltatorilor"
+#: templates/logging.php:32
+msgid "Service diagnostics and system events"
+msgstr ""
 
-#: ../templates/about/general.php:24
-msgid "language translators"
-msgstr "traducători de limbi străine"
+#: templates/logging.php:33
+msgid "Read only"
+msgstr ""
 
-#: ../templates/about/general.php:25
-msgid "code contributor"
-msgstr "contribuitor la cod"
+#: templates/logging.php:36
+#, fuzzy
+msgid "Service logs"
+msgstr "Dispozitive"
 
-#: ../templates/about/general.php:26
-msgid "translator"
-msgstr "traducător"
+#: templates/logging.php:44
+msgid "Latest 240 journal entries"
+msgstr ""
 
-#: ../templates/about/general.php:27
-msgid "financial sponsor"
-msgstr "sponsor financiar"
+#: templates/logging.php:44
+msgid "Copy log"
+msgstr ""
 
-#: ../templates/about/general.php:28
-msgid "exclusive features"
-msgstr "caracteristici exclusive"
+#: templates/openap_service_status.php:36
+#, fuzzy
+msgid "Service status"
+msgstr "Setări server"
 
-#: ../templates/about/general.php:29 ../templates/about.php:22
-msgid "Insiders"
-msgstr "Inițiatori"
-
-#: ../templates/admin/general.php:3
-msgid "Change password"
-msgstr "Modificarea parolei"
-
-#: ../templates/admin/general.php:18 ../templates/admin/general.php:37
-#: ../templates/admin/login.php:15 ../templates/about.php:87
-msgid "Please provide a valid username."
-msgstr "Vă rugăm să furnizați un nume de utilizator valid."
-
-#: ../templates/admin/general.php:28
-msgid "Enable limited privilege user"
-msgstr "Activarea utilizatorului cu privilegii limitate"
-
-#: ../templates/admin/general.php:30
-msgid "This option enables a non-admin user who can access RaspAP's management interface, but has <strong>limited ability to modify the existing configuration</strong>. This user becomes active when the current admin user is logged-out."
-msgstr "Această opțiune activează un utilizator neadmin care poate accesa interfața de gestionare a RaspAP, dar are <strong>o capacitate limitată de a modifica configurația existentă</strong>. Acest utilizator devine activ atunci când utilizatorul administrator curent este deconectat."
-
-#: ../templates/admin/general.php:34
-msgid "Limited user login"
-msgstr "Conectare limitată a utilizatorului"
-
-#: ../templates/admin/general.php:43
-msgid "Limited user password"
-msgstr "Parolă de utilizator limitată"
-
-#: ../templates/admin/general.php:48
-msgid "Please enter a valid password."
-msgstr "Vă rugăm să introduceți o parolă validă."
-
-#: ../templates/admin/login.php:2
-msgid "Submit"
-msgstr "Trimite"
-
-#: ../templates/admin/login.php:11
-msgid "Admin login"
-msgstr "Conectare administrator"
-
-#: ../templates/admin/login.php:26
-msgid "Please enter your password."
-msgstr "Vă rugăm să introduceți parola."
-
-#: ../templates/admin/avatar.php:3
-msgid "Reset avatar"
-msgstr "Resetați avatarul"
-
-#: ../templates/admin/avatar.php:15
-msgid "Click or tap to upload a new user avatar."
-msgstr "Faceți clic sau atingeți pentru a încărca un nou avatar de utilizator."
-
-#: ../templates/admin/avatar.php:16
-msgid "Image files of type <code>JPG, GIF or PNG</code> are accepted. Max file size: 2 MB."
-msgstr "Sunt acceptate fișiere imagine de tip <code>JPG, GIF sau PNG</code>. Dimensiunea maximă a fișierului: 2 MB."
-
-#: ../templates/restapi.php:21
-msgid "Start RestAPI service"
-msgstr "Porniți serviciul RestAPI"
-
-#: ../templates/restapi.php:25
-msgid "Stop RestAPI service"
+#: templates/openap_service_status.php:37
+#, fuzzy
+msgid "Core OpenAP services"
 msgstr "Opriți serviciul RestAPI"
 
-#: ../templates/restapi.php:63
-msgid "Information provided by restapi.service"
-msgstr "Informații furnizate de restapi.service"
-
-#: ../templates/system.php:18
-msgid "Language"
+#: templates/openap_service_status.php:51
+msgid "Runtime monitored"
 msgstr ""
 
-#: ../templates/system.php:19
-msgid "Theme"
+#: templates/openap_service_status.php:52
+#, fuzzy
+msgid "services"
+msgstr "Dispozitive"
+
+#: templates/repeater.php:16
+#, fuzzy
+msgid "Refresh status"
+msgstr "Starea RestAPI"
+
+#: templates/repeater.php:19
+#, fuzzy
+msgid "Restart uplink"
+msgstr "Reporniți lighttpd"
+
+#: templates/repeater.php:21
+msgid "Opening"
 msgstr ""
 
-#: ../templates/system.php:21
-msgid "Tools"
+#: templates/repeater.php:26
+#, fuzzy
+msgid "Restart AP"
+msgstr "RestAPI"
+
+#: templates/repeater.php:29
+msgid "Restart DHCP"
 msgstr ""
 
-#: ../templates/system.php:40 ../templates/dashboard.php:164
-msgid "Information provided by raspap.sysinfo"
-msgstr "Informații furnizate de raspap.sysinfo"
+#: templates/repeater.php:36
+#, fuzzy
+msgid "Role configuration"
+msgstr "Configurații"
 
-#: ../templates/system.php:50
-msgid "System reset"
+#: templates/repeater.php:40
+msgid "Profile"
 msgstr ""
 
-#: ../templates/system.php:53
-msgid "Reset complete. Restart the hotspot for the changes to take effect."
+#: templates/repeater.php:41
+msgid "AP role"
 msgstr ""
 
-#: ../templates/system.php:53
-msgid "Reset RaspAP to its initial configuration? This action cannot be undone."
+#: templates/repeater.php:42
+msgid "Uplink role"
 msgstr ""
 
-#: ../templates/system.php:57
-msgid "System reset in progress..."
+#: templates/repeater.php:43
+msgid "Role validation"
 msgstr ""
 
-#: ../templates/system.php:57
-msgid "Reset"
-msgstr ""
-
-#: ../templates/system.php:68
-msgid "System reboot"
-msgstr ""
-
-#: ../templates/system.php:71
-msgid "Reboot now? The system will be temporarily unavailable."
-msgstr ""
-
-#: ../templates/system.php:86
-msgid "Reconnecting"
-msgstr ""
-
-#: ../templates/system.php:90
-msgid "The system is currently rebooting."
-msgstr ""
-
-#: ../templates/system.php:91
-msgid "Attempting to reconnect in"
-msgstr ""
-
-#: ../templates/system.php:103
-msgid "System shutdown"
-msgstr ""
-
-#: ../templates/system.php:106
-msgid "Shutdown now? The system will be unavailable."
-msgstr ""
-
-#: ../templates/system.php:124
-msgid "Debug log generation in progress..."
-msgstr ""
-
-#: ../templates/system.php:157
-msgid "Adapter health check"
-msgstr ""
-
-#: ../templates/system.php:194
-msgid "Plugin details"
-msgstr ""
-
-#: ../templates/system.php:205
-msgid "Plugin docs"
-msgstr ""
-
-#: ../templates/system.php:209
-msgid "Version"
-msgstr ""
-
-#: ../templates/system.php:213
-msgid "Author"
-msgstr ""
-
-#: ../templates/system.php:217
-msgid "License"
-msgstr ""
-
-#: ../templates/system.php:221
-msgid "Language locale"
-msgstr ""
-
-#: ../templates/system.php:225
-msgid "Configuration files"
-msgstr ""
-
-#: ../templates/system.php:229
-msgid "Signed Packages"
-msgstr ""
-
-#: ../templates/system.php:233
-msgid "Dependencies"
-msgstr ""
-
-#: ../templates/system.php:237
-msgid "JavaScript"
-msgstr ""
-
-#: ../templates/system.php:241
-msgid "Sudoers"
-msgstr ""
-
-#: ../templates/system.php:245
-msgid "Non-privileged users"
-msgstr ""
-
-#: ../templates/system.php:265
-msgid "Installing plugin"
-msgstr ""
-
-#: ../templates/system.php:268
-msgid "Plugin install completed."
-msgstr ""
-
-#: ../templates/system.php:268
-msgid "Plugin installation in progress..."
-msgstr ""
-
-#: ../templates/system.php:271 ../templates/about.php:56
-#: ../templates/about.php:57 ../templates/about.php:132
-msgid "OK"
-msgstr "OK"
-
-#: ../templates/adblock.php:20
-msgid "Restart Ad Blocking"
-msgstr "Reporniți Blocarea reclamelor"
-
-#: ../templates/adblock.php:24
-msgid "Start Ad Blocking"
-msgstr "Începeți blocarea reclamelor"
-
-#: ../templates/adblock.php:64
-msgid "Information provided by adblock"
-msgstr "Informații furnizate de adblock"
-
-#: ../templates/login.php:13
-msgid "Administrator login"
-msgstr "Autentificare administrator"
-
-#: ../templates/login.php:31
-msgid "Forgot password"
-msgstr "Am uitat parola"
-
-#: ../templates/login.php:33
-msgid "Scan for Login Help"
-msgstr ""
-
-#: ../templates/openvpn.php:20
-msgid "Start OpenVPN"
-msgstr "Porniți OpenVPN"
-
-#: ../templates/openvpn.php:24
-msgid "Stop OpenVPN"
-msgstr "Opriți OpenVPN"
-
-#: ../templates/openvpn.php:65
-msgid "Information provided by openvpn"
-msgstr "Informații furnizate de openvpn"
-
-#: ../templates/openvpn.php:75
-msgid "Delete OpenVPN client"
-msgstr "Ștergeți clientul OpenVPN"
-
-#: ../templates/openvpn.php:78
-msgid "Delete client configuration? This cannot be undone."
-msgstr "Ștergeți configurația clientului? Acest lucru nu poate fi anulat."
-
-#: ../templates/openvpn.php:93
-msgid "Activate OpenVPN client"
-msgstr "Activați clientul OpenVPN"
-
-#: ../templates/openvpn.php:96
-msgid "Activate client configuration? This will restart the openvpn-client service."
-msgstr "Activați configurația clientului? Aceasta va reporni serviciul openvpn-client."
-
-#: ../templates/dashboard.php:24
+#: templates/repeater.php:51
 msgid "Ethernet"
 msgstr "Ethernet"
 
-#: ../templates/dashboard.php:28 ../templates/dashboard.php:29
-msgid "WiFi Client"
+#: templates/repeater.php:54
+msgid "Carrier"
 msgstr ""
 
-#: ../templates/dashboard.php:28
-msgid "Repeater"
-msgstr "Repetitor"
-
-#: ../templates/dashboard.php:32 ../templates/dashboard.php:33
-msgid "Tethering"
-msgstr "Tethering"
-
-#: ../templates/dashboard.php:36 ../templates/dashboard.php:37
-msgid "Cellular"
-msgstr "Celulare"
-
-#: ../templates/dashboard.php:48
-msgid "Public"
+#: templates/repeater.php:67
+msgid "No ethernet interfaces found."
 msgstr ""
 
-#: ../templates/dashboard.php:49
-msgid "Local"
+#: templates/repeater.php:78 templates/wizard_repeater.php:50
+msgid "Type"
 msgstr ""
 
-#: ../templates/dashboard.php:55 ../templates/dashboard.php:61
-msgid "Netmask"
-msgstr "Mască de rețea"
+#: templates/repeater.php:79 templates/wizard_repeater.php:51
+msgid "Phy"
+msgstr ""
 
-#: ../templates/dashboard.php:56 ../templates/dashboard.php:62
-#: ../templates/dhcp/clients.php:19
-msgid "MAC Address"
-msgstr "Adresa MAC"
+#: templates/repeater.php:83 templates/wizard_repeater.php:55
+msgid "Managed"
+msgstr ""
 
-#: ../templates/dashboard.php:75
-msgid "AP"
-msgstr "AP"
+#: templates/repeater.php:95 templates/repeater.php:96
+#: templates/wizard_repeater.php:67 templates/wizard_repeater.php:68
+msgid "yes"
+msgstr ""
 
-#: ../templates/dashboard.php:83
-msgid "Bridged"
-msgstr "Îmbinat"
+#: templates/repeater.php:95 templates/repeater.php:96
+#: templates/wizard_repeater.php:67 templates/wizard_repeater.php:68
+msgid "no"
+msgstr ""
 
-#: ../templates/dashboard.php:91
-msgid "Adblock"
-msgstr "Adblock"
+#: templates/repeater.php:109 templates/repeater.php:125
+#: templates/system.php:132
+#, fuzzy
+msgid "Service"
+msgstr "Dispozitiv"
 
-#: ../templates/dashboard.php:99
-msgid "VPN"
-msgstr "VPN"
+#: templates/repeater.php:113 templates/repeater.php:129
+msgid "Frequency"
+msgstr ""
 
-#: ../templates/dashboard.php:108
-msgid "Firewall"
+#: templates/repeater.php:115
+msgid "Link speed"
+msgstr ""
+
+#: templates/repeater.php:128 templates/wizard_ap_ethernet.php:35
+#: templates/wizard_ap_ethernet.php:86
+#, fuzzy
+msgid "Mode"
+msgstr "Mod întunecat"
+
+#: templates/repeater.php:137
+#, fuzzy
+msgid "Client network"
+msgstr "Lista clienților"
+
+#: templates/repeater.php:140
+msgid "Subnet"
+msgstr ""
+
+#: templates/repeater.php:142
+#, fuzzy
+msgid "DHCP range"
+msgstr "Server DHCP"
+
+#: templates/repeater.php:143
+#, fuzzy
+msgid "dnsmasq"
+msgstr "Opriți dnsmasq"
+
+#: templates/repeater.php:144
+msgid "nftables"
+msgstr ""
+
+#: templates/repeater.php:145
+msgid "IPv4 forwarding"
+msgstr ""
+
+#: templates/repeater.php:146
+msgid "NAT"
+msgstr ""
+
+#: templates/repeater.php:152
+msgid ""
+"Information provided by hostapd, wpa_supplicant, dnsmasq, nftables and "
+"systemd."
+msgstr ""
+
+#: templates/system.php:16
+#, fuzzy
+msgid "WiFi access point"
+msgstr "Client WiFi"
+
+#: templates/system.php:17
+msgid "DHCP + DNS"
+msgstr ""
+
+#: templates/system.php:19
+#, fuzzy
+msgid "NAT / Firewall"
 msgstr "Firewall"
 
-#: ../templates/dashboard.php:114
-msgid "5G"
-msgstr "5G"
-
-#: ../templates/dashboard.php:115
-msgid "2.4G"
-msgstr "2.4G"
-
-#: ../templates/dhcp/general.php:2 ../templates/dhcp/settings.php:2
-msgid "DHCP server settings"
-msgstr ""
-
-#: ../templates/dhcp/general.php:10 ../templates/dhcp/settings.php:10
-msgid "Adapter IP Address Settings"
-msgstr ""
-
-#: ../templates/dhcp/general.php:28 ../templates/dhcp/settings.php:28
-msgid "Enable fallback to static option"
-msgstr ""
-
-#: ../templates/dhcp/general.php:31 ../templates/dhcp/settings.php:31
-msgid "Enable this option to configure a static profile and fall back to it when DHCP lease fails."
-msgstr ""
-
-#: ../templates/dhcp/general.php:36 ../templates/dhcp/settings.php:36
-msgid "Static IP options"
-msgstr ""
-
-#: ../templates/dhcp/general.php:42 ../templates/dhcp/settings.php:42
-msgid "Please provide a valid IP Address."
-msgstr ""
-
-#: ../templates/dhcp/general.php:49 ../templates/dhcp/settings.php:49
-msgid "Subnet Mask"
-msgstr ""
-
-#: ../templates/dhcp/general.php:52 ../templates/dhcp/settings.php:52
-msgid "Please provide a valid Subnet mask."
-msgstr ""
-
-#: ../templates/dhcp/general.php:59 ../templates/dhcp/settings.php:59
-msgid "Default gateway"
-msgstr ""
-
-#: ../templates/dhcp/general.php:62 ../templates/dhcp/settings.php:62
-msgid "Please provide a valid Default gateway."
-msgstr ""
-
-#: ../templates/dhcp/general.php:71 ../templates/dhcp/settings.php:71
-msgid "Install a default route for this interface"
-msgstr ""
-
-#: ../templates/dhcp/general.php:74
-msgid "This toggles the <code>gateway</code>/<code>nogateway</code> option for this interface in the DHCPCD configuration."
-msgstr ""
-
-#: ../templates/dhcp/general.php:83 ../templates/dhcp/settings.php:84
-msgid "Disable wpa_supplicant dhcp hook for this interface"
-msgstr ""
-
-#: ../templates/dhcp/general.php:84 ../templates/dhcp/settings.php:85
-msgid "If you manage wireless connections with wpa_supplicant itself, the hook may create unwanted connection events. This option disables the hook."
-msgstr ""
-
-#: ../templates/dhcp/general.php:87
-msgid "This toggles the <code>nohook wpa_supplicant</code> option for this interface in the DHCPCD configuration."
-msgstr ""
-
-#: ../templates/dhcp/general.php:92 ../templates/dhcp/settings.php:93
-msgid "DHCP options"
-msgstr ""
-
-#: ../templates/dhcp/general.php:98 ../templates/dhcp/settings.php:99
-msgid "Enable DHCP for this interface"
-msgstr ""
-
-#: ../templates/dhcp/general.php:101 ../templates/dhcp/settings.php:102
-msgid "Enable this option if you want RaspAP to assign IP addresses to clients on the selected interface. A static IP address is required for this option."
-msgstr ""
-
-#: ../templates/dhcp/general.php:109 ../templates/dhcp/settings.php:110
-msgid "Starting IP Address"
-msgstr ""
-
-#: ../templates/dhcp/general.php:112 ../templates/dhcp/settings.php:113
-msgid "Please provide a valid Starting IP Address."
-msgstr ""
-
-#: ../templates/dhcp/general.php:118 ../templates/dhcp/settings.php:119
-msgid "Ending IP Address"
-msgstr ""
-
-#: ../templates/dhcp/general.php:121 ../templates/dhcp/settings.php:122
-msgid "Please provide a valid Ending IP Address."
-msgstr ""
-
-#: ../templates/dhcp/general.php:127 ../templates/dhcp/settings.php:128
-msgid "Lease Time"
-msgstr ""
-
-#: ../templates/dhcp/general.php:130 ../templates/dhcp/settings.php:131
-msgid "Please provide a valid Lease Time."
-msgstr ""
-
-#: ../templates/dhcp/general.php:134 ../templates/dhcp/settings.php:135
-msgid "Interval"
-msgstr ""
-
-#: ../templates/dhcp/general.php:136 ../templates/dhcp/settings.php:137
-msgid "Minute(s)"
-msgstr ""
-
-#: ../templates/dhcp/general.php:137 ../templates/dhcp/settings.php:138
-msgid "Hour(s)"
-msgstr ""
-
-#: ../templates/dhcp/general.php:138 ../templates/dhcp/settings.php:139
-msgid "Day(s)"
-msgstr ""
-
-#: ../templates/dhcp/general.php:139 ../templates/dhcp/settings.php:140
-msgid "Infinite"
-msgstr ""
-
-#: ../templates/dhcp/general.php:142 ../templates/dhcp/settings.php:143
-msgid "Please provide a valid Interval."
-msgstr ""
-
-#: ../templates/dhcp/general.php:163 ../templates/dhcp/summary.php:25
-#: ../templates/dhcp/settings.php:164
-msgid "Metric"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:7
-msgid "Interface Configurations"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:19
-msgid "Static IP"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:20
-msgid "Subnet / Gateway"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:21
-msgid "Default Route"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:22
-msgid "Disable Hook"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:23
-msgid "DHCP Range (lease)"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:24
-msgid "DNS Servers"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:55 ../templates/dhcp/summary.php:61
-msgid "Yes"
-msgstr ""
-
-#: ../templates/dhcp/summary.php:97
-msgid "No configuration found in dhcpcd.conf or dnsmasq.d for any interfaces."
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:5
-msgid "Static leases"
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:7
-msgid "Clients with a particular hardware MAC address can always be allocated the same IP address."
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:8
-msgid "This option adds <code>dhcp-host</code> entries to the dnsmasq configuration."
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:19
-#: ../templates/dhcp/static_leases.php:36
-#: ../templates/dhcp/static_leases.php:67
-msgid "IP address"
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:22
-#: ../templates/dhcp/static_leases.php:39
-#: ../templates/dhcp/static_leases.php:70
-msgid "Optional comment"
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:46
-msgid "Restrict access"
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:51
-msgid "Limit network access to static clients"
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:54
-msgid "Enable this option if you want RaspAP to <b>ignore any clients</b> which are not specified in the static leases list."
-msgstr ""
-
-#: ../templates/dhcp/static_leases.php:55
-msgid "This option adds <code>dhcp-ignore</code> to the dnsmasq configuration."
-msgstr ""
-
-#: ../templates/dhcp/clients.php:8
-msgid "Active DHCP leases"
-msgstr ""
-
-#: ../templates/dhcp/clients.php:18
-msgid "Expire time"
-msgstr ""
-
-#: ../templates/dhcp/clients.php:21
-msgid "Host name"
-msgstr ""
-
-#: ../templates/dhcp/clients.php:22
-msgid "Client ID"
-msgstr ""
-
-#: ../templates/dhcp/logging.php:4
-msgid "Enable these options to log <code>dhcpcd</code> and <code>dnsmasq</code> activity."
-msgstr ""
-
-#: ../templates/dhcp/logging.php:8
-msgid "Log DHCP requests"
-msgstr ""
-
-#: ../templates/dhcp/logging.php:12
-msgid "Log DNS queries"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:3
-msgid "Advanced Settings"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:6
-msgid "Upstream DNS servers"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:11
-msgid "Only ever query DNS servers configured below"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:14
-msgid "Enable this option if you want RaspAP to <b>send DNS queries to the servers configured below exclusively</b>. By default RaspAP also uses its upstream DHCP server's name servers."
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:15
-msgid "This option adds <code>no-resolv</code> to the dnsmasq configuration."
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:29
-msgid "Add upstream DNS server"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:31
-#, php-format
-msgid "e.g. %s"
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:36
-msgid "Format: "
-msgstr ""
-
-#: ../templates/dhcp/advanced.php:41
-msgid "Choose a hosted server"
-msgstr ""
-
-#: ../templates/dhcp/settings.php:72
-msgid "Enable this only if you want your device to use this interface as its primary route to the internet."
-msgstr ""
-
-#: ../templates/dhcp/settings.php:75
-msgid "This toggles the <code>gateway</code>/<code>nogateway</code> option for this interface in the dhcpcd.conf file."
-msgstr ""
-
-#: ../templates/dhcp/settings.php:88
-msgid "This toggles the <code>nohook wpa_supplicant</code> option for this interface in the dhcpcd.conf file."
-msgstr ""
-
-#: ../templates/about.php:23
-msgid "Contributing"
-msgstr "Contribuție"
-
-#: ../templates/about.php:50
-msgid "New release check in progress..."
-msgstr "Verificarea noii versiuni în curs..."
-
-#: ../templates/about.php:53
-msgid "A new release is available: Version"
-msgstr "O nouă versiune este disponibilă: Versiune"
-
-#: ../templates/about.php:54
-msgid "Installed version is the latest release."
-msgstr "Versiunea instalată este cea mai recentă versiune."
-
-#: ../templates/about.php:55
-msgid "Install this update now?"
-msgstr "Instalați această actualizare acum?"
-
-#: ../templates/about.php:69
-msgid "GitHub authentication"
-msgstr "Autentificare GitHub"
-
-#: ../templates/about.php:73
-msgid "Updating Insiders requires GitHub authentication."
-msgstr "Actualizarea Insiderilor necesită autentificarea GitHub."
-
-#: ../templates/about.php:80
-msgid "Your credentials will be sent to GitHub securely with SSL. However, use caution if your RaspAP install is on a WLAN shared by untrusted users."
-msgstr "Datele dvs. de identificare vor fi trimise către GitHub în siguranță cu SSL. Cu toate acestea, fiți prudent dacă instalați RaspAP pe un WLAN partajat de utilizatori nesiguri."
-
-#: ../templates/about.php:92
-msgid "Personal Access Token"
-msgstr "Token de acces personal"
-
-#: ../templates/about.php:98
-msgid "Please provide a valid token."
-msgstr "Vă rugăm să furnizați un simbol valid."
-
-#: ../templates/about.php:105
-msgid "Perform update"
-msgstr "Efectuați actualizarea"
-
-#: ../templates/about.php:117
-msgid "Update in progress"
-msgstr "Actualizare în curs"
-
-#: ../templates/about.php:120
-msgid "Application is being updated..."
-msgstr "Aplicația este în curs de actualizare..."
-
-#: ../templates/about.php:121
-msgid "Configuring update"
-msgstr "Configurarea actualizării"
-
-#: ../templates/about.php:122
-msgid "Updating sources"
+#: templates/system.php:20
+#, fuzzy
+msgid "Web server"
+msgstr "Portul serverului web"
+
+#: templates/system.php:21
+#, fuzzy
+msgid "Network backend"
+msgstr "Dispozitive de rețea"
+
+#: templates/system.php:33
+msgid "Device information and diagnostics"
+msgstr ""
+
+#: templates/system.php:37 templates/system.php:280
+msgid "Reboot"
+msgstr "Reboot"
+
+#: templates/system.php:40
+msgid "Refresh"
+msgstr "Reîmprospătare"
+
+#: templates/system.php:51
+#, fuzzy
+msgid "OpenAP diagnostics"
+msgstr "Diagnosticare"
+
+#: templates/system.php:57
+#, fuzzy
+msgid "Operating mode"
 msgstr "Actualizarea surselor"
 
-#: ../templates/about.php:123
-msgid "Installing package updates"
-msgstr "Instalarea actualizărilor pachetelor"
+#: templates/system.php:65
+msgid "CPU Load"
+msgstr "Sarcina CPU"
 
-#: ../templates/about.php:124
-msgid "Downloading latest files"
-msgstr "Descărcarea celor mai recente fișiere"
+#: templates/system.php:70
+#, fuzzy
+msgid "Memory"
+msgstr "Memorie utilizată"
 
-#: ../templates/about.php:125
-msgid "Installing application"
-msgstr "Instalarea aplicației"
-
-#: ../templates/about.php:126
-msgid "Update complete"
-msgstr "Actualizare completă"
-
-#: ../templates/about.php:128
-msgid "An error occurred. Check the log at <code>/tmp/raspap_install.log</code>"
-msgstr "A apărut o eroare. Verificați jurnalul la <code>/tmp/raspap_install.log</code>"
-
-#: ../templates/about.php:129
-msgid "Success. Refresh this page to confirm the new version."
-msgstr "Succes. Actualizați această pagină pentru a confirma noua versiune."
-
-#: ../templates/exception.php:6 ../templates/exception.php:17
-msgid "RaspAP Exception"
-msgstr "Excepție RaspAP"
-
-#: ../templates/exception.php:20
-msgid "An exception occurred"
+#: templates/system.php:90
+msgid "Operating System"
 msgstr ""
 
-#: ../templates/wg/peers.php:10
-msgid "Enable peer"
+#: templates/system.php:94
+msgid "OS"
+msgstr "SO"
+
+#: templates/system.php:95
+msgid "Kernel"
+msgstr "Kernel"
+
+#: templates/system.php:96
+msgid "Architecture"
 msgstr ""
 
-#: ../templates/wg/peers.php:13
-msgid "Enable this option to encrypt traffic by creating a tunnel between RaspAP and this peer."
+#: templates/system.php:97
+msgid "Container"
 msgstr ""
 
-#: ../templates/wg/peers.php:14
-msgid "This option adds <code>client.conf</code> to the WireGuard configuration."
+#: templates/system.php:98
+msgid "CPU cores"
 msgstr ""
 
-#: ../templates/wg/peers.php:20
-msgid "Peer public key"
+#: templates/system.php:100
+#, fuzzy
+msgid "System time"
+msgstr "Timpul sistemului"
+
+#: templates/system.php:109
+#, fuzzy
+msgid "Network Profile"
+msgstr "Dispozitive de rețea"
+
+#: templates/system.php:126
+#, fuzzy
+msgid "Services"
+msgstr "Dispozitive"
+
+#: templates/system.php:134
+#, fuzzy
+msgid "Enabled"
+msgstr "Dezactivat"
+
+#: templates/system.php:135
+#, fuzzy
+msgid "Active since"
+msgstr "Activați"
+
+#: templates/system.php:157
+msgid "Project Software"
 msgstr ""
 
-#: ../templates/wg/peers.php:31 ../templates/wg/general.php:99
-msgid "Local Port"
+#: templates/system.php:178
+#, fuzzy
+msgid "Configuration Files"
+msgstr "Fișier de configurare"
+
+#: templates/system.php:187
+msgid "Readable"
 msgstr ""
 
-#: ../templates/wg/peers.php:45
-msgid "Endpoint address"
+#: templates/system.php:187
+msgid "Missing"
 msgstr ""
 
-#: ../templates/wg/peers.php:52
-msgid "Allowed IPs"
+#: templates/system.php:200
+#, fuzzy
+msgid "Read-only information provided by OpenAP system diagnostics."
+msgstr "Informații furnizate de vnstat"
+
+#: templates/system.php:236
+#, fuzzy
+msgid "Network profile"
+msgstr "Dispozitive de rețea"
+
+#: templates/system.php:237
+msgid "Current OpenAP mode"
 msgstr ""
 
-#: ../templates/wg/peers.php:59
-msgid "Persistent keepalive"
+#: templates/system.php:242
+#, fuzzy
+msgid "Active mode"
+msgstr "Activați"
+
+#: templates/system.php:267
+#, fuzzy
+msgid "Reboot system"
+msgstr "Reboot"
+
+#: templates/system.php:272
+msgid ""
+"OpenAP and its network services will be temporarily unavailable while the "
+"system restarts."
 msgstr ""
 
-#: ../templates/wg/peers.php:70
-msgid "Scan this QR code with your client to connect to this tunnel"
+#: templates/wifi_hotspot.php:25 templates/wifi_hotspot.php:39
+#, fuzzy
+msgid "Wireless access point status"
+msgstr "Interfață client fără fir"
+
+#: templates/wifi_hotspot.php:47
+#, fuzzy
+msgid "Wireless access point"
+msgstr "Interfață client fără fir"
+
+#: templates/wizard_ap_ethernet.php:32
+#, fuzzy
+msgid "AP Ethernet active"
+msgstr "Ethernet"
+
+#: templates/wizard_ap_ethernet.php:33
+msgid "Ethernet uplink configured on"
 msgstr ""
 
-#: ../templates/wg/peers.php:71
-msgid "or download the <code>client.conf</code> file to your device."
+#: templates/wizard_ap_ethernet.php:35 templates/wizard_ap_ethernet.php:51
+msgid "Routed / NAT"
 msgstr ""
 
-#: ../templates/wg/general.php:5
-msgid "Tunnel settings"
+#: templates/wizard_ap_ethernet.php:36 templates/wizard_ap_ethernet.php:77
+msgid "Management gateway"
 msgstr ""
 
-#: ../templates/wg/general.php:12
-msgid "Configuration Method"
+#: templates/wizard_ap_ethernet.php:38
+msgid "Waiting for hotspot state before refreshing dashboard..."
 msgstr ""
 
-#: ../templates/wg/general.php:15
-msgid "Upload file"
+#: templates/wizard_ap_ethernet.php:46
+#, fuzzy
+msgid "Network mode"
+msgstr "Dispozitive de rețea"
+
+#: templates/wizard_ap_ethernet.php:51
+msgid "OpenAP DHCP and isolated subnet"
 msgstr ""
 
-#: ../templates/wg/general.php:19
-msgid "Create manually"
+#: templates/wizard_ap_ethernet.php:56
+msgid "Same LAN and DHCP as Ethernet"
 msgstr ""
 
-#: ../templates/wg/general.php:27
-msgid "Upload a WireGuard config"
+#: templates/wizard_ap_ethernet.php:59
+msgid ""
+"WiFi clients will receive addresses, gateway and DNS directly from the "
+"upstream router. The management gateway below applies only to the OpenAP "
+"host."
 msgstr ""
 
-#: ../templates/wg/general.php:29
-msgid "This option uploads and installs an existing WireGuard <code>.conf</code> file on this device."
+#: templates/wizard_ap_ethernet.php:78
+msgid "OpenAP host default route"
 msgstr ""
 
-#: ../templates/wg/general.php:38
-msgid "Apply iptables rules to the selected interface"
+#: templates/wizard_ap_ethernet.php:85
+#, fuzzy
+msgid "Detected"
+msgstr "Deconectat"
+
+#: templates/wizard_ap_ethernet.php:91
+msgid "Saving..."
 msgstr ""
 
-#: ../templates/wg/general.php:39
-msgid "Recommended if you wish to forward network traffic from the wg0 interface to clients connected on a desired interface. The active AP interface is the default."
+#: templates/wizard_ap_ethernet.php:102
+msgid "AP traffic routed via ethernet uplink."
 msgstr ""
 
-#: ../templates/wg/general.php:41
-msgid "This option adds <strong>iptables</strong> <code>Postup</code> and <code>PostDown</code> rules for the interface selected below."
+#: templates/wizard_repeater.php:6
+#, fuzzy
+msgid "Repeater setup"
+msgstr "Repetitor"
+
+#: templates/wizard_repeater.php:14
+msgid "Two WiFi interfaces detected. Repeater setup is available."
 msgstr ""
 
-#: ../templates/wg/general.php:50
-msgid "Enable kill switch"
+#: templates/wizard_repeater.php:16
+msgid "Repeater setup needs two WiFi interfaces with AP and managed support."
 msgstr ""
 
-#: ../templates/wg/general.php:51
-msgid "Recommended if you wish to prevent the flow of unencrypted packets through non-WireGuard interfaces."
+#: templates/wizard_repeater.php:23
+msgid "Selected AP"
 msgstr ""
 
-#: ../templates/wg/general.php:53
-msgid "This option adds <strong>iptables</strong> <code>PostUp</code> and <code>PreDown</code> rules for the configured interface."
+#: templates/wizard_repeater.php:32
+msgid "Selected uplink"
 msgstr ""
 
-#: ../templates/wg/general.php:62
-msgid "Select WireGuard configuration file (.conf)"
+#: templates/wizard_repeater.php:43
+#, fuzzy
+msgid "WiFi interfaces"
+msgstr "interfață"
+
+#: templates/wizard_repeater.php:72
+#, fuzzy
+msgid "No WiFi interfaces found."
+msgstr "Nu s-au găsit stații Wifi"
+
+#: templates/wizard_repeater.php:83
+msgid "Switching"
 msgstr ""
 
-#: ../templates/wg/general.php:72
-msgid "Create a local WireGuard config"
+#: templates/wizard_repeater.php:85
+#, fuzzy
+msgid "Configure repeater"
+msgstr "Configurarea actualizării"
+
+#: templates/wizard_repeater.php:90
+msgid "Repeater traffic will use the selected WiFi uplink."
 msgstr ""
 
-#: ../templates/wg/general.php:76
-msgid "Enable server"
+#: templates/wizard_uplink.php:8
+msgid "Uplink setup"
 msgstr ""
 
-#: ../templates/wg/general.php:80
-msgid "Enable this option to secure network traffic by creating an encrypted tunnel between RaspAP and configured peers."
+#: templates/wizard_uplink.php:10 templates/wizard_uplink.php:66
+msgid "Scan"
 msgstr ""
 
-#: ../templates/wg/general.php:81
-msgid "This setting generates a new WireGuard <code>.conf</code> file on this device."
+#: templates/wizard_uplink.php:27
+#, fuzzy
+msgid "Repeater connected successfully"
+msgstr "Fișier \"%s\" șters cu succes"
+
+#: templates/wizard_uplink.php:28
+msgid "Hotspot traffic now uses the selected WiFi uplink."
 msgstr ""
 
-#: ../templates/wg/general.php:88
-msgid "Local public key"
+#: templates/wizard_uplink.php:33
+msgid "Uplink network"
 msgstr ""
 
-#: ../templates/wg/logging.php:6
-msgid "Enable this option to display an updated <code>wg-quick</code> debug log."
+#: templates/wizard_uplink.php:34
+#, fuzzy
+msgid "Uplink address"
+msgstr "Adresa MAC"
+
+#: templates/wizard_uplink.php:48
+msgid "Done"
 msgstr ""
 
-#: ../templates/wg/configs.php:6
-msgid "Currently available WireGuard file configurations are displayed below."
+#: templates/wizard_uplink.php:55
+msgid "Select a WiFi network below or click Scan to search."
 msgstr ""
 
-#: ../templates/wg/configs.php:7
-msgid "Activating a configuration will restart the <code>wg-quick</code> service."
+#: templates/wizard_uplink.php:57
+msgid "No managed-capable WiFi uplink interface is ready."
 msgstr ""
 
-#: ../ajax/networking/get_nl80211_band.php:37
-#, php-format
-msgid "The selected interface (%s) has support for the 2.4 GHz wireless band only."
+#: templates/wizard_uplink.php:64
+msgid "Available networks"
 msgstr ""
 
-#: ../ajax/networking/get_nl80211_band.php:40
-#, php-format
-msgid "The selected interface (%s) has support for the 5 GHz wireless band only."
+#: templates/wizard_uplink.php:64
+msgid "Choose an uplink or scan again"
 msgstr ""
 
-#: ../ajax/networking/get_nl80211_band.php:43
-#, php-format
-msgid "The selected interface (%s) has support for both the 2.4 and 5 GHz wireless bands."
+#: templates/wizard_uplink.php:79
+msgid "Saved"
 msgstr ""
 
-#: ../ajax/networking/get_nl80211_band.php:46
-#, php-format
-msgid "The selected interface (%s) does not support wireless mode operation."
+#: templates/wizard_uplink.php:82
+#, fuzzy
+msgid "Current uplink"
+msgstr "Setări curente"
+
+#: templates/wizard_uplink.php:96
+msgid "WPA3-only uplinks are not currently supported"
 msgstr ""
 
-#: ../app/lib/signprint.php:20
-msgid "Printable Wi-Fi sign"
-msgstr "Semn Wi-Fi printabil"
+#: templates/wizard_uplink.php:97
+msgid "WPA3 unsupported"
+msgstr ""
 
-#: ../app/lib/signprint.php:37
-msgid "Wi-Fi Connect"
-msgstr "Conectare Wi-Fi"
+#: templates/wizard_uplink.php:105 templates/wizard_uplink.php:166
+#, fuzzy
+msgid "Connecting"
+msgstr "Conectat"
 
-#: ../app/lib/signprint.php:54
-msgid "To connect with your phone or tablet, scan the QR code above with your camera app."
-msgstr "Pentru a vă conecta cu telefonul sau tableta, scanați codul QR de mai sus cu aplicația dvs. de cameră."
+#: templates/wizard_uplink.php:108
+#, fuzzy
+msgid "Reconnect saved"
+msgstr "Deconectat"
 
-#: ../app/lib/signprint.php:55
-msgid "For other devices, use the login credentials below."
-msgstr "Pentru alte dispozitive, utilizați datele de autentificare de mai jos."
+#: templates/wizard_uplink.php:108
+#, fuzzy
+msgid "Connect saved"
+msgstr "Conectat"
 
-#: ../app/lib/signprint.php:65
-msgid "Network"
-msgstr "Rețea"
+#: templates/wizard_uplink.php:113
+#, fuzzy
+msgid "Edit saved password"
+msgstr "Parolă de utilizator limitată"
 
-#~ msgid "Firewall is now enabled"
-#~ msgstr "Firewall-ul este acum activat"
+#: templates/wizard_uplink.php:114
+#, fuzzy
+msgid "Edit password"
+msgstr "Am uitat parola"
 
-#~ msgid "Firewall is now disabled"
-#~ msgstr "Firewall-ul este acum dezactivat"
+#: templates/wizard_uplink.php:118
+#, fuzzy
+msgid "Select"
+msgstr "Selectați o temă"
 
-#~ msgid "Firewall settings changed"
-#~ msgstr "Setările firewall-ului au fost modificate"
+#: templates/wizard_uplink.php:126
+msgid "Forget saved network"
+msgstr ""
 
-#~ msgid "Firewall settings saved. Firewall is still disabled."
-#~ msgstr "Setările firewall-ului au fost salvate. Firewall-ul este încă dezactivat."
+#: templates/wizard_uplink.php:126
+msgid "Forget"
+msgstr ""
 
-#~ msgid "Exclude devices "
-#~ msgstr "Excludeți dispozitivele "
+#: templates/wizard_uplink.php:133
+msgid "No networks found. Click Scan to search."
+msgstr ""
 
-#~ msgid "Exclude IP address "
-#~ msgstr "Excludeți adresa IP "
+#: templates/wizard_uplink.php:136
+msgid "Enter network manually"
+msgstr ""
 
-#~ msgid "Exclude IP address(es) "
-#~ msgstr "Excludeți adresa (adresele) IP "
+#: templates/wizard_uplink.php:141
+msgid "Uplink credentials"
+msgstr ""
 
-#~ msgid "A firewall plugin that implements an iptables ruleset"
-#~ msgstr "Un plugin firewall care implementează un set de reguli iptables"
+#: templates/wizard_uplink.php:141
+msgid "Connect the selected network"
+msgstr ""
 
-#~ msgid "zbchristian"
-#~ msgstr "zbchristian"
+#: templates/wizard_uplink.php:155
+msgid "Select a network or type SSID"
+msgstr ""
 
-#~ msgid "Client Firewall"
-#~ msgstr "Firewall client"
+#: templates/wizard_uplink.php:168
+msgid "Connect"
+msgstr ""
 
-#~ msgid "Firewall is ENABLED"
-#~ msgstr "Firewall-ul este ACTIVAT"
-
-#~ msgid "Firewall is OFF"
-#~ msgstr "Firewall-ul este dezactivat"
-
-#~ msgid "The default firewall will only allow outgoing and already established traffic."
-#~ msgstr "Firewall-ul implicit va permite numai traficul de ieșire și traficul deja stabilit."
-
-#~ msgid "No incoming UDP traffic is allowed."
-#~ msgstr "Nu este permis traficul UDP de intrare."
-
-#, php-format
-#~ msgid "There are no restrictions for the access point <code>%s</code>."
-#~ msgstr "Nu există restricții pentru punctul de acces <code>%s</code>."
-
-#~ msgid "Exception: Service"
-#~ msgstr "Excepție: Serviciul"
-
-#~ msgid "allow SSH access on port 22"
-#~ msgstr "permite accesul SSH pe portul 22"
-
-#~ msgid "allow access to the RaspAP GUI on port 80 or 443"
-#~ msgstr "permite accesul la RaspAP GUI pe portul 80 sau 443"
-
-#~ msgid "Allow incoming connections for some services from the internet side."
-#~ msgstr "Permiteți conexiunile de intrare pentru anumite servicii din partea internetului."
-
-#~ msgid "Exception: network device"
-#~ msgstr "Excepție: dispozitiv de rețea"
-
-#~ msgid "Exclude device(s)"
-#~ msgstr "Excludeți dispozitivul (dispozitivele)"
-
-#~ msgid "Exclude the given network device(s) (separated by a blank or comma) from firewall rules."
-#~ msgstr "Exclude dispozitivul (dispozitivele) de rețea dat(e) (separate prin spațiu sau virgulă) din regulile firewall."
-
-#, php-format
-#~ msgid "Current client devices: <code>%s</code>"
-#~ msgstr "Dispozitive client curente: <code>%s</code>"
-
-#, php-format
-#~ msgid "The access point <code>%s</code> is per default excluded."
-#~ msgstr "Punctul de acces <code>%s</code> este implicit exclus."
-
-#~ msgid "Exception: IP-Address"
-#~ msgstr "Excepție: Adresă IP"
-
-#~ msgid "Allow incoming connections from"
-#~ msgstr "Permiteți conexiunile de intrare de la"
-
-#~ msgid "For the given IP-addresses (separated by a blank or comma) the incoming connection (via TCP and UDP) is accepted."
-#~ msgstr "Pentru adresele IP date (separate prin spațiu sau virgulă) este acceptată conexiunea de intrare (prin TCP și UDP)."
-
-#~ msgid "This is required for an OpenVPN via UDP or Wireguard connection."
-#~ msgstr "Acest lucru este necesar pentru o conexiune OpenVPN prin UDP sau Wireguard."
-
-#, php-format
-#~ msgid "The list of configured VPN server IP addresses: <code><b>%s</b></code>"
-#~ msgstr "Lista de adrese IP ale serverului VPN configurat: <code><b>%s</b></code>"
-
-#~ msgid "plugin was created by "
-#~ msgstr "plugin-ul a fost creat de "
-
-#~ msgid "Apply changes"
-#~ msgstr "Aplicați modificările"
-
-#~ msgid "Disable Firewall"
-#~ msgstr "Dezactivați Firewall"
-
-#~ msgid "Enable Firewall"
-#~ msgstr "Activați Firewall"
-
-#~ msgid "Information provided by iptables"
-#~ msgstr "Informații furnizate de iptables"
-
-#~ msgid "Changing the firewall status may disrupt or allow incoming traffic. Choose <strong>Proceed</strong> to continue."
-#~ msgstr "Modificarea stării firewall-ului poate întrerupe sau permite traficul de intrare. Alegeți <strong>Proceed (Continuare</strong> ) pentru a continua."
+#: templates/wizard_uplink.php:177
+msgid "Uplink credentials are stored in the selected wpa_supplicant profile."
+msgstr ""

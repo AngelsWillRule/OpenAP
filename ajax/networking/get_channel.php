@@ -5,7 +5,7 @@ require_once '../../includes/session.php';
 require_once '../../includes/config.php';
 require_once '../../includes/authenticate.php';
 
-exec('cat '. RASPI_HOSTAPD_CONFIG, $hostapdconfig);
+exec('cat '. OPENAP_HOSTAPD_CONFIG, $hostapdconfig);
 $arrConfig = array();
 
 foreach ($hostapdconfig as $hostapdconfigline) {
@@ -19,4 +19,3 @@ foreach ($hostapdconfig as $hostapdconfigline) {
 };
 $channel = intval($arrConfig['channel']);
 echo json_encode($channel);
-

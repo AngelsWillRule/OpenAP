@@ -143,7 +143,7 @@
         {
             "name": "ssh",
             "fw-state": true,
-            "comment": "Allow ssh access to RaspAP on port 22",
+            "comment": "Allow SSH access to OpenAP on port 22",
             "dependson": [
                 { "var": "ssh-enable", "type": "bool" }
             ],
@@ -154,7 +154,7 @@
         {
             "name": "http",
             "fw-state": true,
-            "comment": "Allow access to RaspAP GUI (https)",
+            "comment": "Allow access to the OpenAP GUI (HTTPS)",
             "dependson": [
                 { "var": "http-enable", "type": "bool" }
             ],

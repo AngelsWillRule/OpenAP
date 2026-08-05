@@ -8,117 +8,34 @@ require_once 'config.php';
  */
 function DisplaySystem(&$extraFooterScripts)
 {
-    $status = new \RaspAP\Messages\StatusMessage;
-    $dashboard = new \RaspAP\UI\Dashboard;
-    $pluginInstaller = \RaspAP\Plugins\PluginInstaller::getInstance();
+    $status = new \OpenAP\Messages\StatusMessage;
 
-    // set defaults
-    $optAutoclose = true;
-    $alertTimeout = 5000;
-    $good_input = true;
-    $config_port = false;
-
-    // set alert_timeout from cookie if valid
-    if (isset($_COOKIE['alert_timeout']) && is_numeric($_COOKIE['alert_timeout'])) {
-        $cookieTimeout = (int) $_COOKIE['alert_timeout'];
-
-        if ($cookieTimeout > 0) {
-            $alertTimeout = $cookieTimeout;
-        } else {
-            // A value of 0 means auto-close is disabled
-            $optAutoclose = false;
-        }
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['system_action'] ?? '') === 'reboot') {
+        exec('sudo /usr/local/sbin/openap-system-reboot >/dev/null 2>&1 &');
+        header('Location: /?rebooting=1', true, 303);
+        exit;
     }
-    if (isset($_POST['SaveLanguage'])) {
-        if (isset($_POST['locale'])) {
-            $_SESSION['locale'] = $_POST['locale'];
-            $status->addMessage('Language setting saved', 'success');
-        }
-    }
-
-    if (!RASPI_MONITOR_ENABLED) {
-        if (isset($_POST['SaveServerSettings'])) {
-            // Validate server port
-            if (isset($_POST['serverPort'])) {
-                if (strlen($_POST['serverPort']) > 4 || !is_numeric($_POST['serverPort'])) {
-                    $status->addMessage('Invalid value for port number', 'danger');
-                    $good_input = false;
-                } else {
-                    $serverPort = escapeshellarg($_POST['serverPort']);
-               }
-            }
-            // Validate server bind address
-            if (isset($_POST['serverBind']) && $_POST['serverBind'] !== '') {
-                $inputBind = trim($_POST['serverBind']);
-                if (!filter_var($inputBind, FILTER_VALIDATE_IP)) {
-                    $status->addMessage('Invalid value for bind address', 'danger');
-                    $good_input = false;
-                } else {
-                    $serverBind = escapeshellarg($inputBind);
-                }
-            }
-            // Validate log limit
-            if (isset($_POST['logLimit'])) {
-                if ( strlen($_POST['logLimit']) > 4 || !is_numeric($_POST['logLimit']) ) {
-                    $status->addMessage('Invalid value for log size limit', 'danger');
-                    $good_input = false;
-                } else {
-                    $_SESSION['log_limit'] = intval($_POST['logLimit']);
-                    $status->addMessage(sprintf(_('Changing log limit size to %s KB'), $_SESSION['log_limit']), 'info');
-                }
-            }
-            // Save settings
-            if ($good_input) {
-                exec("sudo /etc/raspap/lighttpd/configport.sh $serverPort $serverBind " .RASPI_LIGHTTPD_CONFIG. " ".$_SERVER['SERVER_NAME'], $return);
-                foreach ($return as $line) {
-                    $status->addMessage($line, 'info');
-                }
-            }
-        } elseif (isset($_POST['savethemeSettings'])) {
-            // Validate alert timout
-            if (isset($_POST['autoClose'])) {
-                $alertTimeout = trim($_POST['alertTimeout'] ?? '');
-                if (strlen($alertTimeout) > 7 || !is_numeric($alertTimeout)) {
-                    $status->addMessage('Invalid value for alert close timeout', 'danger');
-                    $good_input = false;
-                } else {
-                    setcookie('alert_timeout', (int) $alertTimeout);
-                    $status->addMessage(sprintf(_('Changing alert close timeout to %s ms'), $alertTimeout), 'info');
-                }
-            } else {
-                setcookie('alert_timeout', '', time() - 3600, '/');
-                $optAutoclose = false;
-            }
-        }
-    }
-
-    if (isset($_POST['RestartLighttpd'])) {
-        $status->addMessage('Restarting lighttpd in 3 seconds...', 'info');
-        exec('sudo /etc/raspap/lighttpd/configport.sh --restart');
-    }
-    exec('cat '. RASPI_LIGHTTPD_CONFIG, $return);
-    $conf = ParseConfig($return);
-    $serverPort = $conf['server.port'];
-    if (isset($conf['server.bind'])) {
-        $serverBind = str_replace('"', '',$conf['server.bind']);
-    } else {
-        $serverBind = '';
-    }
-
-    // define locales
-    $arrLocales = getLocales();
 
     // fetch system status variables
-    $system = new \RaspAP\System\Sysinfo;
+    $system = new \OpenAP\System\Sysinfo;
 
-    $hostname = $system->hostname();
-    $uptime   = $system->uptime();
+    $hostname = trim($system->hostname());
+    $uptime   = trim($system->uptime());
     $cores    = $system->processorCount();
-    $os       = $system->operatingSystem();
-    $kernel   = $system->kernelVersion();
-    $systime  = $system->systime();
-    $revision = $system->rpiRevision();
-    $deviceImage = $dashboard->getDeviceImage($revision);
+    $os       = trim($system->operatingSystem());
+    $kernel   = trim($system->kernelVersion());
+    $systime  = trim($system->systime());
+    $machine  = openapCommandValue('uname -m');
+    $container = openapCommandValue('systemd-detect-virt --container 2>/dev/null', 'none');
+    $openapMode = openapReadIniValue('/etc/openap/repeater.ini', 'current', 'Unknown');
+    $openapModeLabel = [
+        'ap_ethernet' => 'AP over Ethernet',
+        'ap_ethernet_bridge' => 'AP Ethernet Bridge',
+        'repeater_wifi' => 'Repeater WiFi',
+        'uplink_wifi' => 'Uplink WiFi'
+    ][$openapMode] ?? $openapMode;
+    $managementIp = openapCommandValue("hostname -I | awk '{print $1}'");
+    $gitRevision = is_dir('/var/www/html/.git') ? openapCommandValue('git -C /var/www/html rev-parse --short HEAD 2>/dev/null', 'Not available') : 'Not available';
 
     // memory use
     $memused  = $system->usedMemory();
@@ -142,26 +59,71 @@ function DisplaySystem(&$extraFooterScripts)
     $cputemp_status = $cpuStatus['status'];
     $cputemp_led =  $cpuStatus['led'];
 
-    // theme options
-    $themes = array_map(fn($themes) => $themes['name'], RASPI_THEMES);
-    $selectedTheme = $_COOKIE['theme'] ?? 'default';
-    $extraFooterScripts[] = array('src'=>'dist/huebee/huebee.pkgd.min.js', 'defer'=>false);
-    $extraFooterScripts[] = array('src'=>'app/js/vendor/huebee.js?v=' . filemtime('app/js/vendor/huebee.js'), 'defer'=>false);
-    $logLimit = isset($_SESSION['log_limit']) ? $_SESSION['log_limit'] : RASPI_LOG_SIZE_LIMIT;
+    $serviceNames = [
+        'hostapd.service',
+        'dnsmasq.service',
+        'openap-firewall.service',
+        'lighttpd.service',
+        'systemd-networkd.service'
+    ];
+    if ($openapMode === 'repeater_wifi' || file_exists('/etc/systemd/system/openap-uplink.service')) {
+        array_splice($serviceNames, 2, 0, ['openap-uplink.service']);
+    }
+    $services = array_map('openapServiceInfo', $serviceNames);
+    $uplinkHealth = null;
+    if ($openapMode === 'repeater_wifi' && function_exists('openapUplinkHealth')) {
+        $uplinkHealth = openapUplinkHealth();
+        foreach ($services as &$service) {
+            if ($service['name'] === 'openap-uplink.service' && empty($uplinkHealth['ready'])) {
+                $service['active'] = 'degraded: ' . ($uplinkHealth['reason'] ?? 'runtime check failed');
+                $service['statusClass'] = 'down';
+            }
+        }
+        unset($service);
+    }
 
-    $plugins = $pluginInstaller->getUserPlugins();
-    $pluginsTable = $pluginInstaller->getHTMLPluginsTable($plugins);
+    $software = [
+        ['name' => 'OpenAP UI', 'version' => $gitRevision],
+        ['name' => 'PHP', 'version' => PHP_VERSION],
+        ['name' => 'lighttpd', 'version' => openapSoftwareVersion('lighttpd -v 2>&1', '/lighttpd\/([\w.\-]+)/')],
+        ['name' => 'hostapd', 'version' => openapSoftwareVersion('hostapd -v 2>&1', '/hostapd v?([\w.\-]+)/i')],
+        ['name' => 'dnsmasq', 'version' => openapSoftwareVersion('dnsmasq --version 2>&1', '/Dnsmasq version ([\w.\-]+)/i')],
+        ['name' => 'iw', 'version' => openapSoftwareVersion('iw --version 2>&1', '/iw version ([\w.\-]+)/i')],
+        ['name' => 'wpa_supplicant', 'version' => openapSoftwareVersion('wpa_supplicant -v 2>&1', '/wpa_supplicant v?([\w.\-]+)/i')],
+        ['name' => 'nftables', 'version' => openapSoftwareVersion('nft --version 2>&1', '/nftables v?([\w.\-]+)/i')]
+    ];
+
+    $network = [
+        ['label' => 'AP interface', 'value' => defined('OPENAP_WIFI_AP_INTERFACE') ? OPENAP_WIFI_AP_INTERFACE : 'wlan0'],
+        ['label' => 'Uplink interface', 'value' => openapCommandValue("ip route show default 2>/dev/null | sed -n 's/.* dev \\([^ ]*\\).*/\\1/p' | head -1")],
+        ['label' => 'Management IP', 'value' => $managementIp],
+        ['label' => 'AP SSID', 'value' => openapReadHostapdValue(defined('OPENAP_HOSTAPD_CONFIG') ? OPENAP_HOSTAPD_CONFIG : '/etc/hostapd/hostapd.conf', 'ssid')],
+        ['label' => 'AP channel', 'value' => openapReadHostapdValue(defined('OPENAP_HOSTAPD_CONFIG') ? OPENAP_HOSTAPD_CONFIG : '/etc/hostapd/hostapd.conf', 'channel')],
+        ['label' => 'Mode profile', 'value' => $openapModeLabel]
+    ];
+    if (is_array($uplinkHealth)) {
+        $network[] = ['label' => 'Uplink runtime', 'value' => $uplinkHealth['reason'] ?? 'Unknown'];
+    }
+
+    $configPaths = [
+        defined('OPENAP_HOSTAPD_CONFIG') ? OPENAP_HOSTAPD_CONFIG : '/etc/hostapd/hostapd.conf',
+        '/etc/dnsmasq.d/openap-repeater.conf',
+        '/etc/openap/repeater.ini',
+        '/etc/openap/networking/openap.nft',
+        OPENAP_LIGHTTPD_CONFIG
+    ];
+    if ($openapMode === 'repeater_wifi' || file_exists('/etc/systemd/system/openap-uplink.service')) {
+        array_splice($configPaths, 2, 0, ['/etc/systemd/system/openap-uplink.service']);
+    }
+    $configFiles = array_map('openapConfigFileInfo', $configPaths);
 
     echo renderTemplate("system", compact(
-        "arrLocales",
         "status",
-        "serverPort",
-        "serverBind",
         "hostname",
         "uptime",
         "systime",
-        "revision",
-        "deviceImage",
+        "machine",
+        "container",
         "cores",
         "os",
         "kernel",
@@ -176,13 +138,80 @@ function DisplaySystem(&$extraFooterScripts)
         "cputemp",
         "cputemp_status",
         "cputemp_led",
-        "themes",
-        "selectedTheme",
-        "logLimit",
-        "pluginsTable",
-        "optAutoclose",
-        "alertTimeout"
+        "services",
+        "software",
+        "network",
+        "configFiles",
+        "openapModeLabel"
     ));
+}
+
+function openapCommandValue(string $command, string $fallback = 'Unknown'): string
+{
+    $output = [];
+    $status = 0;
+    exec($command, $output, $status);
+    $value = trim(implode("\n", $output));
+    return $value !== '' ? $value : $fallback;
+}
+
+function openapSoftwareVersion(string $command, string $pattern): string
+{
+    $output = openapCommandValue($command, '');
+    if ($output !== '' && preg_match($pattern, $output, $matches)) {
+        return $matches[1];
+    }
+    return $output !== '' ? strtok($output, "\n") : 'Not installed';
+}
+
+function openapServiceInfo(string $service): array
+{
+    $active = openapCommandValue('/bin/systemctl is-active ' . escapeshellarg($service) . ' 2>/dev/null', 'unknown');
+    $enabled = openapCommandValue('/bin/systemctl is-enabled ' . escapeshellarg($service) . ' 2>/dev/null', 'unknown');
+    $since = openapCommandValue('/bin/systemctl show ' . escapeshellarg($service) . ' --property=ActiveEnterTimestamp --value 2>/dev/null', 'Unknown');
+
+    return [
+        'name' => $service,
+        'active' => $active,
+        'enabled' => $enabled,
+        'since' => $since,
+        'statusClass' => $active === 'active' ? 'up' : ($active === 'inactive' || $active === 'unknown' ? 'warn' : 'down')
+    ];
+}
+
+function openapReadIniValue(string $path, string $key, string $fallback = 'Unknown'): string
+{
+    if (!is_readable($path)) {
+        return $fallback;
+    }
+    $data = parse_ini_file($path);
+    return isset($data[$key]) && $data[$key] !== '' ? (string) $data[$key] : $fallback;
+}
+
+function openapReadHostapdValue(string $path, string $key): string
+{
+    if (!is_readable($path)) {
+        return 'Unknown';
+    }
+    foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        if (strpos($line, $key . '=') === 0) {
+            return trim(substr($line, strlen($key) + 1));
+        }
+    }
+    return 'Unknown';
+}
+
+function openapConfigFileInfo(string $path): array
+{
+    return [
+        'path' => $path,
+        'exists' => is_readable($path),
+        'modified' => is_readable($path) ? date('Y-m-d H:i:s', filemtime($path)) : 'Missing'
+    ];
 }
 
 function getResourceStatus($used): array
@@ -236,4 +265,3 @@ function getCPUTempStatus($cputemp): array
         'led' => $cputemp_led
     ];
 }
-

@@ -4,13 +4,7 @@ require_once '../../includes/config.php';
 require_once '../../includes/defaults.php';
 require_once '../../includes/functions.php';
 
-// prevent direct file access
-if (!isset($_SERVER['HTTP_REFERER'])) {
-    header('HTTP/1.0 403 Forbidden');
-    exit;
-}
-
-$hostapd = parse_ini_file(RASPI_HOSTAPD_CONFIG, false, INI_SCANNER_RAW);
+$hostapd = parse_ini_file(OPENAP_HOSTAPD_CONFIG, false, INI_SCANNER_RAW);
 
 // handle parse failure
 if ($hostapd === false) {
@@ -20,7 +14,7 @@ if ($hostapd === false) {
 
 // assume WPA encryption and get the passphrase
 $type = "WPA";
-$password = isset($hostapd['wpa_psk']) ? $hostapd['wpa_psk'] : $hostapd['wpa_passphrase'];
+$password = $hostapd['wpa_psk'] ?? $hostapd['wpa_passphrase'] ?? '';
 
 // use WEP if configured
 $wep_default_key = intval($hostapd['wep_default_key'] ?? 0);
@@ -45,16 +39,19 @@ $data = "WIFI:S:$ssid;T:$type;P:$password;$hidden;";
 $command = "qrencode -t svg -m 1 -o - " . mb_escapeshellarg($data);
 $svg = shell_exec($command);
 
-$config_mtime  = filemtime(RASPI_HOSTAPD_CONFIG);
+$config_mtime  = filemtime(OPENAP_HOSTAPD_CONFIG);
 $last_modified = gmdate('D, d M Y H:i:s ', $config_mtime) . 'GMT';
 $etag = hash('sha256', $data);
 $content_length = strlen($svg);
 
-header("Content-Type: image/svg+xml");
+header("Content-Type: image/svg+xml; charset=UTF-8");
 header("Content-Length: $content_length");
 header("Last-Modified: $last_modified");
-header("Content-Disposition: attachment; filename=\"qr.svg\"");
+header(
+    !empty($_GET['download'])
+        ? 'Content-Disposition: attachment; filename="openap-wifi-qr.svg"'
+        : 'Content-Disposition: inline; filename="openap-wifi-qr.svg"'
+);
 header("ETag: \"$etag\"");
 header("X-QR-Code-Content: $data");
 echo $svg;
-

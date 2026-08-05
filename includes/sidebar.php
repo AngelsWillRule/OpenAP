@@ -1,15 +1,20 @@
 <?php
 
-use RaspAP\Plugins\PluginManager;
+use OpenAP\Plugins\PluginManager;
 
 $pluginManager = PluginManager::getInstance();
 
-// Display logo and status LEDs
-renderStatus($hostapd_led, $hostapd_status,
-    $memused_led, $memused,
-    $cputemp_led, $cputemp);
+$hostapd_led = $hostapd_led ?? "service-status-warn";
+$hostapd_status = $hostapd_status ?? "unknown";
+$memused_led = $memused_led ?? "service-status-warn";
+$memused = $memused ?? 0;
+$cputemp_led = $cputemp_led ?? "service-status-warn";
+$cputemp = $cputemp ?? "0.0";
 
 // Render sidebar via the PluginManager
 $sidebar = $pluginManager->getSidebar();
 $sidebar->render();
-
+?>
+<div class="openap-sidebar-bottom-mark">
+  <img src="app/img/openap-sidebar-logo.png?v=<?php echo filemtime('app/img/openap-sidebar-logo.png'); ?>" alt="OpenAP">
+</div>

@@ -9,9 +9,9 @@ if (!isset($_SERVER['HTTP_REFERER'])) {
     exit;
 }
 
-$hostapd = parse_ini_file(RASPI_HOSTAPD_CONFIG, false, INI_SCANNER_RAW);
+$hostapd = parse_ini_file(OPENAP_HOSTAPD_CONFIG, false, INI_SCANNER_RAW);
 $ssid = $hostapd['ssid'];
-$password = isset($hostapd['wpa_psk']) ? $hostapd['wpa_psk'] : $hostapd['wpa_passphrase'];
+$password = $hostapd['wpa_psk'] ?? $hostapd['wpa_passphrase'] ?? '';
 
 ?>
 
@@ -21,11 +21,11 @@ $password = isset($hostapd['wpa_psk']) ? $hostapd['wpa_psk'] : $hostapd['wpa_pas
   <!-- Bootstrap Core CSS -->
   <link href="../../dist/bootstrap/css/bootstrap.css" rel="stylesheet">
 
-  <!-- SB-Admin-2 CSS -->
-  <link href="../../dist/sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
+  <!-- SB Admin CSS -->
+  <link href="../../dist/sb-admin/css/styles.css" rel="stylesheet">
 
   <!-- Custom Fonts -->
-  <link href="../../dist/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="../../dist/font-awesome/css/all.min.css" rel="stylesheet" type="text/css">
 </head>
 <body id="page-top">
   <div id="wrapper">
@@ -42,7 +42,7 @@ $password = isset($hostapd['wpa_psk']) ? $hostapd['wpa_psk'] : $hostapd['wpa_pas
         <div class="row">
           <div class="col"></div>
           <div class="col-5">
-            <img src="../img/wifi-qr-code.php" class="figure-img img-fluid" alt="RaspAP Wifi QR code" style="width:100%;">
+            <img src="../img/wifi-qr-code.php" class="figure-img img-fluid" alt="OpenAP WiFi QR code" style="width:100%;">
           </div>
           <div class="col"></div>
         </div><!-- /row -->
@@ -64,8 +64,8 @@ $password = isset($hostapd['wpa_psk']) ? $hostapd['wpa_psk'] : $hostapd['wpa_pas
             <div class="mt-4">
               <?php echo _("Network"); ?>
               <h3 class="mb-3"><?php echo $ssid ?></h3> 
-              <?php echo _("Password"); ?>
-              <h3 class="mb-5"><?php echo $password ?></h3> 
+              <?php echo $password === '' ? _("Security") : _("Password"); ?>
+              <h3 class="mb-5"><?php echo htmlspecialchars($password === '' ? _("None (open network)") : $password, ENT_QUOTES); ?></h3>
             </div>
           </div>
           <div class="col"></div>

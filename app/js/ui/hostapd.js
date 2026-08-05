@@ -23,7 +23,7 @@ export function load80211wSelect() {
 }
 
 export function initHostapd() {
-    console.info("RaspAP hostapd module initialized");
+    console.info("OpenAP hostapd module initialized");
     load80211wSelect();
 
     const bridgeCheckbox = document.getElementById('chxbridgedenable');

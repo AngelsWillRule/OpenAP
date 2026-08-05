@@ -1,220 +1,286 @@
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card shadow">
-      <div class="card-header page-card-header">
-        <div class="row">
-          <div class="col">
-            <i class="fas fa-cube me-2"></i><?php echo _("System"); ?>
+<?php
+function openapSystemEscape($value): string
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES);
+}
+
+function openapSystemBadge(string $state, string $class): string
+{
+    return '<span class="openap-system-badge openap-system-badge-' . openapSystemEscape($class) . '">' . openapSystemEscape($state) . '</span>';
+}
+
+$openapActiveServices = count(array_filter($services, static function (array $service): bool {
+    return ($service['statusClass'] ?? '') === 'up';
+}));
+$openapServiceDescriptions = [
+    'hostapd.service' => _('WiFi access point'),
+    'dnsmasq.service' => _('DHCP + DNS'),
+    'openap-uplink.service' => _('WiFi uplink'),
+    'openap-firewall.service' => _('NAT / Firewall'),
+    'lighttpd.service' => _('Web server'),
+    'systemd-networkd.service' => _('Network backend'),
+];
+?>
+<div class="container-fluid p-0 openap-system-layout">
+  <?php $status->showMessages(); ?>
+
+  <div class="row g-3 mb-3">
+    <div class="col-xl-9 col-lg-8">
+      <div class="openap-section-heading openap-system-heading">
+        <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-server"></i></span>
+        <div>
+          <strong><?php echo _("System"); ?></strong>
+          <small><?php echo _("Device information and diagnostics"); ?></small>
+        </div>
+        <div class="openap-system-heading-actions">
+          <button type="button" class="openap-system-action danger" data-bs-toggle="modal" data-bs-target="#system-reboot-modal">
+            <i class="fas fa-power-off"></i><span><?php echo _("Reboot"); ?></span>
+          </button>
+          <button type="button" onClick="window.location.reload();" class="openap-system-action">
+            <i class="fas fa-sync-alt"></i><span><?php echo _("Refresh"); ?></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card shadow openap-system-shell">
+        <div class="card-body openap-system-page">
+          <div class="openap-system-hero">
+            <div class="openap-system-identity">
+              <span class="openap-system-identity-icon"><i class="fas fa-microchip"></i></span>
+              <div>
+                <div class="openap-system-kicker"><?php echo _("OpenAP diagnostics"); ?></div>
+                <h4><?php echo openapSystemEscape($hostname); ?></h4>
+                <div class="text-muted"><?php echo openapSystemEscape($os); ?> &middot; <?php echo openapSystemEscape($kernel); ?></div>
+              </div>
+            </div>
+            <div class="openap-system-mode">
+              <span><?php echo _("Operating mode"); ?></span>
+              <strong><?php echo openapSystemEscape($openapModeLabel); ?></strong>
+            </div>
           </div>
-        </div><!-- /.row -->
-      </div><!-- /.card-header -->
-      <div class="card-body">
-        <?php $status->showMessages(); ?>
-        <form role="form" action="system_info" method="POST">
-        <?php echo \RaspAP\Tokens\CSRF::hiddenField(); ?>
-        <div class="nav-tabs-wrapper">
-          <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="nav-item"><a class="nav-link active" id="basictab" href="#basic" aria-controls="basic" role="tab" data-bs-toggle="tab"><?php echo _("Basic"); ?></a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link" id="languagetab" href="#language" aria-controls="language" role="tab" data-bs-toggle="tab"><?php echo _("Language"); ?></a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link" id="themetab" href="#theme" aria-controls="theme" role="tab" data-bs-toggle="tab"><?php echo _("Theme"); ?></a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link" id="advancedtab" href="#advanced" aria-controls="advanced" role="tab" data-bs-toggle="tab"><?php echo _("Advanced"); ?></a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link" id="toolstab" href="#tools" aria-controls="tools" role="tab" data-bs-toggle="tab"><?php echo _("Tools"); ?></a></li>
-            <?php if (RASPI_PLUGINS_ENABLED) : ?>
-            <li role="presentation" class="nav-item"><a class="nav-link" id="pluginstab" href="#plugins" aria-controls="plugins" role="tab" data-bs-toggle="tab"><?php echo _("Plugins"); ?></a></li>
-            <?php endif ?>
-          </ul>
+
+        <div class="openap-system-metrics">
+          <div class="openap-system-metric">
+            <i class="fas fa-microchip"></i>
+            <span><?php echo _("CPU Load"); ?></span>
+            <strong class="text-<?php echo openapSystemEscape($cpuload_status); ?>"><?php echo openapSystemEscape($cpuload); ?>%</strong>
+          </div>
+          <div class="openap-system-metric">
+            <i class="fas fa-memory"></i>
+            <span><?php echo _("Memory"); ?></span>
+            <strong class="text-<?php echo openapSystemEscape($memused_status); ?>"><?php echo openapSystemEscape($memused); ?>%</strong>
+          </div>
+          <div class="openap-system-metric">
+            <i class="fas fa-hdd"></i>
+            <span><?php echo _("Disk"); ?></span>
+            <strong class="text-<?php echo openapSystemEscape($diskused_status); ?>"><?php echo openapSystemEscape($diskused); ?>%</strong>
+          </div>
+          <div class="openap-system-metric">
+            <i class="fas fa-temperature-half"></i>
+            <span><?php echo _("Temperature"); ?></span>
+            <strong class="text-<?php echo openapSystemEscape($cputemp_status); ?>"><?php echo openapSystemEscape($cputemp); ?>&deg;C</strong>
+          </div>
         </div>
-          <!-- Tab panes -->
-          <div class="tab-content">
-            <?php echo renderTemplate("system/basic", $__template_data) ?>
-            <?php echo renderTemplate("system/language", $__template_data) ?>
-            <?php echo renderTemplate("system/theme", $__template_data) ?>
-            <?php echo renderTemplate("system/advanced", $__template_data) ?>
-            <?php echo renderTemplate("system/tools", $__template_data) ?>
-            <?php if (RASPI_PLUGINS_ENABLED) : ?>
-            <?php echo renderTemplate("system/plugins", $__template_data) ?>
-            <?php endif ?>
-          </div><!-- /.tab-content -->
+
+        <div class="row g-3">
+          <div class="col-xl-6">
+            <section class="openap-system-panel">
+              <div class="openap-system-panel-title">
+                <i class="fas fa-server"></i>
+                <span><?php echo _("Operating System"); ?></span>
+              </div>
+              <div class="openap-system-list">
+                <div><span><?php echo _("Hostname"); ?></span><strong><?php echo openapSystemEscape($hostname); ?></strong></div>
+                <div><span><?php echo _("OS"); ?></span><strong><?php echo openapSystemEscape($os); ?></strong></div>
+                <div><span><?php echo _("Kernel"); ?></span><strong><?php echo openapSystemEscape($kernel); ?></strong></div>
+                <div><span><?php echo _("Architecture"); ?></span><strong><?php echo openapSystemEscape($machine); ?></strong></div>
+                <div><span><?php echo _("Container"); ?></span><strong><?php echo openapSystemEscape($container); ?></strong></div>
+                <div><span><?php echo _("CPU cores"); ?></span><strong><?php echo openapSystemEscape($cores); ?></strong></div>
+                <div><span><?php echo _("Uptime"); ?></span><strong><?php echo openapSystemEscape($uptime); ?></strong></div>
+                <div><span><?php echo _("System time"); ?></span><strong><?php echo openapSystemEscape($systime); ?></strong></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="col-xl-6">
+            <section class="openap-system-panel">
+              <div class="openap-system-panel-title">
+                <i class="fas fa-network-wired"></i>
+                <span><?php echo _("Network Profile"); ?></span>
+              </div>
+              <div class="openap-system-list">
+                <?php foreach ($network as $item) : ?>
+                  <div>
+                    <span><?php echo openapSystemEscape($item['label']); ?></span>
+                    <strong><?php echo openapSystemEscape($item['value']); ?></strong>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <section class="openap-system-panel openap-system-services-panel mt-3">
+          <div class="openap-system-panel-title">
+            <i class="fas fa-heartbeat"></i>
+            <span><?php echo _("Services"); ?></span>
+          </div>
+          <div class="table-responsive">
+            <table class="table openap-system-table">
+              <thead>
+                <tr>
+                  <th><?php echo _("Service"); ?></th>
+                  <th><?php echo _("State"); ?></th>
+                  <th><?php echo _("Enabled"); ?></th>
+                  <th><?php echo _("Active since"); ?></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($services as $service) : ?>
+                  <tr>
+                    <td><code><?php echo openapSystemEscape($service['name']); ?></code></td>
+                    <td><?php echo openapSystemBadge($service['active'], $service['statusClass']); ?></td>
+                    <td><?php echo openapSystemEscape($service['enabled']); ?></td>
+                    <td><?php echo openapSystemEscape($service['since']); ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="row g-3 mt-0">
+          <div class="col-xl-6">
+            <section class="openap-system-panel">
+              <div class="openap-system-panel-title">
+                <i class="fas fa-code-branch"></i>
+                <span><?php echo _("Project Software"); ?></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table openap-system-table">
+                  <tbody>
+                    <?php foreach ($software as $component) : ?>
+                      <tr>
+                        <td><?php echo openapSystemEscape($component['name']); ?></td>
+                        <td><code><?php echo openapSystemEscape($component['version']); ?></code></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div class="col-xl-6">
+            <section class="openap-system-panel openap-system-config-panel">
+              <div class="openap-system-panel-title">
+                <i class="fas fa-file-lines"></i>
+                <span><?php echo _("Configuration Files"); ?></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table openap-system-table">
+                  <tbody>
+                    <?php foreach ($configFiles as $file) : ?>
+                      <tr>
+                        <td><code><?php echo openapSystemEscape($file['path']); ?></code></td>
+                        <td>
+                          <?php echo $file['exists'] ? openapSystemBadge(_("Readable"), 'up') : openapSystemBadge(_("Missing"), 'warn'); ?>
+                          <span class="openap-system-file-time"><?php echo openapSystemEscape($file['modified']); ?></span>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+        </div>
+        <div class="card-footer openap-system-footer">
+          <i class="fas fa-lock me-1"></i><?php echo _("Read-only information provided by OpenAP system diagnostics."); ?>
+        </div>
+      </div>
+    </div>
+
+    <aside class="col-xl-3 col-lg-4">
+      <div class="row g-3 openap-system-side-widgets">
+        <div class="col-12">
+          <section class="stat-card border-top-green openap-system-side-card">
+            <div class="stat-top">
+              <div class="openap-widget-heading">
+                <div>
+                  <div class="openap-widget-title"><?php echo _("System health"); ?></div>
+                  <div class="openap-widget-caption"><?php echo _("Live resource usage"); ?></div>
+                </div>
+                <span class="openap-system-side-icon violet"><i class="fas fa-microchip"></i></span>
+              </div>
+              <div class="openap-system-side-grid">
+                <div><span><?php echo _("CPU used"); ?></span><strong><?php echo openapSystemEscape($cpuload); ?>%</strong></div>
+                <div><span><?php echo _("RAM used"); ?></span><strong><?php echo openapSystemEscape($memused); ?>%</strong></div>
+                <div><span><?php echo _("Temperature"); ?></span><strong><?php echo openapSystemEscape($cputemp); ?>&deg;C</strong></div>
+                <div><span><?php echo _("Uptime"); ?></span><strong><?php echo openapSystemEscape($uptime); ?></strong></div>
+              </div>
+            </div>
+            <div class="stat-bottom">
+              <span><i class="fas fa-hdd me-1"></i><?php echo _("Disk"); ?>: <?php echo openapSystemEscape($diskused); ?>%</span>
+              <span><?php echo _("Load"); ?>: <?php echo openapSystemEscape($cpuload); ?>%</span>
+            </div>
+          </section>
+        </div>
+
+        <div class="col-12">
+          <section class="stat-card border-top-green openap-system-side-card">
+            <div class="stat-top">
+              <div class="openap-widget-heading">
+                <div>
+                  <div class="openap-widget-title"><?php echo _("Network profile"); ?></div>
+                  <div class="openap-widget-caption"><?php echo _("Current OpenAP mode"); ?></div>
+                </div>
+                <span class="openap-system-side-icon blue"><i class="fas fa-network-wired"></i></span>
+              </div>
+              <div class="openap-system-side-mode">
+                <span><?php echo _("Active mode"); ?></span>
+                <strong><?php echo openapSystemEscape($openapModeLabel); ?></strong>
+              </div>
+              <div class="openap-system-side-list">
+                <?php foreach (array_slice($network, 0, 3) as $item) : ?>
+                  <div><span><?php echo openapSystemEscape($item['label']); ?></span><strong><?php echo openapSystemEscape($item['value']); ?></strong></div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col-12">
+          <?php require __DIR__ . '/openap_service_status.php'; ?>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal fade" id="system-reboot-modal" tabindex="-1" aria-labelledby="system-reboot-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="system-reboot-title">
+          <i class="fas fa-power-off me-2"></i><?php echo _("Reboot system"); ?>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo _("Close"); ?>"></button>
+      </div>
+      <div class="modal-body">
+        <?php echo _("OpenAP and its network services will be temporarily unavailable while the system restarts."); ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
+        <form method="POST" action="system_info" class="m-0">
+          <?php echo \OpenAP\Tokens\CSRF::hiddenField(); ?>
+          <input type="hidden" name="system_action" value="reboot">
+          <button type="submit" class="btn btn-outline-danger">
+            <i class="fas fa-power-off me-1"></i><?php echo _("Reboot"); ?>
+          </button>
         </form>
-      </div><!-- /.card-body -->
-      <div class="card-footer"><?php echo _("Information provided by raspap.sysinfo"); ?></div>
-    </div><!-- /.card -->
-  </div><!-- /.col-lg-12 -->
-</div><!-- /.row -->
-
-<!-- modal confirm-reset-->
-<div class="modal fade" id="system-confirm-reset" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-history me-2"></i><?php echo _("System reset"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" data-message="<?php echo _("Reset complete. Restart the hotspot for the changes to take effect."); ?>" id="system-reset-message"><?php echo _("Reset RaspAP to its initial configuration? This action cannot be undone."); ?></div>
-      </div>
-      <div class="modal-footer">
-      <button type="button" id="js-system-reset-cancel" data-message="<?php echo _("Close"); ?>" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
-      <button type="button" id="js-system-reset-confirm" data-message="<?php echo _("System reset in progress..."); ?>" class="btn btn-outline-danger btn-delete"><?php echo _("Reset"); ?></button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- modal confirm-reboot-->
-<div class="modal fade" id="system-confirm-reboot" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-sync me-2"></i><?php echo _("System reboot"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" id="system-reboot-message"><?php echo _("Reboot now? The system will be temporarily unavailable."); ?></div>
-      </div>
-      <div class="modal-footer">
-      <button type="button" data-message="<?php echo _("Close"); ?>" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
-      <button type="button" id="js-sys-reboot" data-action="reboot" class="btn btn-outline-danger btn-delete"><?php echo _("Reboot"); ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- modal reconnecting-->
-<div class="modal fade" id="system-reconnect" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-sync me-2"></i><?php echo _("Reconnecting"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" id="system-reconnect-message">
-          <p><?php echo _("The system is currently rebooting."); ?></p>
-          <p><?= _('Attempting to reconnect in'); ?>&nbsp;<span id="system-reconnect-seconds"></span></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- modal confirm-shutdown-->
-<div class="modal fade" id="system-confirm-shutdown" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-power-off me-2"></i><?php echo _("System shutdown"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" id="system-reboot-message"><?php echo _("Shutdown now? The system will be unavailable."); ?></div>
-      </div>
-      <div class="modal-footer">
-      <button type="button" data-message="<?php echo _("Close"); ?>" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
-      <button type="button" id="js-sys-shutdown" data-action="shutdown" class="btn btn-outline-danger btn-delete"><?php echo _("Shutdown"); ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- modal progress-debug-->
-<div class="modal fade" id="debugModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-sync-alt fa-spin me-2"></i><?php echo _("Generate debug log"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" id="system-debug-message"><?php echo _("Debug log generation in progress..."); ?></div>
-      </div>
-      <div class="modal-footer">
-      <button type="button" data-message="<?php echo _("Close"); ?>" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Close"); ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- modal install-plugin -->
-<div class="modal fade" id="install-user-plugin" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-plug me-2"></i><?php echo _("Plugin details"); ?></div>
-      </div>
-      <div class="modal-body">
-
-        <i id="plugin-icon" class="fas fa-plug link-secondary me-2"></i><span id="plugin-name" class="h4 mb-0"></span>
-        <p id="plugin-description" class="mb-1"></p>
-        <p id="plugin-additional" class="mb-3"></p>
-
-        <table class="table table-bordered">
-          <tbody>
-            <tr>
-              <th><?php echo _("Plugin docs"); ?></th>
-              <td><span id="plugin-docs"></span></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Version"); ?></th>
-              <td><span id="plugin-version"></span></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Author"); ?></th>
-              <td><span id="plugin-author"></span></td>
-            </tr>
-            <tr>
-              <th><?php echo _("License"); ?></th>
-              <td><span id="plugin-license"></span></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Language locale"); ?></th>
-              <td><small><code><span id="plugin-locale"></span></span></code></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Configuration files"); ?></th>
-              <td><small><code><span id="plugin-configuration" class="mb-0"></span></code></small></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Signed Packages"); ?></th>
-              <td><small><code><span id="plugin-packages" class="mb-0"></span></code></small></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Dependencies"); ?></th>
-              <td><small><code><span id="plugin-dependencies" class="mb-0"></span></code></small></td>
-            </tr>
-            <tr>
-              <th><?php echo _("JavaScript"); ?></th>
-              <td><small><code><span id="plugin-javascript" class="mb-0"></span></code></small></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Sudoers"); ?></th>
-              <td><small><code><span id="plugin-sudoers" class="mb-0"></span></code></small></td>
-            </tr>
-            <tr>
-              <th><?php echo _("Non-privileged users"); ?></th>
-              <td><small><code><span id="plugin-user-name"></span></small></code></p></td>
-            </tr>
-          </tbody>
-        </table>
-
-      </div>
-      <div class="modal-footer">
-      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
-      <button type="button" id="js-install-plugin-confirm" class="btn btn-outline-success btn-activate"></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- modal plugin-install-progress -->
-<div class="modal fade" id="install-plugin-progress" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-      <div class="modal-title" id="ModalLabel"><i class="fas fa-download me-2"></i><?php echo _("Installing plugin"); ?></div>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12 mb-3 mt-1" data-message="<?php echo _("Plugin install completed."); ?>" id="plugin-install-message"><?php echo _("Plugin installation in progress..."); ?><i class="fas fa-cog fa-spin link-secondary ms-2"></i></div>
-      </div>
-      <div class="modal-footer">
-      <button type="button" id="js-install-plugin-ok" class="btn btn-outline-success btn-activate" disabled><?php echo _("OK"); ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-

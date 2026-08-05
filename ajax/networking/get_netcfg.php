@@ -1,6 +1,6 @@
 <?php
 
-use RaspAP\Networking\Hotspot\DhcpcdManager;
+use OpenAP\Networking\Hotspot\DhcpcdManager;
 
 require_once '../../includes/autoload.php';
 require_once '../../includes/CSRF.php';

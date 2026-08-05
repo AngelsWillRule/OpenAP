@@ -1,6 +1,6 @@
 <?php
 
-$system = new \RaspAP\System\Sysinfo;
+$system = new \OpenAP\System\Sysinfo;
 
 $hostname = $system->hostname();
 $uptime   = $system->uptime();
@@ -52,4 +52,3 @@ if ($hostapd[0] ==1) {
     $hostapd_status = "down";
     $hostapd_led = "service-status-warn";
 }
-

@@ -1,10 +1,9 @@
 <?php
 
-if (RASPI_AUTH_ENABLED) {
-    $auth = new \RaspAP\Auth\HTTPAuth;
+if (OPENAP_AUTH_ENABLED) {
+    $auth = new \OpenAP\Auth\HTTPAuth;
 
     if (!$auth->isLogged()) {
         $auth->authenticate();
     }
 }
-

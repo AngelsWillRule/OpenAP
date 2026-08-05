@@ -27,7 +27,7 @@
     </div>
     <div class="col-md-6 mt-3">
       <figure class="figure">
-        <img src="app/img/wifi-qr-code.php" class="figure-img img-fluid" alt="RaspAP Wifi QR code" style="width:100%;">
+        <img src="app/img/wifi-qr-code.php" class="figure-img img-fluid" alt="OpenAP WiFi QR code" style="width:100%;">
         <figcaption class="figure-caption">
             <?php echo sprintf(_("Scan this QR code directly or %s %sprint a sign%s for your users."),
                 '<i class="fas fa-print"></i>',
