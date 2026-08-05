@@ -41,14 +41,25 @@ checksum pass the clean-platform matrix.
 
 ## Hardware prerequisites
 
-OpenAP does not install Wi-Fi firmware or hardware drivers. Before installation
-the operating system must expose:
+> **Important:** Every Wi-Fi adapter intended for OpenAP must already be
+> detected and operational before the installer is started. OpenAP does not
+> install firmware, kernel drivers or third-party driver packages, and the
+> project cannot provide hardware-specific driver installation support.
+
+Before installation, the operating system must expose:
 
 - a working Ethernet uplink;
 - at least one Wi-Fi interface supporting AP mode;
 - a valid regulatory country.
 
 Repeater Mode requires a second Wi-Fi interface capable of managed/client mode.
+Verify the intended adapters before running the installer:
+
+```bash
+iw dev
+ip -brief link
+```
+
 See [Hardware and Wi-Fi prerequisites](docs/HARDWARE.md).
 
 ## Installer preview
