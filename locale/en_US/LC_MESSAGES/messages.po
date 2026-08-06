@@ -7,7 +7,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenAP 0.2.0-dev\n"
+"Project-Id-Version: OpenAP 0.2.5\n"
 "Report-Msgid-Bugs-To: https://github.com/AngelsWillRule/OpenAP/issues\n"
 "POT-Creation-Date: 2026-08-05 15:59+0000\n"
 "PO-Revision-Date: 2025-10-25 08:35+0000\n"

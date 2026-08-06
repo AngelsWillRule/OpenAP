@@ -180,6 +180,28 @@ must reconnect; DHCP, addressing and routing are left unchanged.
 
 ## Current Scope
 
+### Maintenance menu
+
+Running `openap-install` interactively on a host where `/etc/openap/release`
+already exists opens a deliberately small maintenance menu. The first version
+offers only these operations:
+
+1. switch the configured AP and Wi-Fi uplink adapters;
+2. uninstall OpenAP;
+3. exit without changes.
+
+The command keeps its existing safety model: without `--apply`, adapter
+switching and uninstall are dry runs. Uninstall archives the current webroot,
+`/etc/openap` and every known OpenAP-owned system file under `/root` before
+removal. It retains installed operating-system packages, firmware and drivers.
+
+The adapter switch opens a dedicated role-selection screen listing every
+detected Wi-Fi interface, its MAC address, driver, bus and bands. The
+administrator selects the AP and uplink roles separately. OpenAP then applies
+only the interface-related hostapd, dnsmasq, networkd, firewall and role-profile
+changes; it does not reinstall packages or the web UI and does not ask again
+for country or credentials.
+
 The standard Debian install also includes optional encrypted hotspot DNS.
 DHCP Setting can enable Cloudflare or Quad9 Security through dnscrypt-proxy.
 OpenAP keeps dnsmasq as the client-facing resolver and switches only its

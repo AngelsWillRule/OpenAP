@@ -1,0 +1,263 @@
+#!/usr/bin/env bash
+#
+# Conservative OpenAP uninstaller.
+#
+# Default mode is dry-run. Use --apply to perform the removal.
+
+set -euo pipefail
+
+apply=0
+assume_yes=0
+webroot="/var/www/html"
+profile="/etc/openap/repeater.ini"
+release_file="/etc/openap/release"
+
+usage() {
+  cat <<'EOF'
+Usage: openap-uninstall [--apply] [--yes] [--webroot /var/www/html]
+
+Archives and removes OpenAP-owned runtime files and services. The default is
+a dry run. Installed Debian/Ubuntu packages, Wi-Fi firmware and drivers are
+never removed.
+EOF
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --apply) apply=1 ;;
+    --yes|-y) assume_yes=1 ;;
+    --webroot)
+      webroot="${2:-}"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+case "$webroot" in
+  /*) ;;
+  *) echo "ERROR: --webroot must be an absolute path." >&2; exit 1 ;;
+esac
+case "$webroot" in
+  /|/etc|/usr|/var|/home|/root)
+    echo "ERROR: unsafe webroot refused: $webroot" >&2
+    exit 1
+    ;;
+esac
+if [ -L "$webroot" ]; then
+  echo "ERROR: refusing a symbolic-link webroot: $webroot" >&2
+  exit 1
+fi
+
+if [ ! -f "$release_file" ]; then
+  echo "ERROR: OpenAP installation marker not found: $release_file" >&2
+  exit 1
+fi
+if [ -d "$webroot" ] && [ ! -f "$webroot/VERSION" ]; then
+  echo "ERROR: refusing an unrecognized webroot without VERSION: $webroot" >&2
+  echo "No files or services were changed." >&2
+  exit 1
+fi
+
+profile_value() {
+  local key="$1"
+  [ -r "$profile" ] || return 0
+  awk -F ' *= *' -v wanted="$key" '$1 == wanted {print $2; exit}' "$profile"
+}
+
+valid_iface() {
+  case "$1" in
+    ""|*[!A-Za-z0-9_.:-]*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+ap_iface="$(profile_value ap)"
+uplink_iface="$(profile_value uplink)"
+ethernet_iface="$(profile_value ethernet)"
+gateway="$(profile_value gateway)"
+subnet="$(profile_value subnet)"
+
+for iface in "$ap_iface" "$uplink_iface" "$ethernet_iface"; do
+  [ -z "$iface" ] || valid_iface "$iface" || {
+    echo "ERROR: unsafe interface name in $profile: $iface" >&2
+    exit 1
+  }
+done
+
+dynamic_paths=()
+[ -z "$ap_iface" ] || dynamic_paths+=(
+  "/etc/systemd/network/20-${ap_iface}-ap.network"
+  "/etc/systemd/network/30-${ap_iface}-sta.network"
+  "/etc/wpa_supplicant/wpa_supplicant-${ap_iface}.conf"
+)
+[ -z "$uplink_iface" ] || dynamic_paths+=(
+  "/etc/systemd/network/20-${uplink_iface}-ap.network"
+  "/etc/systemd/network/30-${uplink_iface}-sta.network"
+  "/etc/wpa_supplicant/wpa_supplicant-${uplink_iface}.conf"
+)
+[ -z "$ethernet_iface" ] || dynamic_paths+=(
+  "/etc/systemd/network/10-${ethernet_iface}.network"
+)
+
+owned_paths=(
+  /etc/dnsmasq.d/openap-repeater.conf
+  /etc/hostapd/hostapd.conf
+  /etc/lighttpd/conf-available/50-openap-router.conf
+  /etc/lighttpd/conf-enabled/50-openap-router.conf
+  /etc/sudoers.d/090_openap_universal
+  /etc/sudoers.d/091_openap_txpower
+  /etc/sysctl.d/90-openap-forward.conf
+  /etc/systemd/network/20-openap-ap.network
+  /etc/systemd/system/dnsmasq.service.d/20-openap-ap-address.conf
+  /etc/systemd/system/dnsmasq.service.d/20-openap-wait-ap-address.conf
+  /etc/systemd/system/hostapd.service.d/20-openap-ap-address.conf
+  /etc/systemd/system/hostapd.service.d/20-openap-wait-ap-address.conf
+  /etc/systemd/system/hostapd.service.d/30-openap-hostapd-config.conf
+  /etc/systemd/system/lighttpd.service.d/20-openap-privileges.conf
+  /etc/systemd/system/openap-ap-address.service
+  /etc/systemd/system/openap-bridge-neighbors.service
+  /etc/systemd/system/openap-bridge-neighbors.timer
+  /etc/systemd/system/openap-firewall.service
+  /etc/systemd/system/openap-regdomain.service
+  /etc/systemd/system/openap-uplink.service
+  /etc/systemd/system/openap-uplink-watchdog.service
+  /etc/systemd/system/openap-uplink-watchdog.timer
+  /usr/local/sbin/openap-apply-ap-ethernet
+  /usr/local/sbin/openap-apply-ap-ethernet-bridge
+  /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd
+  /usr/local/sbin/openap-apply-dhcp-settings
+  /usr/local/sbin/openap-apply-encrypted-dns
+  /usr/local/sbin/openap-apply-repeater-wifi
+  /usr/local/sbin/openap-apply-uplink-wifi
+  /usr/local/sbin/openap-detect
+  /usr/local/sbin/openap-forget-uplink-wifi
+  /usr/local/sbin/openap-prepare-ap-interface
+  /usr/local/sbin/openap-refresh-bridge-neighbors
+  /usr/local/sbin/openap-resolve-interfaces
+  /usr/local/sbin/openap-run-uplink
+  /usr/local/sbin/openap-scan-wifi
+  /usr/local/sbin/openap-set-txpower
+  /usr/local/sbin/openap-switch-interface-roles
+  /usr/local/sbin/openap-system-reboot
+  /usr/local/sbin/openap-udhcpc-hook
+  /usr/local/sbin/openap-uplink-watchdog
+  /usr/local/sbin/openap-wait-ap-address
+)
+
+echo "OpenAP uninstall plan"
+echo "  AP interface:       ${ap_iface:-unknown}"
+echo "  Wi-Fi uplink:       ${uplink_iface:-not configured}"
+echo "  Ethernet interface: ${ethernet_iface:-unknown}"
+echo "  Webroot:            $webroot"
+echo
+echo "The operation will archive the current OpenAP state under /root, then:"
+echo "  - stop and disable OpenAP services, and stop hostapd and dnsmasq;"
+echo "  - remove only known OpenAP helpers, units and network profiles;"
+echo "  - archive $webroot and /etc/openap instead of deleting them;"
+echo "  - keep all installed OS packages, firmware and drivers."
+
+if [ "$apply" -eq 0 ]; then
+  echo
+  echo "DRY-RUN: no changes were made. Re-run with --apply to uninstall."
+  exit 0
+fi
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "ERROR: --apply must run as root." >&2
+  exit 1
+fi
+
+if [ "$assume_yes" -eq 0 ]; then
+  [ -t 0 ] || {
+    echo "ERROR: interactive confirmation is required; use --yes only for an intentional unattended uninstall." >&2
+    exit 1
+  }
+  answer=""
+  printf "Type UNINSTALL to continue: "
+  IFS= read -r answer
+  [ "$answer" = "UNINSTALL" ] || {
+    echo "Uninstall cancelled."
+    exit 0
+  }
+fi
+
+backup_dir="/root/openap-uninstall-$(date +%Y%m%d-%H%M%S)"
+if [ -e "$backup_dir" ]; then
+  echo "ERROR: backup destination already exists: $backup_dir" >&2
+  exit 1
+fi
+mkdir -m 0700 "$backup_dir"
+
+for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
+  [ -e "$path" ] || [ -L "$path" ] || continue
+  cp -a --parents "$path" "$backup_dir"
+done
+
+systemctl disable --now \
+  openap-ap-address.service \
+  openap-bridge-neighbors.timer \
+  openap-firewall.service \
+  openap-regdomain.service \
+  openap-uplink.service \
+  openap-uplink-watchdog.timer 2>/dev/null || true
+systemctl stop hostapd.service dnsmasq.service 2>/dev/null || true
+nft delete table ip openap_nat 2>/dev/null || true
+
+if valid_iface "$ap_iface" && [ -n "$gateway" ] && [ -n "$subnet" ]; then
+  prefix="${subnet#*/}"
+  case "$gateway/$prefix" in
+    *[!0-9./]*) ;;
+    *) ip address del "$gateway/$prefix" dev "$ap_iface" 2>/dev/null || true ;;
+  esac
+fi
+
+for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
+  case "$path" in
+    /etc/*|/usr/local/sbin/openap-*) ;;
+    *) echo "ERROR: unsafe removal target: $path" >&2; exit 1 ;;
+  esac
+  [ -e "$path" ] || [ -L "$path" ] || continue
+  rm -f -- "$path"
+done
+
+if [ -d "$webroot" ]; then
+  mv -- "$webroot" "$backup_dir/webroot"
+  mkdir -m 0755 "$webroot"
+fi
+
+if [ -d /etc/openap ]; then
+  mv -- /etc/openap "$backup_dir/etc-openap"
+fi
+
+systemctl daemon-reload
+if systemctl is-active --quiet systemd-networkd.service; then
+  networkctl reload || true
+fi
+systemctl try-restart lighttpd.service 2>/dev/null || true
+
+cat > "$backup_dir/RESTORE.txt" <<EOF
+OpenAP uninstall backup
+Created: $(date --iso-8601=seconds)
+Original webroot: $webroot
+Original AP interface: ${ap_iface:-unknown}
+
+This directory contains the OpenAP files archived before removal. Review its
+contents manually before restoring; do not copy it over a later installation.
+EOF
+chmod 0600 "$backup_dir/RESTORE.txt"
+
+echo
+echo "OpenAP has been uninstalled."
+echo "Recovery backup: $backup_dir"
+echo "Installed OS packages, firmware and drivers were retained."
+echo "A reboot is recommended after confirming that the host remains reachable."

@@ -20,6 +20,8 @@ detector="$repo_dir/openap-installer/bin/openap-detect"
 webroot_excludes="$repo_dir/openap-installer/config/webroot-excludes.txt"
 version_file="$repo_dir/VERSION"
 release_file="/etc/openap/release"
+uninstaller="$repo_dir/openap-installer/bin/openap-uninstall"
+interface_switcher="$repo_dir/openap-installer/bin/openap-switch-interfaces"
 sudoers_name="090_openap_universal"
 admin_user="admin"
 admin_password="${OPENAP_ADMIN_PASSWORD:-}"
@@ -85,6 +87,51 @@ password, regulatory country and web administrator credentials. The initial
 security mode is WPA2-Personal (WPA2-PSK, AES/CCMP). CC is a two-letter ISO
 3166-1 country code, for example IT.
 EOF
+}
+
+show_installed_menu() {
+  local installed_version="unknown" choice=""
+  installed_version="$(sed -n 's/^version=//p' "$release_file" | head -n 1)"
+  installed_version="${installed_version:-unknown}"
+
+  if [ ! -t 0 ]; then
+    echo "ERROR: OpenAP $installed_version is already installed and maintenance requires an interactive terminal." >&2
+    exit 1
+  fi
+
+  cat <<EOF
+
+============================================================
+ OpenAP $installed_version maintenance
+============================================================
+  1) Switch AP and Wi-Fi uplink adapters
+  2) Uninstall OpenAP
+  3) Exit
+============================================================
+EOF
+  while true; do
+    printf "Choose an option [1-3]: "
+    IFS= read -r choice
+    case "$choice" in
+      1)
+        args=()
+        [ "$apply" -eq 0 ] || args+=(--apply)
+        exec "$interface_switcher" "${args[@]}"
+        ;;
+      2)
+        args=()
+        [ "$apply" -eq 0 ] || args+=(--apply)
+        [ "$assume_yes" -eq 0 ] || args+=(--yes)
+        args+=(--webroot "$webroot")
+        exec "$uninstaller" "${args[@]}"
+        ;;
+      3)
+        echo "No changes were made."
+        exit 0
+        ;;
+      *) echo "Enter 1, 2 or 3." ;;
+    esac
+  done
 }
 
 show_welcome() {
@@ -224,6 +271,10 @@ case "$dns_mode" in
     exit 1
     ;;
 esac
+
+if [ -f "$release_file" ] && [ "$assume_yes" -eq 0 ] && [ -z "$ap_iface_override" ]; then
+  show_installed_menu
+fi
 
 normalize_country() {
   printf '%s' "$1" | tr '[:lower:]' '[:upper:]'
@@ -1071,6 +1122,7 @@ for file in \
   "$repo_dir/installers/openap-apply-dhcp-settings.sh" \
   "$repo_dir/installers/openap-apply-encrypted-dns.sh" \
   "$repo_dir/installers/openap-apply-repeater-wifi.sh" \
+  "$repo_dir/installers/openap-switch-interface-roles.sh" \
   "$repo_dir/installers/openap-apply-uplink-wifi.sh" \
   "$repo_dir/installers/openap-scan-wifi.sh" \
   "$repo_dir/installers/openap-forget-uplink-wifi.sh" \
@@ -1290,9 +1342,10 @@ run cp "$repo_dir/installers/openap-system-reboot.sh" /usr/local/sbin/openap-sys
 run cp "$repo_dir/installers/openap-wait-ap-address.sh" /usr/local/sbin/openap-wait-ap-address
 run cp "$repo_dir/installers/openap-refresh-bridge-neighbors.sh" /usr/local/sbin/openap-refresh-bridge-neighbors
 run cp "$repo_dir/installers/openap-uplink-watchdog.sh" /usr/local/sbin/openap-uplink-watchdog
+run cp "$repo_dir/installers/openap-switch-interface-roles.sh" /usr/local/sbin/openap-switch-interface-roles
 run cp "$detector" /usr/local/sbin/openap-detect
-run chown root:root /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-detect
-run chmod 0755 /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-detect
+run chown root:root /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect
+run chmod 0755 /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect
 
 echo
 echo "Install AP-Ethernet bridge neighbour refresh timer"
