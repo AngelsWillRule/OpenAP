@@ -61,6 +61,8 @@ ethernet_iface="$(awk -F ' *= *' '$1 == "ethernet" {print $2}' "$profile" 2>/dev
 ethernet_physical_iface="$(awk -F ' *= *' '$1 == "ethernet_physical" {print $2}' "$profile" 2>/dev/null | head -1)"
 ethernet_gateway="$(awk -F ' *= *' '$1 == "ethernet_gateway" {print $2}' "$profile" 2>/dev/null | head -1)"
 wireless_country="$(awk -F ' *= *' '$1 == "country" {print $2}' "$profile" 2>/dev/null | head -1)"
+old_ap_iface="$(awk -F ' *= *' '$1 == "ap" {print $2}' "$profile" 2>/dev/null | head -1)"
+old_uplink_iface="$(awk -F ' *= *' '$1 == "uplink" {print $2}' "$profile" 2>/dev/null | head -1)"
 
 subnet="${subnet:-10.88.77.0/24}"
 network_gateway="${network_gateway:-10.88.77.1}"
@@ -72,10 +74,28 @@ ethernet_gateway="${ethernet_gateway:-}"
 wireless_country="${wireless_country:-$(sed -n 's/^country_code=//p' "$hostapd_conf" 2>/dev/null | head -1)}"
 wireless_country="${wireless_country:-00}"
 
+if [ ! -e "$uplink_wpa" ] && [ -n "$old_uplink_iface" ] \
+  && [ -e "/etc/wpa_supplicant/wpa_supplicant-${old_uplink_iface}.conf" ]; then
+  cp -a "/etc/wpa_supplicant/wpa_supplicant-${old_uplink_iface}.conf" "$uplink_wpa"
+fi
 if [ ! -e "$uplink_wpa" ] && [ -e /etc/wpa_supplicant/wpa_supplicant-wlan1.conf ]; then
   cp -a /etc/wpa_supplicant/wpa_supplicant-wlan1.conf "$uplink_wpa"
 fi
 [ -e "$uplink_wpa" ] || fail "Uplink wpa_supplicant config not found"
+chown root:root "$uplink_wpa"
+chmod 0600 "$uplink_wpa"
+
+systemctl disable --now openap-uplink.service >/dev/null 2>&1 || true
+for stale_profile in \
+  /etc/systemd/network/20-openap-ap.network \
+  "/etc/systemd/network/20-${old_ap_iface}-ap.network" \
+  "/etc/systemd/network/20-${uplink_iface}-ap.network" \
+  "/etc/systemd/network/30-${old_uplink_iface}-sta.network" \
+  "/etc/systemd/network/30-${ap_iface}-sta.network"; do
+  [ -n "$stale_profile" ] || continue
+  [ ! -e "$stale_profile" ] || rm -f -- "$stale_profile"
+done
+ip address flush dev "$uplink_iface" 2>/dev/null || true
 
 tmp_hostapd="$(mktemp)"
 awk -v iface="$ap_iface" '

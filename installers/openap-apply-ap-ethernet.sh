@@ -5,6 +5,7 @@ action="${1:---apply}"
 iface="${2:-}"
 gateway="${3:-}"
 requested_ap_mac="${4:-}"
+requested_uplink_mac="${5:-}"
 
 fail() {
   echo "$1" >&2
@@ -41,6 +42,20 @@ done
 is_wireless_iface "$requested_ap_iface" || fail "Selected AP interface is not wireless"
 iw phy "$(iw dev "$requested_ap_iface" info 2>/dev/null | awk '$1 == "wiphy" {print "phy" $2; exit}')" info 2>/dev/null | grep -Eq '^[[:space:]]+\* AP$' || fail "Selected WiFi interface is not AP-capable"
 
+requested_uplink_iface=""
+if [ -n "$requested_uplink_mac" ]; then
+  echo "$requested_uplink_mac" | grep -Eqi '^([0-9a-f]{2}:){5}[0-9a-f]{2}$' || fail "Invalid uplink MAC address"
+  for net_path in /sys/class/net/*; do
+    [ -r "$net_path/address" ] || continue
+    [ "$(tr 'A-F' 'a-f' < "$net_path/address")" = "$(printf '%s' "$requested_uplink_mac" | tr 'A-F' 'a-f')" ] || continue
+    requested_uplink_iface="$(basename "$net_path")"
+    break
+  done
+  [ -n "$requested_uplink_iface" ] || fail "Selected uplink interface not found"
+  is_wireless_iface "$requested_uplink_iface" || fail "Selected uplink interface is not wireless"
+  [ "$requested_uplink_iface" != "$requested_ap_iface" ] || fail "AP and uplink interfaces must differ"
+fi
+
 ! is_wireless_iface "$iface" || fail "Interface is wireless, not ethernet"
 [ "$(cat "/sys/class/net/$iface/type" 2>/dev/null)" = "1" ] || fail "Interface is not ethernet"
 [ "$(cat "/sys/class/net/$iface/carrier" 2>/dev/null || echo 0)" = "1" ] || fail "Ethernet carrier is down"
@@ -65,6 +80,7 @@ if [ "$action" = "--validate-only" ]; then
   echo "AP via Ethernet validation passed"
   echo "Ethernet uplink: $iface ($eth_addr), gateway: $gateway"
   echo "AP interface: $requested_ap_iface ($requested_ap_mac)"
+  [ -z "$requested_uplink_iface" ] || echo "WiFi uplink: $requested_uplink_iface ($requested_uplink_mac)"
   echo "No changes were applied"
   exit 0
 fi
@@ -88,6 +104,7 @@ old_ap_iface="$(awk -F ' *= *' '$1 == "ap" {print $2}' "$profile" 2>/dev/null | 
 uplink_iface="$(awk -F ' *= *' '$1 == "uplink" {print $2}' "$profile" 2>/dev/null | head -1)"
 ap_mac="$(awk -F ' *= *' '$1 == "ap_mac" {print $2}' "$profile" 2>/dev/null | head -1)"
 uplink_mac="$(awk -F ' *= *' '$1 == "uplink_mac" {print $2}' "$profile" 2>/dev/null | head -1)"
+ethernet_physical_iface="$(awk -F ' *= *' '$1 == "ethernet_physical" {print $2}' "$profile" 2>/dev/null | head -1)"
 network_gateway="$(awk -F ' *= *' '$1 == "gateway" {print $2}' "$profile" 2>/dev/null | head -1)"
 dhcp_start="$(awk -F ' *= *' '$1 == "dhcp_start" {print $2}' "$profile" 2>/dev/null | head -1)"
 dhcp_end="$(awk -F ' *= *' '$1 == "dhcp_end" {print $2}' "$profile" 2>/dev/null | head -1)"
@@ -96,7 +113,12 @@ wireless_country="$(awk -F ' *= *' '$1 == "country" {print $2}' "$profile" 2>/de
 subnet="${subnet:-10.88.77.0/24}"
 ap_iface="$requested_ap_iface"
 ap_mac="$(tr 'A-F' 'a-f' < "/sys/class/net/$ap_iface/address")"
-uplink_iface="${uplink_iface:-wlan1}"
+if [ -n "$requested_uplink_iface" ]; then
+  uplink_iface="$requested_uplink_iface"
+  uplink_mac="$(tr 'A-F' 'a-f' < "/sys/class/net/$uplink_iface/address")"
+else
+  uplink_iface="${uplink_iface:-wlan1}"
+fi
 ap_mac="${ap_mac:-}"
 uplink_mac="${uplink_mac:-}"
 wireless_country="${wireless_country:-$(sed -n 's/^country_code=//p' /etc/hostapd/hostapd.conf 2>/dev/null | head -1)}"
@@ -208,6 +230,7 @@ firewall_backend = $firewall_backend
 ap = $ap_iface
 uplink = $uplink_iface
 ethernet = $iface
+ethernet_physical = ${ethernet_physical_iface:-$iface}
 ap_mac = $ap_mac
 uplink_mac = $uplink_mac
 

@@ -34,7 +34,7 @@ find "$repo_dir" -type f -name '*.php' \
     --from-code=UTF-8 \
     --keyword=_ \
     --package-name=OpenAP \
-    --package-version=0.2.0-dev \
+    --package-version=0.2.5 \
     --msgid-bugs-address=https://github.com/AngelsWillRule/OpenAP/issues \
     --files-from="$work_dir/php-relative.txt" \
     --output="$pot"

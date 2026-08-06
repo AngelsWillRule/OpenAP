@@ -250,8 +250,9 @@ function DisplayDashboard(string $template = 'dashboard'): void
     $profile = function_exists('openapReadRepeaterProfile') ? openapReadRepeaterProfile() : [];
     $currentMode = str_replace('-', '_', $profile['mode']['current'] ?? 'ap_ethernet');
     $isRepeaterWifi = ($currentMode === 'repeater_wifi');
+    $wifiRoleUplinkIface = $profile['interfaces']['uplink'] ?? ($_SESSION['wifi_client_interface'] ?? 'wlan1');
     $uplinkIface = $isRepeaterWifi
-        ? ($profile['interfaces']['uplink'] ?? ($_SESSION['wifi_client_interface'] ?? 'wlan1'))
+        ? $wifiRoleUplinkIface
         : ($profile['interfaces']['ethernet'] ?? 'eth0');
     $uplinkGateway = openapGetInterfaceGateway($uplinkIface);
     $uplinkLabel = $isRepeaterWifi ? _('WiFi uplink') : _('Ethernet uplink');
@@ -494,6 +495,36 @@ function DisplayDashboard(string $template = 'dashboard'): void
         }
     }
 
+    $interfaceRoleRadios = [];
+    if (is_executable('/usr/local/sbin/openap-detect')) {
+        $detectOutput = [];
+        exec('/usr/local/sbin/openap-detect --json 2>/dev/null', $detectOutput, $detectReturn);
+        if ($detectReturn === 0) {
+            $detected = json_decode(implode("\n", $detectOutput), true);
+            foreach (($detected['interfaces'] ?? []) as $radio) {
+                $name = (string) ($radio['name'] ?? '');
+                $mac = strtolower((string) ($radio['mac'] ?? ''));
+                if (empty($radio['is_wireless'])
+                    || !preg_match('/^[A-Za-z0-9_.:-]+$/', $name)
+                    || !preg_match('/^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$/', $mac)) {
+                    continue;
+                }
+                $interfaceRoleRadios[] = [
+                    'name' => $name,
+                    'mac' => $mac,
+                    'driver' => (string) ($radio['driver'] ?? 'unknown'),
+                    'bus' => strtoupper((string) ($radio['bus'] ?? 'unknown')),
+                    'bands' => implode(' / ', array_filter([
+                        !empty($radio['supports_24ghz']) ? '2.4 GHz' : '',
+                        !empty($radio['supports_5ghz']) ? '5 GHz' : '',
+                    ])),
+                    'supports_ap' => !empty($radio['supports_ap']),
+                    'supports_managed' => !empty($radio['supports_managed']),
+                ];
+            }
+        }
+    }
+
     echo renderTemplate(
         $template, compact(
             // Original vars
@@ -581,6 +612,8 @@ function DisplayDashboard(string $template = 'dashboard'): void
             "available5ghzChannels",
             "apIface",
             "uplinkIface",
+            "wifiRoleUplinkIface",
+            "interfaceRoleRadios",
             "uplinkGateway",
             "dashboardServiceLogs",
             "serviceLogs"

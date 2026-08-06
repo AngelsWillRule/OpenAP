@@ -434,6 +434,167 @@
         });
     });
 
+    var roleSwap = document.getElementById('apRoleSwap');
+    var roleModalElement = document.getElementById('apInterfaceRoleModal');
+    var roleModalConfirm = document.getElementById('apRoleModalConfirm');
+    var roleConfirmView = document.getElementById('apInterfaceRoleConfirmView');
+    var roleProgressView = document.getElementById('apInterfaceRoleProgressView');
+    var roleSuccessView = document.getElementById('apInterfaceRoleSuccessView');
+    var roleModalContent = document.getElementById('apInterfaceRoleModalContent');
+    function waitForInterfaceRoles(deadline) {
+        return fetch('/ajax/networking/get_interface_role_apply_status.php?t=' + Date.now(), {
+            credentials: 'same-origin', cache: 'no-store'
+        }).then(function (response) {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json();
+        }).then(function (result) {
+            if (result.status === 'success') return result;
+            if (result.status === 'failed') throw new Error('The role change failed and OpenAP attempted to restore the previous roles.');
+            if (Date.now() >= deadline) throw new Error('Timed out while waiting for the Wi-Fi roles to become ready.');
+            return new Promise(function (resolve) { window.setTimeout(resolve, 900); })
+                .then(function () { return waitForInterfaceRoles(deadline); });
+        }).catch(function (error) {
+            if (Date.now() >= deadline || /failed|Timed out/.test(error.message)) throw error;
+            return new Promise(function (resolve) { window.setTimeout(resolve, 900); })
+                .then(function () { return waitForInterfaceRoles(deadline); });
+        });
+    }
+    function setRoleStepDone(element) {
+        element.className = 'done';
+        element.querySelector('i').className = 'fas fa-check-circle';
+    }
+    function setRoleStepActive(element) {
+        element.className = 'active';
+        element.querySelector('i').className = 'fas fa-circle-notch fa-spin';
+    }
+    if (roleSwap && roleModalElement && roleModalConfirm) {
+        roleSwap.addEventListener('click', function () {
+            var currentApName = roleSwap.dataset.apName;
+            var currentUplinkName = roleSwap.dataset.uplinkName;
+            roleConfirmView.hidden = false;
+            roleProgressView.hidden = true;
+            roleSuccessView.hidden = true;
+            roleModalContent.classList.remove('is-success');
+            roleModalConfirm.disabled = false;
+            document.querySelector('#apInterfaceRoleProgressView .openap-role-transfer-visual').classList.remove('complete', 'is-exchanging', 'is-finishing');
+            document.getElementById('apRoleProgressTitle').textContent = 'Switching wireless roles';
+            document.getElementById('apRoleProgressCaption').textContent = 'OpenAP is restarting both Wi-Fi interfaces.';
+            document.getElementById('apRoleModalNewAp').textContent = currentUplinkName;
+            document.getElementById('apRoleModalNewUplink').textContent = currentApName;
+            document.getElementById('apRoleProgressOldAp').textContent = currentApName;
+            document.getElementById('apRoleProgressNewAp').textContent = currentUplinkName;
+            bootstrap.Modal.getOrCreateInstance(roleModalElement).show();
+        });
+        roleModalConfirm.addEventListener('click', function () {
+            roleModalConfirm.disabled = true;
+            var original = roleSwap.innerHTML;
+            roleSwap.disabled = true;
+            roleSwap.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            roleConfirmView.hidden = true;
+            roleProgressView.hidden = false;
+            var prepareStep = document.getElementById('apRoleStepPrepare');
+            var applyStep = document.getElementById('apRoleStepApply');
+            var verifyStep = document.getElementById('apRoleStepVerify');
+            window.setTimeout(function () { setRoleStepDone(prepareStep); setRoleStepActive(applyStep); }, 700);
+            var data = new FormData();
+            data.set('csrf_token', form.querySelector('[name="csrf_token"]').value);
+            data.set('ap_mac', roleSwap.dataset.uplinkMac);
+            data.set('uplink_mac', roleSwap.dataset.apMac);
+            fetch('/ajax/networking/apply_interface_roles.php', {
+                method: 'POST', credentials: 'same-origin', body: data
+            }).then(function (response) {
+                return response.json().then(function (body) {
+                    if (!response.ok || !body.success) throw new Error(body.message || ('HTTP ' + response.status));
+                    setRoleStepDone(applyStep);
+                    setRoleStepActive(verifyStep);
+                    return waitForInterfaceRoles(Date.now() + 70000);
+                });
+            }).then(function (result) {
+                setRoleStepDone(verifyStep);
+                var transferVisual = document.querySelector('#apInterfaceRoleProgressView .openap-role-transfer-visual');
+                var oldApText = document.getElementById('apRoleProgressOldAp');
+                var oldUplinkText = document.getElementById('apRoleProgressNewAp');
+                transferVisual.classList.add('is-finishing');
+                window.setTimeout(function () {
+                    [oldApText, oldUplinkText].forEach(function (line, index) {
+                        window.setTimeout(function () {
+                            line.animate([
+                                { transform: 'translateY(-50%)', opacity: 1 },
+                                { transform: 'translateY(65%)', opacity: 0 }
+                            ], { duration: 330, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
+                        }, index * 45);
+                    });
+                }, 220);
+                window.setTimeout(function () {
+                    oldApText.textContent = result.ap;
+                    oldUplinkText.textContent = result.uplink;
+                    [oldApText, oldUplinkText].forEach(function (line) {
+                        line.getAnimations().forEach(function (animation) { animation.cancel(); });
+                        line.animate([
+                            { transform: 'translateY(65%)', opacity: 0 },
+                            { transform: 'translateY(-58%)', opacity: 1, offset: .82 },
+                            { transform: 'translateY(-50%)', opacity: 1 }
+                        ], { duration: 440, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+                    });
+                    transferVisual.classList.add('complete');
+                }, 650);
+                document.getElementById('apRoleProgressTitle').textContent = 'Wireless roles updated';
+                document.getElementById('apRoleProgressCaption').textContent = 'Access point: ' + result.ap + ' · Wi-Fi uplink: ' + result.uplink;
+                function animateRoleCards() {
+                    var replacements = [
+                        [document.getElementById('apRoleCurrentApName'), result.ap],
+                        [document.getElementById('apRoleCurrentApDetails'), roleSwap.dataset.uplinkDetails],
+                        [document.getElementById('apRoleCurrentUplinkName'), result.uplink],
+                        [document.getElementById('apRoleCurrentUplinkDetails'), roleSwap.dataset.apDetails]
+                    ];
+                    replacements.forEach(function (entry, index) {
+                        window.setTimeout(function () {
+                            entry[0].animate([
+                                { transform: 'translateY(0)', opacity: 1 },
+                                { transform: 'translateY(115%)', opacity: 0 }
+                            ], { duration: 330, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
+                        }, index * 45);
+                    });
+                    window.setTimeout(function () {
+                        replacements.forEach(function (entry) {
+                            entry[0].textContent = entry[1];
+                            entry[0].getAnimations().forEach(function (animation) { animation.cancel(); });
+                            entry[0].animate([
+                                { transform: 'translateY(115%)', opacity: 0 },
+                                { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                                { transform: 'translateY(0)', opacity: 1 }
+                            ], { duration: 440, easing: 'cubic-bezier(.22,1,.36,1)' });
+                        });
+                    }, 430);
+                }
+                window.setTimeout(function () {
+                    document.getElementById('apRoleSuccessAp').textContent = result.ap;
+                    document.getElementById('apRoleSuccessUplink').textContent = result.uplink;
+                    roleProgressView.hidden = true;
+                    roleSuccessView.hidden = false;
+                    roleModalContent.classList.add('is-success');
+                }, 1300);
+                window.setTimeout(function () {
+                    bootstrap.Modal.getOrCreateInstance(roleModalElement).hide();
+                }, 3300);
+                roleModalElement.addEventListener('hidden.bs.modal', function () {
+                    animateRoleCards();
+                    window.setTimeout(function () { window.location.reload(); }, 1200);
+                }, { once: true });
+            }).catch(function (error) {
+                document.getElementById('apRoleProgressTitle').textContent = 'Unable to change wireless roles';
+                document.getElementById('apRoleProgressCaption').textContent = error.message;
+                roleSwap.disabled = false;
+                roleSwap.innerHTML = original;
+                window.setTimeout(function () {
+                    roleProgressView.hidden = true;
+                    roleConfirmView.hidden = false;
+                    roleModalConfirm.disabled = false;
+                }, 3000);
+            });
+        });
+    }
+
     openSecurityConfirm.addEventListener('click', function () {
         var submitter = pendingOpenSecuritySubmitter;
         pendingOpenSecuritySubmitter = null;

@@ -456,6 +456,9 @@
                 close(1100, function () {
                     window.setTimeout(function () {
                         window.requestAnimationFrame(function () {
+                            window.dispatchEvent(new CustomEvent('openap:mode-switch-confirmed', {
+                                detail: { targetMode: targetMode }
+                            }));
                             animateModeSelector(targetMode);
                             animateTopologyModeIcon(targetMode);
                             animateTopologyModeText(targetMode);
@@ -1806,6 +1809,21 @@
                 }
             }
         }
+
+        window.addEventListener('openap:mode-switch-confirmed', function (event) {
+            var targetMode = event.detail && event.detail.targetMode;
+            if (targetMode !== 'ap_ethernet' && targetMode !== 'ap_ethernet_bridge') return;
+
+            // Recovery may have painted the topology as interrupted before the
+            // administrator selected the Ethernet fallback. Reconcile those
+            // classes and badges immediately; the mode icon and labels perform
+            // their own transition right after this event.
+            latestDegraded = false;
+            degradedSamples = 0;
+            outageVisible = false;
+            dismissed = false;
+            updateTopology(false, null, true);
+        });
 
         function setStep(node, state) {
             if (!node) return;

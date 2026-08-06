@@ -13,7 +13,7 @@ $openapClientInterface = $openapClientInterface !== '' ? $openapClientInterface 
 
 define('OPENAP_BRAND_TEXT', 'OpenAP');
 define('OPENAP_BRAND_TITLE', OPENAP_BRAND_TEXT.' Admin Panel');
-define('OPENAP_VERSION', '0.2.0-dev');
+define('OPENAP_VERSION', '0.2.5');
 define('OPENAP_UPDATE_ENABLED', false);
 define('OPENAP_CONFIG', '/etc/openap');
 define('OPENAP_CONFIG_NETWORK', OPENAP_CONFIG.'/networking/defaults.json');

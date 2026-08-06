@@ -16,6 +16,12 @@ if ($isRepeaterWifi) {
     $apConfigurationServices['wpa_supplicant'] = ['wpa_supplicant', htmlspecialchars($uplinkIface).' uplink'];
 }
 $apConfigurationServices['lighttpd'] = ['lighttpd', 'Web server'];
+$apRoleRadio = null;
+$uplinkRoleRadio = null;
+foreach (($interfaceRoleRadios ?? []) as $roleRadio) {
+    if ($roleRadio['name'] === $apIface) $apRoleRadio = $roleRadio;
+    if ($roleRadio['name'] === $wifiRoleUplinkIface) $uplinkRoleRadio = $roleRadio;
+}
 ?>
 
 <div class="container-fluid p-0 openap-ap-configuration-page">
@@ -37,6 +43,39 @@ $apConfigurationServices['lighttpd'] = ['lighttpd', 'Web server'];
           <input type="hidden" name="country_code" value="<?php echo htmlspecialchars($apCountry, ENT_QUOTES); ?>">
           <input type="hidden" name="repeaterEnable" value="1">
           <div class="hotspot-panes openap-config-sections">
+            <?php if (count($interfaceRoleRadios ?? []) >= 2 && $apRoleRadio && $uplinkRoleRadio): ?>
+              <section class="openap-config-section openap-config-interface-roles" id="apInterfaceRolePanel">
+                <div class="openap-config-section-heading"><i class="fas fa-right-left"></i><span><?php echo _("Wireless interface roles"); ?></span></div>
+                <div class="openap-interface-role-switch">
+                  <div class="openap-interface-role-field">
+                    <div class="hfield-label"><?php echo _("Access point"); ?></div>
+                    <strong id="apRoleCurrentApName"><?php echo htmlspecialchars($apRoleRadio['name'], ENT_QUOTES); ?></strong>
+                    <small id="apRoleCurrentApDetails"><?php echo htmlspecialchars($apRoleRadio['bus'].' · '.$apRoleRadio['driver'].' · '.$apRoleRadio['bands'], ENT_QUOTES); ?></small>
+                  </div>
+                  <button type="button" class="openap-interface-role-swap" id="apRoleSwap"
+                    data-ap-mac="<?php echo htmlspecialchars($apRoleRadio['mac'], ENT_QUOTES); ?>"
+                    data-ap-name="<?php echo htmlspecialchars($apRoleRadio['name'], ENT_QUOTES); ?>"
+                    data-ap-details="<?php echo htmlspecialchars($apRoleRadio['bus'].' · '.$apRoleRadio['driver'].' · '.$apRoleRadio['bands'], ENT_QUOTES); ?>"
+                    data-uplink-mac="<?php echo htmlspecialchars($uplinkRoleRadio['mac'], ENT_QUOTES); ?>"
+                    data-uplink-name="<?php echo htmlspecialchars($uplinkRoleRadio['name'], ENT_QUOTES); ?>"
+                    data-uplink-details="<?php echo htmlspecialchars($uplinkRoleRadio['bus'].' · '.$uplinkRoleRadio['driver'].' · '.$uplinkRoleRadio['bands'], ENT_QUOTES); ?>"
+                    aria-label="<?php echo _("Switch access point and Wi-Fi uplink interfaces"); ?>"
+                    title="<?php echo _("Switch interface roles"); ?>">
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                  </button>
+                  <div class="openap-interface-role-field">
+                    <div class="hfield-label"><?php echo _("Wi-Fi uplink"); ?></div>
+                    <strong id="apRoleCurrentUplinkName"><?php echo htmlspecialchars($uplinkRoleRadio['name'], ENT_QUOTES); ?></strong>
+                    <small id="apRoleCurrentUplinkDetails"><?php echo htmlspecialchars($uplinkRoleRadio['bus'].' · '.$uplinkRoleRadio['driver'].' · '.$uplinkRoleRadio['bands'], ENT_QUOTES); ?></small>
+                  </div>
+                </div>
+                <div class="openap-config-info-badge openap-interface-role-help">
+                  <i class="fas fa-info-circle" aria-hidden="true"></i>
+                  <span><?php echo _("Switching roles disconnects hotspot clients while both radios restart."); ?></span>
+                </div>
+              </section>
+            <?php endif; ?>
             <section class="openap-config-section openap-config-basic" id="apc-basic">
               <div class="openap-config-section-heading"><i class="fas fa-sliders-h"></i><span><?php echo _("Basic"); ?></span></div>
               <div class="hfield-row">
@@ -115,6 +154,81 @@ $apConfigurationServices['lighttpd'] = ['lighttpd', 'Web server'];
             </div>
             <div class="stat-bottom"><span><i class="fas fa-network-wired"></i> <?php echo _("Pool"); ?></span><strong><?php echo htmlspecialchars($dhcpRange, ENT_QUOTES); ?></strong></div>
           </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="apInterfaceRoleModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="apInterfaceRoleModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered openap-ap-ethernet-dialog">
+    <div class="modal-content openap-ap-ethernet-modal openap-interface-role-modal" id="apInterfaceRoleModalContent">
+      <div id="apInterfaceRoleConfirmView">
+        <div class="modal-header openap-ap-ethernet-header openap-interface-role-modal-header">
+          <div>
+            <div class="openap-ap-ethernet-title" id="apInterfaceRoleModalTitle"><?php echo _("Switch wireless roles"); ?></div>
+            <div class="openap-ap-ethernet-subtitle"><?php echo _("Exchange access point and Wi-Fi uplink"); ?></div>
+          </div>
+          <div class="openap-ap-ethernet-header-actions">
+            <span class="openap-ap-ethernet-header-icon"><i class="fas fa-right-left"></i></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="<?php echo _("Close"); ?>"></button>
+          </div>
+        </div>
+        <div class="modal-body openap-ap-ethernet-body">
+          <div class="openap-interface-role-modal-row">
+            <span class="openap-ap-ethernet-setting-icon"><i class="fas fa-broadcast-tower"></i></span>
+            <div><strong><?php echo _("Access point"); ?></strong><small><?php echo _("New hotspot radio"); ?></small></div>
+            <b id="apRoleModalNewAp">-</b>
+          </div>
+          <div class="openap-interface-role-modal-row">
+            <span class="openap-ap-ethernet-setting-icon"><i class="fas fa-wifi"></i></span>
+            <div><strong><?php echo _("Wi-Fi uplink"); ?></strong><small><?php echo _("New Internet uplink radio"); ?></small></div>
+            <b id="apRoleModalNewUplink">-</b>
+          </div>
+          <div class="openap-ap-ethernet-status">
+            <span><?php echo _("Action"); ?>: <strong><?php echo _("Exchange roles"); ?></strong></span>
+            <span><?php echo _("Hotspot"); ?>: <strong><?php echo _("Briefly unavailable"); ?></strong></span>
+          </div>
+          <div class="openap-ap-ethernet-actions">
+            <button type="button" class="btn-ss" data-bs-dismiss="modal"><i class="fas fa-times"></i> <?php echo _("Cancel"); ?></button>
+            <button type="button" class="btn-ss primary" id="apRoleModalConfirm"><i class="fas fa-right-left"></i> <?php echo _("Switch roles"); ?></button>
+          </div>
+        </div>
+      </div>
+      <div id="apInterfaceRoleProgressView" class="openap-interface-role-progress" hidden>
+        <div class="openap-mode-switch-eyebrow"><i class="fas fa-shuffle"></i> OpenAP</div>
+        <div class="openap-mode-switch-title" id="apRoleProgressTitle"><?php echo _("Switching wireless roles"); ?></div>
+        <div class="openap-mode-switch-caption" id="apRoleProgressCaption"><?php echo _("OpenAP is restarting both Wi-Fi interfaces."); ?></div>
+        <div class="openap-role-transfer-visual" aria-hidden="true">
+          <div class="openap-role-transfer-side is-left">
+            <strong><?php echo _("Access point"); ?></strong>
+            <small class="openap-role-transfer-interface" id="apRoleProgressOldAp">AP</small>
+          </div>
+          <div class="openap-role-transfer-animation">
+            <span class="openap-role-transfer-arrow is-forward"><i class="fas fa-long-arrow-alt-right"></i></span>
+            <div class="openap-uplink-scan-visual">
+              <span class="openap-uplink-scan-ring"></span>
+              <span class="openap-uplink-scan-icon"><i class="fas fa-wifi"></i></span>
+            </div>
+            <span class="openap-role-transfer-arrow is-backward"><i class="fas fa-long-arrow-alt-left"></i></span>
+          </div>
+          <div class="openap-role-transfer-side is-right">
+            <strong><?php echo _("Wi-Fi uplink"); ?></strong>
+            <small class="openap-role-transfer-interface" id="apRoleProgressNewAp">Uplink</small>
+          </div>
+        </div>
+        <div class="openap-mode-switch-steps">
+          <div id="apRoleStepPrepare" class="active"><i class="fas fa-circle-notch fa-spin"></i><span><?php echo _("Preparing interfaces"); ?></span></div>
+          <div id="apRoleStepApply"><i class="far fa-circle"></i><span><?php echo _("Applying AP and uplink roles"); ?></span></div>
+          <div id="apRoleStepVerify"><i class="far fa-circle"></i><span><?php echo _("Verifying services and connectivity"); ?></span></div>
+        </div>
+      </div>
+      <div id="apInterfaceRoleSuccessView" class="openap-interface-role-success" hidden>
+        <div class="openap-interface-role-success-icon"><i class="fas fa-check"></i></div>
+        <div class="openap-interface-role-success-title"><?php echo _("Operation successful"); ?></div>
+        <div class="openap-interface-role-success-caption">
+          <span><?php echo _("Access point"); ?>: <strong id="apRoleSuccessAp">-</strong></span>
+          <span><?php echo _("Wi-Fi uplink"); ?>: <strong id="apRoleSuccessUplink">-</strong></span>
+        </div>
       </div>
     </div>
   </div>
