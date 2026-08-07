@@ -10,7 +10,7 @@
  * @author  Bill Zimmerman <billzimmerman@gmail.com>
  * @author  OpenAP contributors
  * @license GNU General Public License, version 3 (GPL-3.0)
- * @version 0.2.5
+ * @version 0.2.5.1
  * @link    https://github.com/AngelsWillRule/OpenAP
  * @see     https://github.com/RaspAP/raspap-webgui
  */

@@ -5,14 +5,26 @@ All notable changes to OpenAP are documented in this file.
 The project follows semantic versioning. Until a versioned GitHub release is
 published, entries describe validated pre-release candidates from `main`.
 
+## [0.2.5.1] - 2026-08-07
+
+### Fixed
+
+- Fixed uninstall detection to use the installed OpenAP marker and entrypoint
+  instead of requiring the intentionally excluded webroot `VERSION` file.
+- Limited uninstall cleanup to OpenAP-owned files and services, preserving
+  unrelated webroot content, shared services, packages, firmware and drivers.
+- Added a single updating progress bar and a final removed-items summary to
+  applied uninstall operations.
+
 ## [0.2.5] - 2026-08-06
 
 ### Added
 
 - Added an interactive maintenance menu for existing installations, with
   adapter role switching, uninstall and safe exit actions.
-- Added a dedicated uninstaller with dry-run support and a pre-removal backup
-  of the webroot, OpenAP configuration and known OpenAP-owned system files.
+- Added a dry-run-first uninstaller that removes only OpenAP-owned web files,
+  configuration, helpers and systemd units while retaining shared services,
+  packages, firmware and drivers.
 - Added CLI and web workflows for swapping the configured access-point and
   Wi-Fi uplink adapters without reinstalling OpenAP.
 - Added progress, confirmation and result states for interface role changes in
@@ -45,8 +57,8 @@ published, entries describe validated pre-release candidates from `main`.
 
 ### Known limitations
 
-- Uninstall remains validated in dry-run only and requires a full applied
-  removal-and-reinstall test before it is considered production-ready.
+- Uninstall requires a full applied removal-and-reinstall validation before it
+  is considered production-ready.
 - OpenAP does not install Wi-Fi firmware or hardware-specific drivers.
 - WPA3-only uplinks and automatic full configuration rollback are not yet
   supported.

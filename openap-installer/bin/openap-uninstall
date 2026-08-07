@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Conservative OpenAP uninstaller.
+# OpenAP-owned file and service cleanup.
 #
 # Default mode is dry-run. Use --apply to perform the removal.
 
@@ -11,14 +11,40 @@ assume_yes=0
 webroot="/var/www/html"
 profile="/etc/openap/repeater.ini"
 release_file="/etc/openap/release"
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+webroot_excludes="$repo_dir/openap-installer/config/webroot-excludes.txt"
+progress_step=0
+progress_total=7
+progress_width=28
+removed_system_paths=0
+removed_web_files=0
+removed_web_dirs=0
+removed_config_entries=0
+removed_config_dir=0
+
+show_progress() {
+  local label="$1"
+  local filled percent bar
+
+  progress_step=$((progress_step + 1))
+  filled=$((progress_step * progress_width / progress_total))
+  percent=$((progress_step * 100 / progress_total))
+  printf -v bar '%*s' "$filled" ''
+  bar=${bar// /#}
+  printf '\r[%-*s] %3d%% (%d/%d) %-42s' \
+    "$progress_width" "$bar" "$percent" "$progress_step" "$progress_total" "$label"
+  if [ "$progress_step" -eq "$progress_total" ]; then
+    printf '\n'
+  fi
+}
 
 usage() {
   cat <<'EOF'
 Usage: openap-uninstall [--apply] [--yes] [--webroot /var/www/html]
 
-Archives and removes OpenAP-owned runtime files and services. The default is
-a dry run. Installed Debian/Ubuntu packages, Wi-Fi firmware and drivers are
-never removed.
+Removes only OpenAP-owned web files, runtime configuration, helpers and systemd
+units. The default is a dry run. Installed packages, services, Wi-Fi firmware
+and drivers are never removed. No uninstall backup is created.
 EOF
 }
 
@@ -57,13 +83,23 @@ if [ -L "$webroot" ]; then
   echo "ERROR: refusing a symbolic-link webroot: $webroot" >&2
   exit 1
 fi
+if [ -L /etc/openap ]; then
+  echo "ERROR: refusing a symbolic-link OpenAP configuration directory: /etc/openap" >&2
+  exit 1
+fi
 
 if [ ! -f "$release_file" ]; then
   echo "ERROR: OpenAP installation marker not found: $release_file" >&2
   exit 1
 fi
-if [ -d "$webroot" ] && [ ! -f "$webroot/VERSION" ]; then
-  echo "ERROR: refusing an unrecognized webroot without VERSION: $webroot" >&2
+if [ ! -r "$webroot_excludes" ]; then
+  echo "ERROR: OpenAP webroot exclusion list not found: $webroot_excludes" >&2
+  exit 1
+fi
+if [ -d "$webroot" ] \
+  && { [ ! -f "$webroot/index.php" ] \
+    || ! grep -q 'OpenAP WiFi access point and repeater management' "$webroot/index.php"; }; then
+  echo "ERROR: refusing an unrecognized webroot without the OpenAP entrypoint: $webroot" >&2
   echo "No files or services were changed." >&2
   exit 1
 fi
@@ -160,11 +196,13 @@ echo "  Wi-Fi uplink:       ${uplink_iface:-not configured}"
 echo "  Ethernet interface: ${ethernet_iface:-unknown}"
 echo "  Webroot:            $webroot"
 echo
-echo "The operation will archive the current OpenAP state under /root, then:"
-echo "  - stop and disable OpenAP services, and stop hostapd and dnsmasq;"
+echo "The operation will:"
+echo "  - stop and disable only OpenAP-owned services and timers;"
 echo "  - remove only known OpenAP helpers, units and network profiles;"
-echo "  - archive $webroot and /etc/openap instead of deleting them;"
-echo "  - keep all installed OS packages, firmware and drivers."
+echo "  - remove OpenAP web files while preserving unrelated webroot content;"
+echo "  - remove /etc/openap and OpenAP-specific dnsmasq/hostapd configuration;"
+echo "  - keep Lighttpd, dnsmasq, hostapd, OS packages, firmware and drivers."
+echo "  - create no uninstall backup."
 
 if [ "$apply" -eq 0 ]; then
   echo
@@ -191,18 +229,6 @@ if [ "$assume_yes" -eq 0 ]; then
   }
 fi
 
-backup_dir="/root/openap-uninstall-$(date +%Y%m%d-%H%M%S)"
-if [ -e "$backup_dir" ]; then
-  echo "ERROR: backup destination already exists: $backup_dir" >&2
-  exit 1
-fi
-mkdir -m 0700 "$backup_dir"
-
-for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
-  [ -e "$path" ] || [ -L "$path" ] || continue
-  cp -a --parents "$path" "$backup_dir"
-done
-
 systemctl disable --now \
   openap-ap-address.service \
   openap-bridge-neighbors.timer \
@@ -211,6 +237,8 @@ systemctl disable --now \
   openap-uplink.service \
   openap-uplink-watchdog.timer 2>/dev/null || true
 systemctl stop hostapd.service dnsmasq.service 2>/dev/null || true
+show_progress "OpenAP services stopped"
+
 nft delete table ip openap_nat 2>/dev/null || true
 
 if valid_iface "$ap_iface" && [ -n "$gateway" ] && [ -n "$subnet" ]; then
@@ -220,6 +248,7 @@ if valid_iface "$ap_iface" && [ -n "$gateway" ] && [ -n "$subnet" ]; then
     *) ip address del "$gateway/$prefix" dev "$ap_iface" 2>/dev/null || true ;;
   esac
 fi
+show_progress "Firewall and AP address cleared"
 
 for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
   case "$path" in
@@ -228,36 +257,103 @@ for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
   esac
   [ -e "$path" ] || [ -L "$path" ] || continue
   rm -f -- "$path"
+  removed_system_paths=$((removed_system_paths + 1))
 done
+rmdir -- \
+  /etc/systemd/system/dnsmasq.service.d \
+  /etc/systemd/system/hostapd.service.d \
+  /etc/systemd/system/lighttpd.service.d 2>/dev/null || true
+show_progress "OpenAP helpers and system files removed"
 
 if [ -d "$webroot" ]; then
-  mv -- "$webroot" "$backup_dir/webroot"
-  mkdir -m 0755 "$webroot"
+  webroot_real="$(realpath -e "$webroot")"
+  webroot_manifest="$(mktemp /tmp/openap-uninstall-webroot.XXXXXX)"
+  case "$webroot_manifest" in
+    /tmp/openap-uninstall-webroot.*) ;;
+    *) echo "ERROR: unexpected webroot manifest path" >&2; exit 1 ;;
+  esac
+  trap 'rm -f -- "${webroot_manifest:-}"' EXIT
+  rsync -a --dry-run --ignore-times \
+    --exclude .git \
+    --exclude-from="$webroot_excludes" \
+    --out-format='%n' \
+    "$repo_dir"/ "$webroot"/ > "$webroot_manifest"
+  printf '%s\n' 'includes/config.php' >> "$webroot_manifest"
+
+  while IFS= read -r relative_path; do
+    case "$relative_path" in
+      ""|"."|*/) continue ;;
+      /*|../*|*/../*|*/..) echo "ERROR: unsafe webroot manifest entry: $relative_path" >&2; exit 1 ;;
+    esac
+    target="$webroot/$relative_path"
+    case "$target" in
+      "$webroot"/*) ;;
+      *) echo "ERROR: unsafe webroot target: $target" >&2; exit 1 ;;
+    esac
+    if [ -f "$target" ] || [ -L "$target" ]; then
+      parent_real="$(realpath -e "$(dirname "$target")")"
+      case "$parent_real" in
+        "$webroot_real"|"$webroot_real"/*) ;;
+        *) echo "ERROR: webroot target escapes through a symbolic link: $target" >&2; exit 1 ;;
+      esac
+      rm -f -- "$target"
+      removed_web_files=$((removed_web_files + 1))
+    fi
+  done < "$webroot_manifest"
+
+  while IFS= read -r relative_path; do
+    case "$relative_path" in
+      ""|".") continue ;;
+      */) relative_path="${relative_path%/}" ;;
+      *) continue ;;
+    esac
+    case "$relative_path" in
+      /*|../*|*/../*|*/..) echo "ERROR: unsafe webroot directory entry: $relative_path" >&2; exit 1 ;;
+    esac
+    target="$webroot/$relative_path"
+    if [ -d "$target" ] && [ ! -L "$target" ]; then
+      parent_real="$(realpath -e "$(dirname "$target")")"
+      case "$parent_real" in
+        "$webroot_real"|"$webroot_real"/*) ;;
+        *) echo "ERROR: webroot directory escapes through a symbolic link: $target" >&2; exit 1 ;;
+      esac
+      if rmdir -- "$target" 2>/dev/null; then
+        removed_web_dirs=$((removed_web_dirs + 1))
+      fi
+    fi
+  done < <(tac "$webroot_manifest")
+  rm -f -- "$webroot_manifest"
+  trap - EXIT
 fi
+show_progress "OpenAP web files removed"
 
 if [ -d /etc/openap ]; then
-  mv -- /etc/openap "$backup_dir/etc-openap"
+  removed_config_entries="$(find /etc/openap -mindepth 1 -printf . 2>/dev/null | wc -c)"
+  rm -rf -- /etc/openap
+  removed_config_dir=1
 fi
+show_progress "OpenAP configuration removed"
 
 systemctl daemon-reload
 if systemctl is-active --quiet systemd-networkd.service; then
   networkctl reload || true
 fi
+show_progress "System services reloaded"
+
 systemctl try-restart lighttpd.service 2>/dev/null || true
-
-cat > "$backup_dir/RESTORE.txt" <<EOF
-OpenAP uninstall backup
-Created: $(date --iso-8601=seconds)
-Original webroot: $webroot
-Original AP interface: ${ap_iface:-unknown}
-
-This directory contains the OpenAP files archived before removal. Review its
-contents manually before restoring; do not copy it over a later installation.
-EOF
-chmod 0600 "$backup_dir/RESTORE.txt"
+show_progress "Uninstall complete"
 
 echo
 echo "OpenAP has been uninstalled."
-echo "Recovery backup: $backup_dir"
+echo "Removal summary:"
+echo "  OpenAP system files:       $removed_system_paths"
+echo "  OpenAP web files:          $removed_web_files"
+echo "  Empty web directories:     $removed_web_dirs"
+echo "  OpenAP config entries:     $removed_config_entries"
+if [ "$removed_config_dir" -eq 1 ]; then
+  echo "  /etc/openap directory:     removed"
+else
+  echo "  /etc/openap directory:     already absent"
+fi
 echo "Installed OS packages, firmware and drivers were retained."
 echo "A reboot is recommended after confirming that the host remains reachable."

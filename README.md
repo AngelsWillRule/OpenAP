@@ -5,7 +5,7 @@ Debian-based systems. It provides one focused interface for hotspot, DHCP/DNS,
 uplink, firewall and system status while keeping privileged network changes in
 explicit root-owned helpers.
 
-> OpenAP `0.2.5` is in pre-release validation. The current `main` branch is a
+> OpenAP `0.2.5.1` is in pre-release validation. The current `main` branch is a
 > release candidate, not a supported production release. Versioned downloads
 > and checksum-linked installation instructions will appear after the exact
 > release candidate passes the clean validation matrix.
@@ -36,7 +36,7 @@ flow. Repeater Mode is selected later from the dashboard.
 | Raspberry Pi 4 and 5 | Expected compatible; physical reports wanted |
 | Other Debian-like systems | Experimental |
 
-These labels become release claims only when the exact `0.2.5` candidate and
+These labels become release claims only when the exact `0.2.5.1` candidate and
 checksum pass the clean-platform matrix.
 
 ## Hardware prerequisites
