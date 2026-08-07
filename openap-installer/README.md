@@ -191,9 +191,14 @@ offers only these operations:
 3. exit without changes.
 
 The command keeps its existing safety model: without `--apply`, adapter
-switching and uninstall are dry runs. Uninstall archives the current webroot,
-`/etc/openap` and every known OpenAP-owned system file under `/root` before
-removal. It retains installed operating-system packages, firmware and drivers.
+switching and uninstall are dry runs. Uninstall removes only OpenAP-owned web
+files, `/etc/openap`, OpenAP helpers, configuration and systemd units. It does
+not create a backup and retains Lighttpd, dnsmasq, hostapd, installed operating-
+system packages, firmware and drivers.
+
+During an applied uninstall, a single progress bar is redrawn as its percentage
+and current cleanup phase advance. A final summary reports the system, web and
+configuration entries that were actually removed.
 
 The adapter switch opens a dedicated role-selection screen listing every
 detected Wi-Fi interface, its MAC address, driver, bus and bands. The

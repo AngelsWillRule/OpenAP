@@ -1,7 +1,7 @@
 {
     "title": "OpenAP WiFi Management",
     "name": "openap-webgui",
-    "version": "0.2.5",
+    "version": "0.2.5.1",
     "private": true,
     "description": "Web-managed Wi-Fi access point and repeater for supported Debian-based systems",
     "keywords": [

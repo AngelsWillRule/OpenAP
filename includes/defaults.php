@@ -7,7 +7,7 @@ if (!defined('OPENAP_CONFIG')) {
 $defaults = [
     'OPENAP_BRAND_TEXT' => 'OpenAP',
     'OPENAP_BRAND_TITLE' => OPENAP_BRAND_TEXT.' Admin Panel',
-    'OPENAP_VERSION' => '0.2.5',
+    'OPENAP_VERSION' => '0.2.5.1',
     'OPENAP_UPDATE_ENABLED' => false,
     'OPENAP_CONFIG_NETWORK' => OPENAP_CONFIG.'/networking/defaults.json',
     'OPENAP_CONFIG_PROVIDERS' => 'config/vpn-providers.json',
