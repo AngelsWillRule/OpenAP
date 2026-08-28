@@ -1,8 +1,30 @@
+<?php
+$aboutProfile = function_exists('openapReadRepeaterProfile') ? openapReadRepeaterProfile() : [];
+$aboutCurrentMode = str_replace('-', '_', (string) ($aboutProfile['mode']['current'] ?? 'ap_ethernet'));
+$aboutIsRepeaterWifi = $aboutCurrentMode === 'repeater_wifi';
+$aboutUplinkHealth = $aboutIsRepeaterWifi && function_exists('openapUplinkHealth') ? openapUplinkHealth() : ['ready' => true];
+$aboutUplinkConnected = !$aboutIsRepeaterWifi || !empty($aboutUplinkHealth['ready']);
+$aboutHeaderServices = [
+  'hostapd' => function_exists('openapServiceActive') && openapServiceActive('hostapd.service') === 'active',
+  'dnsmasq' => function_exists('openapServiceActive') && openapServiceActive('dnsmasq.service') === 'active',
+  'nftables' => function_exists('openapNatActive') ? openapNatActive() : (function_exists('openapServiceActive') && openapServiceActive('nftables.service') === 'active'),
+  'lighttpd' => function_exists('openapServiceActive') && openapServiceActive('lighttpd.service') === 'active',
+];
+$aboutTopologyHealthy = $aboutHeaderServices['hostapd'] && $aboutUplinkConnected && $aboutHeaderServices['dnsmasq'] && $aboutHeaderServices['nftables'] && $aboutHeaderServices['lighttpd'];
+if ($aboutCurrentMode === 'ap_ethernet_bridge') {
+  $aboutTopologyHealthy = $aboutHeaderServices['hostapd'] && $aboutUplinkConnected && $aboutHeaderServices['lighttpd'];
+}
+$aboutModeIcon = in_array($aboutCurrentMode, ['ap_ethernet', 'ap_ethernet_bridge'], true) ? 'fa-network-wired' : 'fa-wifi';
+$aboutModeLabel = $aboutCurrentMode === 'ap_ethernet_bridge' ? _('Ethernet Bridge') : ($aboutCurrentMode === 'ap_ethernet' ? _('Ethernet Mode') : _('Repeater'));
+$aboutLiveState = !$aboutHeaderServices['hostapd'] ? 'offline' : ($aboutTopologyHealthy ? 'live' : 'degraded');
+?>
 <div class="row g-3 mb-3">
   <div class="col-xl-9 col-lg-8">
-    <div class="openap-section-heading openap-about-heading">
-      <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-info-circle"></i></span>
-      <div><strong><?php echo _("About OpenAP"); ?></strong><small><?php echo _("Project identity and attribution"); ?></small></div>
+    <div class="openap-section-heading openap-topology-header openap-page-main-header openap-dashboard-main-header openap-about-heading">
+      <div class="openap-topology-header-title">
+        <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-info-circle"></i></span>
+        <div><strong><?php echo _("About OpenAP"); ?></strong></div>
+      </div>
     </div>
 
     <div class="card shadow openap-about-shell">
@@ -47,7 +69,7 @@
               '<a href="https://github.com/raspap/raspap-webgui/graphs/contributors" target="_blank" rel="noopener">' . _('developer community') . '</a>',
               '<a href="https://crowdin.com/project/raspap" target="_blank" rel="noopener">' . _('language translators') . '</a>'
           ); ?></p>
-          <div class="openap-about-attribution-note">
+          <div class="openap-about-attribution-note openap-info-badge">
             <i class="fas fa-balance-scale"></i>
             <span><?php echo _("RaspAP attribution and the GPL-3.0 license are retained as part of the OpenAP source and distribution."); ?></span>
           </div>
@@ -57,57 +79,6 @@
   </div>
 
   <aside class="col-xl-3 col-lg-4">
-    <div class="row g-3 openap-about-side-widgets">
-      <div class="col-12">
-        <?php require dirname(__DIR__) . '/openap_service_status.php'; ?>
-      </div>
-      <div class="col-12">
-        <section class="stat-card border-top-green openap-about-side-card">
-          <div class="stat-top openap-widget-body">
-            <div class="openap-widget-heading">
-              <div><div class="openap-widget-title"><?php echo _("OpenAP release"); ?></div><div class="openap-widget-caption"><?php echo _("Installed web interface"); ?></div></div>
-              <div class="openap-widget-icon openap-widget-icon-green"><i class="fas fa-code-branch"></i></div>
-            </div>
-            <div class="openap-about-release">
-              <span><?php echo _("Version"); ?></span>
-              <strong><?php echo htmlspecialchars(OPENAP_VERSION, ENT_QUOTES); ?></strong>
-              <small><i class="fas fa-circle-check"></i> <?php echo _("Installed"); ?></small>
-            </div>
-          </div>
-          <div class="stat-bottom"><span><?php echo _("Project"); ?></span><strong>OpenAP</strong></div>
-        </section>
-      </div>
-
-      <div class="col-12">
-        <section class="stat-card border-top-blue openap-about-side-card">
-          <div class="stat-top openap-widget-body">
-            <div class="openap-widget-heading">
-              <div><div class="openap-widget-title"><?php echo _("OpenAP links"); ?></div><div class="openap-widget-caption"><?php echo _("Official project resources"); ?></div></div>
-              <div class="openap-widget-icon openap-widget-icon-blue"><i class="fas fa-external-link-alt"></i></div>
-            </div>
-            <div class="openap-about-links">
-              <a href="https://github.com/AngelsWillRule/OpenAP" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i><span>GitHub</span><i class="fas fa-chevron-right"></i></a>
-              <a href="https://angelswillrule.github.io/OpenAP/" target="_blank" rel="noopener"><i class="fas fa-book-reader"></i><span><?php echo _("Documentation"); ?></span><i class="fas fa-chevron-right"></i></a>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="col-12">
-        <section class="stat-card border-top-green openap-about-side-card">
-          <div class="stat-top openap-widget-body">
-            <div class="openap-widget-heading">
-              <div><div class="openap-widget-title"><?php echo _("License"); ?></div><div class="openap-widget-caption"><?php echo _("Free and open source"); ?></div></div>
-              <div class="openap-widget-icon openap-widget-icon-green"><i class="fas fa-balance-scale"></i></div>
-            </div>
-            <div class="openap-about-license">
-              <strong>GPL-3.0</strong>
-              <p><?php echo _("You may use, study, modify and redistribute the software under its license terms."); ?></p>
-              <a href="https://github.com/raspap/raspap-webgui/blob/master/LICENSE" target="_blank" rel="noopener"><?php echo _("Read license"); ?> <i class="fas fa-arrow-right"></i></a>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
+    <?php echo openapWidgetArea('about'); ?>
   </aside>
 </div>

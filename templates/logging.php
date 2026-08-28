@@ -22,16 +22,28 @@ $dhcpRange = ($dhcpPool['range_start'] ?? '10.88.77.50').' - '.($dhcpPool['range
 $dhcpLeaseTime = $dhcpPool['lease_time'] ?? '12h';
 $dhcpDns = $dhcpPool['dns'] ?? '10.88.77.1';
 $dhcpPercent = $dhcpTotal > 0 ? min(100, (int) round(($dhcpActive / $dhcpTotal) * 100)) : 0;
+$loggingUplinkState = $uplinkDetails['wpa_state'] ?? ($isRepeaterWifi ? 'DISCONNECTED' : 'COMPLETED');
+$loggingUplinkConnected = $isRepeaterWifi ? ($loggingUplinkState === 'COMPLETED') : true;
+$loggingTopologyHealthy = $hostapdEnabled
+    && $loggingUplinkConnected
+    && (bool) ($serviceList['dnsmasq'] ?? false)
+    && (bool) ($serviceList['nftables'] ?? false)
+    && (bool) ($serviceList['lighttpd'] ?? false);
+if ($currentMode === 'ap_ethernet_bridge') {
+    $loggingTopologyHealthy = $hostapdEnabled && $loggingUplinkConnected && (bool) ($serviceList['lighttpd'] ?? false);
+}
+$loggingModeIcon = in_array($currentMode, ['ap_ethernet', 'ap_ethernet_bridge'], true) ? 'fa-network-wired' : 'fa-wifi';
+$loggingModeLabel = $currentMode === 'ap_ethernet_bridge' ? _('Ethernet Bridge') : ($currentMode === 'ap_ethernet' ? _('Ethernet Mode') : _('Repeater'));
+$loggingLiveState = !$hostapdEnabled ? 'offline' : ($loggingTopologyHealthy ? 'live' : 'degraded');
 ?>
 <div class="container-fluid p-0 openap-ap-configuration-page openap-logging-page">
   <?php $status->showMessages(); ?>
   <div class="row g-3 mb-3">
     <div class="col-xl-9 col-lg-8">
+      <div class="openap-topology-header openap-page-main-header openap-dashboard-main-header openap-logging-main-header">
+        <div class="openap-topology-header-title"><span class="openap-section-heading-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></span><div><strong><?php echo _('Logging'); ?></strong></div></div>
+      </div>
       <div class="card shadow openap-logging-shell">
-        <div class="card-header openap-topology-header openap-logging-main-header">
-          <div class="openap-topology-header-title"><span class="openap-section-heading-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></span><div><strong><?php echo _('Logging'); ?></strong><small><?php echo _('Service diagnostics and system events'); ?></small></div></div>
-          <div class="openap-topology-header-meta"><span class="badge rounded-pill openap-topology-mode-badge"><i class="fas fa-lock"></i> <?php echo _('Read only'); ?></span><span class="badge rounded-pill badge-openap openap-topology-live-badge live"><i class="fas fa-circle"></i> <?php echo _('Live'); ?></span></div>
-        </div>
         <div class="openap-logging-body">
           <div class="openap-log-tabs" role="tablist" aria-label="<?php echo _('Service logs'); ?>">
             <?php $firstTab = true; foreach ($loggingServices as $serviceKey => $service): ?>
@@ -49,15 +61,6 @@ $dhcpPercent = $dhcpTotal > 0 ? min(100, (int) round(($dhcpActive / $dhcpTotal) 
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-lg-4">
-      <div class="row g-3 openap-ap-side-widgets">
-        <div class="col-12"><?php require __DIR__ . '/openap_service_status.php'; ?></div>
-        <div class="col-12"><div class="stat-card border-top-blue openap-side-dhcp"><div class="stat-top openap-widget-body">
-          <div class="openap-widget-heading"><div><div class="openap-widget-title"><?php echo _('DHCP setting'); ?></div><div class="openap-widget-caption"><?php echo _('Hotspot address pool'); ?></div></div><div class="openap-widget-icon openap-widget-icon-blue"><i class="fas fa-arrow-right-arrow-left"></i></div></div>
-          <div class="openap-dhcp-summary"><div class="openap-dhcp-lease-count"><strong><?php echo $dhcpActive; ?> <span>/ <?php echo $dhcpTotal; ?></span></strong><small><?php echo _('Leases active'); ?></small></div><div class="openap-dhcp-meta"><span><?php echo _('Lease'); ?> <strong><?php echo htmlspecialchars($dhcpLeaseTime, ENT_QUOTES); ?></strong></span><span>DNS <strong><?php echo htmlspecialchars($dhcpDns, ENT_QUOTES); ?></strong></span></div></div>
-          <div class="openap-dhcp-track" role="progressbar" aria-valuenow="<?php echo $dhcpActive; ?>" aria-valuemin="0" aria-valuemax="<?php echo $dhcpTotal; ?>"><span style="width:<?php echo $dhcpPercent; ?>%"></span></div>
-        </div><div class="stat-bottom"><span><i class="fas fa-network-wired"></i> <?php echo _('Pool'); ?></span><strong><?php echo htmlspecialchars($dhcpRange, ENT_QUOTES); ?></strong></div></div></div>
-      </div>
-    </div>
+    <div class="col-xl-3 col-lg-4"><?php echo openapWidgetArea('logging'); ?></div>
   </div>
 </div>

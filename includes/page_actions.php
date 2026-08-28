@@ -68,6 +68,10 @@ function handleCorePageAction(string $page, array &$extraFooterScripts): void
             featureEnabled('OPENAP_NETWORK_ENABLED') ? DisplayNetworkingConfig($extraFooterScripts) : DisplayDashboard();
             break;
         case "/hostapd_conf":
+            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                header('Location: /ap_configuration', true, 303);
+                exit;
+            }
             DisplayHostAPDConfig();
             break;
         case "/adblock_conf":

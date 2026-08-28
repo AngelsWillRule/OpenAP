@@ -5,7 +5,7 @@
 <?php $buttons = ob_get_clean(); ob_end_clean() ?>
 
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-xl-9 col-lg-8">
     <div class="card shadow">
 
       <div class="card-header page-card-header">
@@ -73,7 +73,8 @@
       <div class="card-footer"> <?php echo _("Information provided by hostapd"); ?></div>
 
     </div><!-- /.card -->
-  </div><!-- /.col-lg-12 -->
+  </div><!-- /.col-xl-9 col-lg-8 -->
+  <div class="col-xl-3 col-lg-4"><?php echo openapWidgetArea('hostapd'); ?></div>
 </div><!-- /.row -->
 
 <!-- Modal service-start -->

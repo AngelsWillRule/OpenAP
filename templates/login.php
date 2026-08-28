@@ -16,7 +16,7 @@
     overflow:hidden;
     background:linear-gradient(90deg,#0a5559,#126869)!important;
     color:#173233;
-    font-family:Inter,Arial,sans-serif;
+    font-family:"Rajdhani","DejaVu Sans",Arial,sans-serif;
   }
   .openap-login-shell::before{
     display:none!important;

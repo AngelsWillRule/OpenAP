@@ -5,6 +5,75 @@ All notable changes to OpenAP are documented in this file.
 The project follows semantic versioning. Until a versioned GitHub release is
 published, entries describe validated pre-release candidates from `main`.
 
+## [0.8.0] - 2026-08-28
+
+### Added
+
+- Added simultaneous dual-band 2.4 GHz and 5 GHz hotspots with a shared
+  gateway and bridge, independent channel and width settings, and persistent
+  `ap_24ghz`, `ap_5ghz` and `uplink` radio roles.
+- Added capability- and hardware-identity-based Wi-Fi inventory, including
+  late detection, hot-plug, removal, replacement and compatible-radio
+  fallback without relying on fixed Linux interface names.
+- Added transactional Wi-Fi role swaps and live radio-state updates across AP
+  Configuration, Repeater Mode and Network Topology.
+- Added selectable Ethernet Routed NAT and Bridge modes, dynamic hotspot
+  gateway/subnet configuration, Wi-Fi QR codes and responsive per-user page
+  widgets.
+- Added read-only APT/dpkg preflight checks that stop before installation when
+  the host has missing indexes, incomplete configuration, broken dependencies
+  or pending upgrades.
+
+### Changed
+
+- Reworked Repeater, Routed NAT and Ethernet Bridge transitions around
+  persistent `openap0`/`br0` topology, ordered service readiness and
+  transactional rollback.
+- Made interface discovery and hotspot startup portable across USB, PCIe and
+  SDIO radios on supported Debian-family systems and virtualized environments
+  with hardware passthrough.
+- Limited package installation to OpenAP dependencies with `apt-get install
+  --no-upgrade`; the installer no longer updates, repairs or upgrades the host
+  operating system automatically.
+- Preserved and restored pre-existing hostapd, dnsmasq, dnscrypt-proxy and
+  lighttpd configuration and service state across installation and removal.
+- Refreshed the responsive light/dark interface, service health, DHCP/DNS,
+  Protected DNS, live traffic, reboot flow and Network Topology feedback.
+
+### Fixed
+
+- Fixed cold-boot, delayed-radio and post-role-swap interface persistence by
+  matching configured radios by permanent MAC address and capabilities.
+- Fixed single- and dual-band transitions among Repeater Mode, Ethernet
+  Bridge and Routed NAT, including IPv4/gateway readiness, route ownership,
+  stale bridge cleanup, hotspot recovery and host DNS continuity.
+- Fixed DHCP/DNS synchronization, dnscrypt-proxy startup, hostapd/dnsmasq
+  ordering and mode-aware firewall/service status.
+- Fixed a watchdog race by stopping its timer before the worker, clearing
+  expected failed state and restarting it only after Repeater validation.
+- Fixed stale Dashboard, modal, selector, topology and widget state after
+  asynchronous network changes.
+
+### Validation
+
+- Validated on Debian 13 x86-64, Ubuntu 26.04 x86-64 in Incus with Wi-Fi
+  passthrough, and Raspberry Pi OS/Debian ARM64 on physical Raspberry Pi 3B+.
+- Exercised real USB and PCIe Wi-Fi adapters, single- and dual-band hotspots,
+  Repeater Mode, Routed NAT, Ethernet Bridge, gateway/subnet changes, repeated
+  mode transitions, reboots and persistence.
+- Verified hostapd, dnsmasq, dnscrypt-proxy, nftables, routes, host DNS and
+  transactional restoration of pre-existing service configuration and state.
+
+### Known limitations
+
+- OpenAP does not install hardware-specific Wi-Fi firmware or drivers.
+- Repeater Mode requires two suitable radios, and WPA3-only uplinks are not
+  supported.
+- Raspberry Pi 4 and 5 are expected to be compatible but still need physical
+  validation; other Debian-like systems remain experimental.
+- The full multi-radio rollback path still needs deliberate fault-injection
+  validation.
+
 ## [0.2.5.1] - 2026-08-07
 
 ### Fixed

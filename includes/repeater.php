@@ -1,6 +1,7 @@
 <?php
 
 require_once 'includes/config.php';
+require_once __DIR__ . '/wifi_roles.php';
 
 use OpenAP\Messages\StatusMessage;
 
@@ -91,7 +92,14 @@ function DisplayUplinkWizard(array $options = [])
         openapHandleForgetUplinkWifiAction($status);
     }
 
+    $forceScan = ($_GET['scan'] ?? '') === '1';
+    $statusOnly = ($_GET['status'] ?? '') === '1';
     $repeaterActive = (openapReadRepeaterProfile()['mode']['current'] ?? '') === 'repeater_wifi';
+    $repeaterApplyState = trim((string) @file_get_contents('/run/openap/repeater-apply.state'));
+    if ($statusOnly && $repeaterApplyState === 'failed') {
+        $applyError = trim((string) @file_get_contents('/run/openap/repeater-apply.error'));
+        $status->addMessage($applyError !== '' ? $applyError : 'Repeater mode activation failed.', 'danger');
+    }
     if (!$connectionCompleted && $repeaterActive && openapUplinkReady()) {
         $connectionCompleted = true;
     }
@@ -99,8 +107,6 @@ function DisplayUplinkWizard(array $options = [])
     $wireless = openapDetectWirelessInterfaces();
     $roles = openapSelectedRepeaterRoles($wireless);
     $uplink = $roles['uplink'];
-    $forceScan = ($_GET['scan'] ?? '') === '1';
-    $statusOnly = ($_GET['status'] ?? '') === '1';
     // An explicit scan while Repeater Mode is already active is a request to
     // choose another uplink. Keep the current link running, but suppress the
     // success summary so the network picker is rendered.
@@ -134,7 +140,8 @@ function DisplayUplinkWizard(array $options = [])
         'current_ssid' => $currentSsid,
         'current_security' => $currentSecurity,
         'repeater_active' => $repeaterActive,
-        'connection_pending' => !$forceScan && $repeaterActive && !$connectionCompleted,
+        'connection_pending' => !$forceScan && !$connectionCompleted
+            && ($repeaterActive || in_array($repeaterApplyState, ['scheduled', 'applying'], true)),
         'connection_summary' => $showConnectionSummary ? openapBuildConnectionSuccessSummary() : [],
     ];
 
@@ -155,15 +162,10 @@ function openapHandleSavedUplinkWifiAction(StatusMessage $status): bool
     }
 
     $wireless = openapDetectWirelessInterfaces();
-    $selected = null;
-    foreach ($wireless as $candidate) {
-        if (($candidate['name'] ?? '') === $iface && !empty($candidate['supports_managed'])) {
-            $selected = $candidate;
-            break;
-        }
-    }
-    if ($selected === null) {
-        $status->addMessage('Saved WiFi uplink interface is not available.', 'danger');
+    $roles = openapSelectedRepeaterRoles($wireless);
+    $selected = $roles['uplink'] ?? null;
+    if (empty($roles['valid']) || !is_array($selected) || ($selected['name'] ?? '') !== $iface) {
+        $status->addMessage('Saved WiFi network does not use the assigned UPLINK interface.', 'danger');
         return false;
     }
 
@@ -294,7 +296,7 @@ function openapHandleApEthernetAction(StatusMessage $status): void
     $apMac = strtolower((string) ($_POST['ap_mac'] ?? ''));
     $networkMode = (string) ($_POST['network_mode'] ?? 'routed');
     if (!in_array($networkMode, ['routed', 'bridge'], true)) {
-        $status->addMessage('Invalid AP Ethernet network mode.', 'danger');
+        $status->addMessage('Invalid Ethernet Mode network setting.', 'danger');
         return;
     }
 
@@ -306,7 +308,6 @@ function openapHandleApEthernetAction(StatusMessage $status): void
         $status->addMessage('Invalid ethernet gateway.', 'danger');
         return;
     }
-
     if (!preg_match('/^([0-9a-f]{2}:){5}[0-9a-f]{2}$/', $apMac)) {
         $status->addMessage('Invalid AP WiFi interface.', 'danger');
         return;
@@ -366,13 +367,13 @@ function openapHandleApEthernetAction(StatusMessage $status): void
         && hash_equals($configuredApMac, $apMac)
         && hash_equals($runtimeGateway, $gateway)
     ) {
-        $status->addMessage('AP via Ethernet is already active with this configuration.', 'success');
+        $status->addMessage('Ethernet Mode is already active with this configuration.', 'success');
         $status->addMessage('No network changes or service restarts were required.', 'info');
         return;
     }
 
     if (!openapCanConfigureApEthernet()) {
-        $status->addMessage('AP via Ethernet requirements are not satisfied.', 'danger');
+        $status->addMessage('Ethernet Mode requirements are not satisfied.', 'danger');
         return;
     }
 
@@ -395,7 +396,7 @@ function openapHandleApEthernetAction(StatusMessage $status): void
             );
         } else {
             $command = sprintf(
-                'sudo /usr/local/sbin/openap-apply-ap-ethernet --apply %s %s %s 2>&1',
+                'sudo /usr/local/sbin/openap-apply-ap-ethernet --apply-delayed %s %s %s 2>&1',
                 escapeshellarg($iface),
                 escapeshellarg($gateway),
                 escapeshellarg($apMac)
@@ -404,10 +405,10 @@ function openapHandleApEthernetAction(StatusMessage $status): void
     }
     exec($command, $output, $return);
     if ($return === 0) {
-        $status->addMessage('AP Ethernet configuration applied.', 'success');
+        $status->addMessage('Ethernet Mode configuration applied.', 'success');
         $status->addMessage(implode(' ', $output), 'info');
     } else {
-        $status->addMessage('Failed to configure AP via Ethernet: ' . implode(' ', $output), 'danger');
+        $status->addMessage('Failed to configure Ethernet Mode: ' . implode(' ', $output), 'danger');
     }
 }
 
@@ -441,7 +442,7 @@ function openapHandleRepeaterWifiAction(StatusMessage $status): void
     }
 
     $command = sprintf(
-        'sudo /usr/local/sbin/openap-apply-repeater-wifi %s %s 2>&1',
+        'sudo /usr/local/sbin/openap-apply-repeater-wifi --apply-delayed %s %s 2>&1',
         escapeshellarg($apMac),
         escapeshellarg($uplinkMac)
     );
@@ -461,7 +462,7 @@ function openapHandleUplinkWifiAction(StatusMessage $status): bool
     $passphrase = (string) ($_POST['passphrase'] ?? '');
     $security = (string) ($_POST['security'] ?? 'wpa');
 
-    if (!preg_match('/^[A-Za-z0-9_.:-]+$/', $iface) || !str_starts_with($iface, 'wl') && !str_starts_with($iface, 'wlan')) {
+    if (!preg_match('/^[A-Za-z0-9_.:-]+$/', $iface)) {
         $status->addMessage('Invalid uplink interface.', 'danger');
         return false;
     }
@@ -483,15 +484,10 @@ function openapHandleUplinkWifiAction(StatusMessage $status): bool
     }
 
     $wireless = openapDetectWirelessInterfaces();
-    $selected = null;
-    foreach ($wireless as $candidate) {
-        if ($candidate['name'] === $iface) {
-            $selected = $candidate;
-            break;
-        }
-    }
-    if ($selected === null || empty($selected['supports_managed'])) {
-        $status->addMessage('Selected uplink interface is not managed-capable.', 'danger');
+    $roles = openapSelectedRepeaterRoles($wireless);
+    $selected = $roles['uplink'] ?? null;
+    if (empty($roles['valid']) || !is_array($selected) || ($selected['name'] ?? '') !== $iface) {
+        $status->addMessage('Selected interface is not the assigned UPLINK WiFi.', 'danger');
         return false;
     }
     if (openapWirelessInterfaceInUseOutsideOpenap($selected)) {
@@ -593,7 +589,7 @@ function openapCompleteRepeaterAfterUplink(StatusMessage $status, array $wireles
     }
 
     $command = sprintf(
-        'sudo /usr/local/sbin/openap-apply-repeater-wifi %s %s 2>&1',
+        'sudo /usr/local/sbin/openap-apply-repeater-wifi --apply-delayed %s %s 2>&1',
         escapeshellarg($roles['ap']['mac']),
         escapeshellarg($roles['uplink']['mac'])
     );
@@ -762,20 +758,27 @@ function openapApInterfaceReady(): bool
         return false;
     }
 
-    $interfacePath = '/sys/class/net/' . $apInterface;
-    $addressPath = $interfacePath . '/address';
-    if (!is_dir($interfacePath) || !is_readable($addressPath)) {
-        return false;
+    $apInterfaces = array_values(array_unique(array_filter([
+        $profile['interfaces']['ap_24ghz'] ?? '',
+        $profile['interfaces']['ap_5ghz'] ?? '',
+        $apInterface,
+    ], static fn($value): bool => is_string($value) && $value !== '')));
+    foreach ($apInterfaces as $candidate) {
+        if (!preg_match('/^[A-Za-z0-9_.:-]+$/', $candidate) || !is_dir('/sys/class/net/' . $candidate)) {
+            return false;
+        }
     }
 
+    $addressPath = '/sys/class/net/' . $apInterface . '/address';
     $configuredMac = strtolower(trim((string) ($profile['interfaces']['ap_mac'] ?? '')));
-    $actualMac = strtolower(trim((string) file_get_contents($addressPath)));
+    $actualMac = is_readable($addressPath) ? strtolower(trim((string) file_get_contents($addressPath))) : '';
     if ($configuredMac !== '' && $configuredMac !== '-' && $actualMac !== $configuredMac) {
         return false;
     }
 
     $gateway = (string) ($profile['network']['gateway'] ?? '');
     if (($profile['mode']['current'] ?? '') === 'ap_ethernet_bridge') {
+        $interfacePath = '/sys/class/net/' . $apInterface;
         $masterPath = $interfacePath . '/master';
         $bridge = (string) ($profile['network']['bridge'] ?? 'br0');
         return is_link($masterPath)
@@ -792,7 +795,8 @@ function openapApInterfaceReady(): bool
         return false;
     }
 
-    return openapInterfaceIpv4($apInterface) === $gateway;
+    $hotspotInterface = (string) ($profile['interfaces']['bridge'] ?? $profile['network']['bridge'] ?? $apInterface);
+    return openapInterfaceIpv4($hotspotInterface) === $gateway;
 }
 
 function openapGetRepeaterSummary(string $apInterface, string $uplinkInterface): array
@@ -901,53 +905,9 @@ function openapCanConfigureRepeater(): bool
 function openapSelectedRepeaterRoles(array $wireless): array
 {
     $profile = openapReadRepeaterProfile();
-    $byMac = [];
-    $byName = [];
-    foreach ($wireless as $iface) {
-        $byMac[strtolower($iface['mac'])] = $iface;
-        $byName[$iface['name']] = $iface;
-    }
-
-    $ap = null;
-    $uplink = null;
-    $profileApMac = strtolower($profile['interfaces']['ap_mac'] ?? '');
-    $profileUplinkMac = strtolower($profile['interfaces']['uplink_mac'] ?? '');
-    if ($profileApMac !== '' && isset($byMac[$profileApMac])) {
-        $ap = $byMac[$profileApMac];
-    }
-    if ($profileUplinkMac !== '' && isset($byMac[$profileUplinkMac])) {
-        $uplink = $byMac[$profileUplinkMac];
-    }
-
-    if ($ap === null) {
-        foreach ($wireless as $iface) {
-            if (!empty($iface['supports_ap'])) {
-                $ap = $iface;
-                break;
-            }
-        }
-    }
-    if ($uplink === null || ($ap !== null && $uplink['mac'] === $ap['mac'])) {
-        $freeManaged = array_values(array_filter($wireless, function ($iface) use ($ap) {
-            return !empty($iface['supports_managed'])
-                && ($ap === null || $iface['mac'] !== $ap['mac'])
-                && ($iface['ssid'] ?? '-') === '-'
-                && openapInterfaceIpv4($iface['name']) === '-';
-        }));
-        $candidates = count($freeManaged) > 0 ? $freeManaged : $wireless;
-        foreach ($candidates as $iface) {
-            if (!empty($iface['supports_managed']) && ($ap === null || $iface['mac'] !== $ap['mac'])) {
-                $uplink = $iface;
-                break;
-            }
-        }
-    }
-
-    return [
-        'ap' => $ap ?? ['name' => '', 'mac' => '', 'supports_ap' => false, 'supports_managed' => false],
-        'uplink' => $uplink ?? ['name' => '', 'mac' => '', 'supports_ap' => false, 'supports_managed' => false],
-        'valid' => $ap !== null && $uplink !== null && !empty($ap['supports_ap']) && !empty($uplink['supports_managed']) && $ap['mac'] !== $uplink['mac'],
-    ];
+    $stored = @parse_ini_file('/etc/openap/wifi-roles.ini', true, INI_SCANNER_RAW);
+    $model = openapBuildWifiRoleModel($profile, is_array($stored) ? $stored : [], $wireless);
+    return openapEvaluateRepeaterAvailability($model['active'], $wireless);
 }
 
 function openapWirelessInterfaceInUseOutsideOpenap(array $interface): bool
@@ -1594,17 +1554,9 @@ function openapPhyModes(string $phy): array
 
 function openapRepeaterRolesValid(array $profile, array $detected): bool
 {
-    $ap = $profile['interfaces']['ap'] ?? '';
-    $uplink = $profile['interfaces']['uplink'] ?? '';
-    if ($ap === '' || $uplink === '' || $ap === $uplink) {
-        return false;
-    }
-
-    $byName = [];
-    foreach ($detected as $iface) {
-        $byName[$iface['name']] = $iface;
-    }
-    return !empty($byName[$ap]['supports_ap']) && !empty($byName[$uplink]['supports_managed']);
+    $stored = @parse_ini_file('/etc/openap/wifi-roles.ini', true, INI_SCANNER_RAW);
+    $model = openapBuildWifiRoleModel($profile, is_array($stored) ? $stored : [], $detected);
+    return !empty(openapEvaluateRepeaterAvailability($model['active'], $detected)['valid']);
 }
 
 function openapCommandKeyValues(string $command): array
@@ -1683,7 +1635,8 @@ function openapDhcpRange(): string
 
 function openapDhcpPoolInfo(): array
 {
-    $result = ['active' => 0, 'total' => 0, 'range_start' => '-', 'range_end' => '-', 'lease_time' => '-', 'dns' => '-'];
+    $result = ['active' => 0, 'total' => 0, 'range_start' => '-', 'range_end' => '-', 'lease_time' => '-', 'dns' => '-', 'upstream_dns' => '-', 'dns_provider' => 'Custom', 'dns_transport' => 'Standard'];
+    $upstreamDns = [];
     $file = '/etc/dnsmasq.d/openap-repeater.conf';
     if (!is_readable($file) && defined('OPENAP_SKYNET_EXISTING_AP') && OPENAP_SKYNET_EXISTING_AP) {
         $file = '/etc/dnsmasq.d/wifi.conf';
@@ -1697,8 +1650,28 @@ function openapDhcpPoolInfo(): array
                 $result['lease_time'] = end($parts) ?: '-';
             } elseif (str_starts_with($line, 'dhcp-option=6,')) {
                 $result['dns'] = trim(substr($line, 14));
+            } elseif (str_starts_with($line, 'server=')) {
+                $upstreamDns[] = trim(substr($line, 7));
             }
         }
+    }
+    $result['upstream_dns'] = $upstreamDns !== [] ? implode(', ', $upstreamDns) : '-';
+    $normalizedUpstream = implode(',', $upstreamDns);
+    if ($normalizedUpstream === '1.1.1.1,1.0.0.1') {
+        $result['dns_provider'] = 'Cloudflare';
+    } elseif ($normalizedUpstream === '9.9.9.9,149.112.112.112') {
+        $result['dns_provider'] = 'Quad9';
+    } elseif ($normalizedUpstream === '8.8.8.8,8.8.4.4') {
+        $result['dns_provider'] = 'Google';
+    }
+    $encryptedState = is_readable('/etc/openap/encrypted-dns.ini')
+        ? parse_ini_file('/etc/openap/encrypted-dns.ini', true, INI_SCANNER_TYPED)
+        : [];
+    if (!empty($encryptedState['encrypted_dns']['enabled'])) {
+        $provider = (string) ($encryptedState['encrypted_dns']['provider'] ?? '');
+        $result['dns_provider'] = $provider === 'quad9' ? 'Quad9' : ($provider === 'cloudflare' ? 'Cloudflare' : 'Custom');
+        $result['dns_transport'] = 'Encrypted · DoH';
+        $result['upstream_dns'] = $provider === 'quad9' ? 'Quad9 DoH' : ($provider === 'cloudflare' ? 'Cloudflare DoH' : '127.0.2.1');
     }
     $start = ip2long($result['range_start']);
     $end = ip2long($result['range_end']);

@@ -113,7 +113,22 @@
         return copied ? Promise.resolve() : Promise.reject(new Error('copy failed'));
     }
 
-    function showOperationToast(level, text, title) {
+    function showOperationToast(level, text, title, details, onClose) {
+        if ((level === 'success' || level === 'danger') && typeof window.openapNotify === 'function') {
+            return window.openapNotify({
+                level: level === 'danger' ? 'error' : 'success',
+                title: title || (level === 'success' ? 'Operation successful' : 'Operation failed'),
+                message: level === 'success' ? 'Settings successfully applied.' : text,
+                duration: level === 'success' ? 5000 : 0,
+                details: Array.isArray(details) && details.length ? details : (level === 'danger' ? [
+                    'Failed operation: ' + (title || 'Dashboard configuration'),
+                    'Cause reported by OpenAP: ' + text,
+                    'Diagnostic source: System and networking service logs'
+                ] : ['No setting values changed']),
+                onClose: onClose
+            });
+            return;
+        }
         var old = document.getElementById('apConfigurationToast');
         if (old) old.remove();
         var toast = document.createElement('div');
@@ -144,7 +159,7 @@
             toast.classList.add('leaving');
             toast.classList.remove('show');
             window.setTimeout(function () { toast.remove(); }, 180);
-        }, level === 'success' ? 2000 : 4000);
+        }, 5000);
     }
 
     function invalidModalFieldMessage(field) {
@@ -159,13 +174,28 @@
         var selector = document.querySelector('.openap-mode-selector');
         if (!selector) return;
         var toRepeater = targetMode === 'repeater_wifi';
+        var toBridge = targetMode === 'ap_ethernet_bridge';
         var indicator = selector.querySelector('.openap-mode-selector-indicator');
+        var options = Array.from(selector.querySelectorAll('.openap-mode-option'));
+        var ethernetState = options[0] ? options[0].querySelector('.openap-mode-option-state') : null;
+        var repeaterState = options[1] ? options[1].querySelector('.openap-mode-option-state') : null;
+        var repeaterCard = options[1] || null;
+        var nextStates = [
+            toRepeater ? 'Switch →' : (toBridge ? '● Bridge' : '● Routed / NAT'),
+            toRepeater ? '● Active' : (toBridge ? 'Routed first' : 'Switch →')
+        ];
         if (indicator) indicator.style.transition = 'none';
         var startTransform = indicator ? window.getComputedStyle(indicator).transform : 'none';
+        selector.dataset.currentMode = targetMode;
+        if (repeaterCard) {
+            repeaterCard.dataset.bridgeBlocked = toBridge ? '1' : '0';
+            repeaterCard.classList.toggle('is-unavailable', toBridge);
+            repeaterCard.dataset.suppressAvailabilityAnimationOnce = '1';
+        }
         selector.classList.toggle('is-repeater', toRepeater);
         selector.classList.toggle('is-ap-ethernet', !toRepeater);
         selector.classList.add('is-switching');
-        selector.querySelectorAll('.openap-mode-option').forEach(function (option, index) {
+        options.forEach(function (option, index) {
             var active = toRepeater ? index === 1 : index === 0;
             option.classList.toggle('active', active);
             if (active) {
@@ -174,9 +204,40 @@
                 option.removeAttribute('aria-current');
             }
         });
+        var stateNodes = [ethernetState, repeaterState].filter(Boolean);
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion || !stateNodes.length || typeof stateNodes[0].animate !== 'function') {
+            if (ethernetState) ethernetState.textContent = nextStates[0];
+            if (repeaterState) repeaterState.textContent = nextStates[1];
+        } else {
+            stateNodes.forEach(function (state, index) {
+                state.getAnimations().forEach(function (animation) { animation.cancel(); });
+                var outgoing = state.animate([
+                    { transform: 'translateY(0)', opacity: 1 },
+                    { transform: 'translateY(115%)', opacity: 0 }
+                ], {
+                    duration: 280,
+                    delay: index * 45,
+                    easing: 'cubic-bezier(.55,0,1,.45)',
+                    fill: 'forwards'
+                });
+                outgoing.finished.then(function () {
+                    state.textContent = state === ethernetState ? nextStates[0] : nextStates[1];
+                    state.getAnimations().forEach(function (animation) { animation.cancel(); });
+                    state.animate([
+                        { transform: 'translateY(115%)', opacity: 0 },
+                        { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                        { transform: 'translateY(0)', opacity: 1 }
+                    ], {
+                        duration: 420,
+                        easing: 'cubic-bezier(.22,1,.36,1)'
+                    });
+                }).catch(function () {});
+            });
+        }
         if (indicator) void indicator.offsetWidth;
         if (indicator && typeof indicator.animate === 'function'
-            && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            && !reduceMotion) {
             var endTransform = window.getComputedStyle(indicator).transform;
             indicator.getAnimations().forEach(function (animation) { animation.cancel(); });
             var movement = indicator.animate([
@@ -282,14 +343,19 @@
             label: toRepeater ? 'Uplink AP' : 'Ethernet uplink',
             sub: toRepeater ? 'WiFi uplink' : 'Ethernet'
         };
-        var freshTextRequest = fetch('/', {
+        var freshTextRequest = fetch(toRepeater ? '/uplink_embed.php?status=1&format=json' : '/', {
             credentials: 'same-origin',
             cache: 'no-store',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         }).then(function (response) {
             if (!response.ok) throw new Error('HTTP ' + response.status);
-            return response.text();
-        }).then(function (html) {
+            return toRepeater ? response.json() : response.text();
+        }).then(function (payload) {
+            if (toRepeater) {
+                if (payload && payload.ssid) nextText.sub = String(payload.ssid).trim();
+                return;
+            }
+            var html = payload;
             var parsed = new DOMParser().parseFromString(html, 'text/html');
             var freshNode = parsed.querySelector('[data-openap-topology-node="uplink"]');
             var freshLabel = freshNode ? freshNode.querySelector('[data-openap-topology-mode-label]') : null;
@@ -297,8 +363,8 @@
             if (freshLabel && freshLabel.textContent.trim()) nextText.label = freshLabel.textContent.trim();
             if (freshSub && freshSub.textContent.trim()) nextText.sub = freshSub.textContent.trim();
         }).catch(function () {
-            // The mode-switch transport can briefly disappear. The fallback
-            // labels remain accurate until the confirmed dashboard reload.
+            // The mode-switch transport can briefly disappear. Keep the
+            // generic fallback only when no confirmed SSID is available.
         });
         var freshText = Promise.race([
             freshTextRequest,
@@ -349,9 +415,322 @@
         });
     }
 
+    function animateUplinkGateway(nextGateway) {
+        var nextText = String(nextGateway || '-').trim() || '-';
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.querySelectorAll('[data-openap-uplink-gateway]').forEach(function (node) {
+            if (node.dataset.textAnimating === '1' || node.textContent.trim() === nextText) return;
+            if (reduceMotion || typeof node.animate !== 'function') {
+                node.textContent = nextText;
+                return;
+            }
+
+            node.dataset.textAnimating = '1';
+            node.animate([
+                { transform: 'translateY(0)', opacity: 1 },
+                { transform: 'translateY(115%)', opacity: 0 }
+            ], {
+                duration: 330,
+                easing: 'cubic-bezier(.55,0,1,.45)',
+                fill: 'forwards'
+            });
+
+            window.setTimeout(function () {
+                node.textContent = nextText;
+                node.getAnimations().forEach(function (animation) { animation.cancel(); });
+                node.animate([
+                    { transform: 'translateY(115%)', opacity: 0 },
+                    { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                    { transform: 'translateY(0)', opacity: 1 }
+                ], {
+                    duration: 440,
+                    easing: 'cubic-bezier(.22,1,.36,1)'
+                });
+                window.setTimeout(function () { delete node.dataset.textAnimating; }, 460);
+            }, 430);
+        });
+    }
+
+    function animateTrafficUplinkIdentity(freshDocument) {
+        var selectors = [
+            '[data-openap-traffic-uplink-name]',
+            '[data-openap-traffic-uplink-device]',
+            '[data-openap-traffic-uplink-address]',
+            '[data-openap-traffic-ap-address]'
+        ];
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        selectors.forEach(function (selector) {
+            var node = document.querySelector(selector);
+            var freshNode = freshDocument.querySelector(selector);
+            if (!node || !freshNode) return;
+
+            var nextText = freshNode.textContent;
+            if (node.dataset.textAnimating === '1' || node.textContent === nextText) return;
+            if (reduceMotion || typeof node.animate !== 'function') {
+                node.textContent = nextText;
+                return;
+            }
+
+            node.dataset.textAnimating = '1';
+            var outgoing = node.animate([
+                { transform: 'translateY(0)', opacity: 1 },
+                { transform: 'translateY(115%)', opacity: 0 }
+            ], {
+                duration: 320,
+                easing: 'cubic-bezier(.55,0,1,.45)',
+                fill: 'forwards'
+            });
+
+            outgoing.finished.then(function () {
+                node.textContent = nextText;
+                outgoing.cancel();
+                node.animate([
+                    { transform: 'translateY(-115%)', opacity: 0 },
+                    { transform: 'translateY(8%)', opacity: 1, offset: .82 },
+                    { transform: 'translateY(0)', opacity: 1 }
+                ], {
+                    duration: 440,
+                    easing: 'cubic-bezier(.22,1,.36,1)'
+                });
+                window.setTimeout(function () { delete node.dataset.textAnimating; }, 460);
+            }).catch(function () {
+                node.textContent = nextText;
+                delete node.dataset.textAnimating;
+            });
+        });
+    }
+
+    function applyNetworkUplinkWidgetSnapshot(parsed, expectedMode) {
+        var modeNode = parsed.querySelector('.openap-mode-selector[data-current-mode]');
+        var freshCard = parsed.querySelector('[data-openap-widget-id="uplink"] > .stat-card');
+        var currentCards = Array.from(document.querySelectorAll('[data-openap-widget-id="uplink"] > .stat-card'));
+        if (!modeNode || modeNode.dataset.currentMode !== expectedMode || !freshCard || currentCards.length === 0) {
+            return false;
+        }
+
+        animateTrafficUplinkIdentity(parsed);
+        currentCards.forEach(function (currentCard) {
+                    var currentValues = Array.from(currentCard.querySelectorAll('.openap-widget-value'));
+                    var freshValues = Array.from(freshCard.querySelectorAll('.openap-widget-value'));
+                    var previousValues = currentValues.map(function (node) {
+                        return {
+                            text: node.textContent,
+                            title: node.getAttribute('title')
+                        };
+                    });
+
+                    currentCard.className = freshCard.className;
+                    currentCard.innerHTML = freshCard.innerHTML;
+
+                    var nextValues = Array.from(currentCard.querySelectorAll('.openap-widget-value'));
+                    nextValues.forEach(function (node, index) {
+                        var previous = previousValues[index];
+                        var freshValue = freshValues[index];
+                        if (!previous || !freshValue) return;
+
+                        var nextText = freshValue.textContent;
+                        var nextTitle = freshValue.getAttribute('title');
+                        if (previous.text === nextText && previous.title === nextTitle) return;
+
+                        node.textContent = previous.text;
+                        if (previous.title === null) node.removeAttribute('title');
+                        else node.setAttribute('title', previous.title);
+
+                        var replaceValue = function () {
+                            node.textContent = nextText;
+                            if (nextTitle === null) node.removeAttribute('title');
+                            else node.setAttribute('title', nextTitle);
+                        };
+                        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                            typeof node.animate !== 'function') {
+                            replaceValue();
+                            return;
+                        }
+
+                        var outgoing = node.animate([
+                            { transform: 'translateY(0)', opacity: 1 },
+                            { transform: 'translateY(115%)', opacity: 0 }
+                        ], {
+                            duration: 320,
+                            easing: 'cubic-bezier(.55,0,1,.45)',
+                            fill: 'forwards'
+                        });
+                        outgoing.finished.then(function () {
+                            replaceValue();
+                            outgoing.cancel();
+                            node.animate([
+                                { transform: 'translateY(-115%)', opacity: 0 },
+                                { transform: 'translateY(8%)', opacity: 1, offset: .82 },
+                                { transform: 'translateY(0)', opacity: 1 }
+                            ], {
+                                duration: 440,
+                                easing: 'cubic-bezier(.22,1,.36,1)'
+                            });
+                        }).catch(function () {
+                            replaceValue();
+                        });
+                    });
+        });
+        return true;
+    }
+
+    function refreshNetworkUplinkWidget(expectedMode, attemptsLeft, verifiedDocument) {
+        if (verifiedDocument && applyNetworkUplinkWidgetSnapshot(verifiedDocument, expectedMode)) return;
+        if (attemptsLeft <= 0) return;
+        window.setTimeout(function () {
+            fetch('/?widget_refresh=' + Date.now(), {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.text();
+            }).then(function (html) {
+                var parsed = new DOMParser().parseFromString(html, 'text/html');
+                if (!applyNetworkUplinkWidgetSnapshot(parsed, expectedMode)) {
+                    refreshNetworkUplinkWidget(expectedMode, attemptsLeft - 1);
+                }
+            }).catch(function () {
+                refreshNetworkUplinkWidget(expectedMode, attemptsLeft - 1);
+            });
+        }, 750);
+    }
+
+    function animateUplinkAddress(nextAddress) {
+        var node = document.querySelector('[data-openap-uplink-address]');
+        if (!node || node.dataset.textAnimating === '1') return;
+
+        var nextText = String(nextAddress || '-').trim() || '-';
+        if (node.textContent.trim() === nextText) return;
+
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion || typeof node.animate !== 'function') {
+            node.textContent = nextText;
+            return;
+        }
+
+        node.dataset.textAnimating = '1';
+        node.animate([
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: 'translateY(115%)', opacity: 0 }
+        ], {
+            duration: 330,
+            easing: 'cubic-bezier(.55,0,1,.45)',
+            fill: 'forwards'
+        });
+
+        window.setTimeout(function () {
+            node.textContent = nextText;
+            node.getAnimations().forEach(function (animation) { animation.cancel(); });
+            node.animate([
+                { transform: 'translateY(115%)', opacity: 0 },
+                { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                { transform: 'translateY(0)', opacity: 1 }
+            ], {
+                duration: 440,
+                easing: 'cubic-bezier(.22,1,.36,1)'
+            });
+            window.setTimeout(function () { delete node.dataset.textAnimating; }, 460);
+        }, 430);
+    }
+
+    function isValidIpv4Address(value) {
+        var parts = String(value || '').trim().split('.');
+        if (parts.length !== 4) return false;
+        return parts.every(function (part) {
+            if (!/^\d{1,3}$/.test(part)) return false;
+            var octet = Number(part);
+            return octet >= 0 && octet <= 255;
+        });
+    }
+
+    function animateTopologyHotspotAddress(nextAddress) {
+        var node = document.querySelector('[data-openap-topology-hotspot-address]');
+        if (!node || node.dataset.textAnimating === '1') return;
+
+        var nextText = String(nextAddress || '').trim();
+        // During a routed/bridge transition the freshly rendered dashboard can
+        // briefly expose "-" before the management address is assigned. Never
+        // replace a valid visible address with that transient placeholder.
+        if (!isValidIpv4Address(nextText)) return;
+        if (node.textContent.trim() === nextText) return;
+
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion || typeof node.animate !== 'function') {
+            node.textContent = nextText;
+            return;
+        }
+
+        node.dataset.textAnimating = '1';
+        node.animate([
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: 'translateY(115%)', opacity: 0 }
+        ], {
+            duration: 330,
+            easing: 'cubic-bezier(.55,0,1,.45)',
+            fill: 'forwards'
+        });
+
+        window.setTimeout(function () {
+            node.textContent = nextText;
+            node.getAnimations().forEach(function (animation) { animation.cancel(); });
+            node.animate([
+                { transform: 'translateY(115%)', opacity: 0 },
+                { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                { transform: 'translateY(0)', opacity: 1 }
+            ], {
+                duration: 440,
+                easing: 'cubic-bezier(.22,1,.36,1)'
+            });
+            window.setTimeout(function () { delete node.dataset.textAnimating; }, 460);
+        }, 430);
+    }
+
+    function animateTopologyClientNetwork(nextNetwork) {
+        var clientsNode = document.querySelector('[data-openap-topology-node="clients"]');
+        var node = clientsNode ? clientsNode.querySelector('[data-openap-topology-sub]') : null;
+        if (!node || node.dataset.textAnimating === '1') return;
+
+        var nextText = String(nextNetwork || '-').trim() || '-';
+        node.dataset.apReadyText = nextText;
+        if (node.textContent.trim() === nextText) return;
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion || typeof node.animate !== 'function') {
+            node.textContent = nextText;
+            return;
+        }
+        node.dataset.textAnimating = '1';
+        var outgoing = node.animate([
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: 'translateY(115%)', opacity: 0 }
+        ], {
+            duration: 330,
+            easing: 'cubic-bezier(.55,0,1,.45)',
+            fill: 'forwards'
+        });
+        outgoing.finished.then(function () {
+            node.textContent = nextText;
+            outgoing.cancel();
+            return node.animate([
+                { transform: 'translateY(-115%)', opacity: 0 },
+                { transform: 'translateY(8%)', opacity: 1, offset: .82 },
+                { transform: 'translateY(0)', opacity: 1 }
+            ], {
+                duration: 440,
+                easing: 'cubic-bezier(.22,1,.36,1)'
+            }).finished.catch(function () {});
+        }).catch(function () {
+            node.textContent = nextText;
+        }).finally(function () {
+            delete node.dataset.textAnimating;
+        });
+    }
+
     function showModeSwitchAnimation(targetMode) {
         var old = document.getElementById('openapModeSwitchOverlay');
         if (old) old.remove();
+        document.body.classList.add('openap-universal-apply-active');
         var toRepeater = targetMode === 'repeater_wifi';
         var overlay = document.createElement('div');
         overlay.id = 'openapModeSwitchOverlay';
@@ -359,24 +738,21 @@
         overlay.setAttribute('role', 'status');
         overlay.setAttribute('aria-live', 'polite');
         overlay.innerHTML =
-            '<div class="openap-mode-switch-card">' +
+            '<div class="openap-mode-switch-card openap-universal-mode-apply">' +
               '<div class="openap-mode-switch-eyebrow"><i class="fas fa-shuffle"></i> OpenAP</div>' +
-              '<div class="openap-mode-switch-title">' + (toRepeater ? 'Switching to Repeater Mode' : 'Switching to AP Ethernet') + '</div>' +
+              '<div class="openap-mode-switch-title">Applying changes</div>' +
               '<div class="openap-mode-switch-caption">Network services may take a few seconds to settle.</div>' +
-              '<div class="openap-mode-switch-path">' +
-                '<div class="openap-mode-node source"><span><i class="fas ' + (toRepeater ? 'fa-network-wired' : 'fa-wifi') + '"></i></span><small>' + (toRepeater ? 'AP Ethernet' : 'Repeater') + '</small></div>' +
-                '<div class="openap-mode-link"><span></span><i class="fas fa-circle"></i></div>' +
-                '<div class="openap-mode-node target"><span><i class="fas ' + (toRepeater ? 'fa-wifi' : 'fa-network-wired') + '"></i></span><small>' + (toRepeater ? 'Repeater' : 'AP Ethernet') + '</small></div>' +
-              '</div>' +
+              '<div class="openap-universal-mode-visual" aria-hidden="true"><span><i class="fas ' + (toRepeater ? 'fa-wifi' : 'fa-network-wired') + '"></i></span></div>' +
               '<div class="openap-mode-switch-steps">' +
-                '<div class="active"><i class="fas fa-circle-notch fa-spin"></i><span>Preparing interfaces</span></div>' +
-                '<div><i class="far fa-circle"></i><span>Applying routes and firewall</span></div>' +
-                '<div><i class="far fa-circle"></i><span>Verifying connectivity</span></div>' +
+                '<div class="active"><i class="fas fa-circle-notch fa-spin"></i><span>' + (toRepeater ? 'Validating Wi-Fi uplink settings' : 'Validating Ethernet configuration') + '</span></div>' +
+                '<div><i class="far fa-circle"></i><span>' + (toRepeater ? 'Applying repeater network services' : 'Applying routes and firewall') + '</span></div>' +
+                '<div><i class="far fa-circle"></i><span>' + (toRepeater ? 'Verifying uplink connectivity' : 'Verifying Ethernet Mode services') + '</span></div>' +
               '</div>' +
             '</div>';
         document.body.appendChild(overlay);
         var steps = Array.from(overlay.querySelectorAll('.openap-mode-switch-steps > div'));
         var timers = [];
+        var successDetails = [];
 
         function activateStep(index) {
             steps.forEach(function (step, stepIndex) {
@@ -395,8 +771,6 @@
             window.requestAnimationFrame(function () {
                 window.requestAnimationFrame(function () {
                     overlay.classList.add('show');
-                    timers.push(window.setTimeout(function () { activateStep(1); }, 1100));
-                    timers.push(window.setTimeout(function () { activateStep(2); }, 3200));
                 });
             });
         }
@@ -417,19 +791,19 @@
                 overlay.classList.remove('show');
                 window.setTimeout(function () {
                     overlay.remove();
+                    document.body.classList.remove('openap-universal-apply-active');
                     if (typeof afterClose === 'function') afterClose();
                 }, 220);
             }, delay || 0);
         }
 
         return {
-            complete: function (afterClose) {
+            complete: function (afterClose, snapshotHtml) {
                 if (toRepeater) {
                     try {
-                        // A confirmed uplink switch is followed by a dashboard
-                        // reload. If the new uplink disappears during the
-                        // success toast, the next page is rendered degraded and
-                        // would otherwise have no green -> red state to animate.
+                        // Keep the recently confirmed uplink state available to
+                        // the live topology checks while the success notice is
+                        // visible, without replacing the animated dashboard.
                         window.sessionStorage.setItem(
                             'openapTopologyRecentUplinkSuccessUntil',
                             String(Date.now() + 15000)
@@ -450,33 +824,49 @@
                     var icon = step.querySelector('i');
                     if (icon) icon.className = 'fas fa-check-circle';
                 });
-                overlay.querySelector('.openap-mode-node.target').classList.add('complete');
-                overlay.querySelector('.openap-mode-switch-title').textContent = toRepeater ? 'Repeater Mode active' : 'AP Ethernet active';
+                var targetNode = overlay.querySelector('.openap-mode-node.target');
+                if (targetNode) targetNode.classList.add('complete');
+                overlay.querySelector('.openap-mode-switch-title').textContent = toRepeater ? 'Repeater Mode active' : 'Ethernet Mode active';
                 overlay.querySelector('.openap-mode-switch-caption').textContent = 'Connectivity verified successfully.';
-                close(1100, function () {
+                close(700, function () {
                     window.setTimeout(function () {
                         window.requestAnimationFrame(function () {
+                            delete window.openapLocalModeSwitchGuard;
                             window.dispatchEvent(new CustomEvent('openap:mode-switch-confirmed', {
-                                detail: { targetMode: targetMode }
+                                detail: { targetMode: targetMode, snapshotHtml: snapshotHtml || '' }
                             }));
                             animateModeSelector(targetMode);
                             animateTopologyModeIcon(targetMode);
                             animateTopologyModeText(targetMode);
                             if (typeof afterClose === 'function') {
-                                window.setTimeout(afterClose, 2000);
+                                afterClose();
                             } else {
                                 window.setTimeout(function () {
-                                    showOperationToast('success', toRepeater ? 'Repeater Mode enabled successfully.' : 'AP Ethernet mode enabled successfully.');
-                                    window.setTimeout(function () { window.location.reload(); }, 2200);
-                                }, 2000);
+                                    showOperationToast('success', 'Settings successfully applied.', 'Operation successful', successDetails);
+                                }, 900);
                             }
                         });
                     }, 450);
                 });
             },
+            setSuccessDetails: function (details) {
+                successDetails = Array.isArray(details) ? details : [];
+            },
+            apply: function () {
+                activateStep(1);
+            },
+            verify: function () {
+                activateStep(2);
+            },
             fail: function () {
                 delete window.openapLocalModeSwitchGuard;
                 overlay.classList.add('failed');
+                var activeStep = overlay.querySelector('.openap-mode-switch-steps .active');
+                if (activeStep) {
+                    activeStep.classList.add('error');
+                    var activeIcon = activeStep.querySelector('i');
+                    if (activeIcon) activeIcon.className = 'fas fa-circle-exclamation';
+                }
                 overlay.querySelector('.openap-mode-switch-title').textContent = 'Mode switch not completed';
                 overlay.querySelector('.openap-mode-switch-caption').textContent = 'OpenAP kept the last confirmed network state.';
                 close(1800);
@@ -1010,24 +1400,33 @@
         if (content.dataset.openapUplinkPoll === '1') return;
         content.dataset.openapUplinkPoll = '1';
         window.setTimeout(function () {
-            fetch('/uplink_embed.php?status=1', {
+            fetch('/uplink_embed.php?status=1&format=json', {
                 credentials: 'same-origin',
                 cache: 'no-store',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             }).then(function (response) {
                 if (!response.ok) throw new Error('HTTP ' + response.status);
-                return response.text();
-            }).then(function (html) {
-                var parsed = new DOMParser().parseFromString(html, 'text/html');
-                var success = parsed.querySelector('.js-repeater-success');
-                if (success) {
+                if (response.redirected && /\/login(?:\?|$)/.test(response.url)) {
+                    throw new Error('Authentication expired');
+                }
+                return response.json();
+            }).then(function (status) {
+                var expectedSsid = content.dataset.openapExpectedUplinkSsid || '';
+                var correctUplink = !expectedSsid || status.ssid === expectedSsid;
+                if (status.mode === 'repeater_wifi' && status.ready && correctUplink) {
                     if (content.openapModeAnimation) {
+                        content.openapModeAnimation.verify();
                         content.openapModeAnimation.complete();
                         delete content.openapModeAnimation;
                     }
-                    replaceUplinkModalContent(content, html, function () { bindDynamicContent(content); });
                     var modal = document.getElementById('uplinkModal');
-                    if (modal) modal.dataset.refreshOnClose = '1';
+                    if (modal) delete modal.dataset.refreshOnClose;
+                    refreshNetworkUplinkWidget('repeater_wifi', 20);
+                    return;
+                }
+                if (status.apply_state === 'failed') {
+                    if (content.openapModeAnimation) content.openapModeAnimation.fail();
+                    showOperationToast('danger', status.reason || 'Repeater mode activation failed.');
                     return;
                 }
                 delete content.dataset.openapUplinkPoll;
@@ -1036,49 +1435,116 @@
                 delete content.dataset.openapUplinkPoll;
                 pollSettlingUplink(content, attemptsLeft - 1);
             });
-        }, 3000);
+        }, 1000);
     }
 
-    function refreshDashboardAfterApSwitch(expectClient, attemptsLeft, modeAnimation, expectedMode, successMessage) {
+    function refreshDashboardAfterApSwitch(expectClient, attemptsLeft, modeAnimation, expectedMode, expectedGateway, successDetails, lastApplyState, notificationState) {
+        notificationState = notificationState || { successShown: false };
+        function notifyTrackedSuccess() {
+            if (notificationState.successShown) return;
+            notificationState.successShown = true;
+            showOperationToast('success', 'Settings successfully applied.', 'Operation successful', successDetails);
+        }
         if (attemptsLeft <= 0) {
-            if (modeAnimation) modeAnimation.fail();
-            showOperationToast('danger', 'The requested AP Ethernet mode did not become active. Previous network settings were restored.');
-            window.location.reload();
+            // A routed/bridge transition can temporarily move the browser to
+            // another DHCP network.  Loss of the verification request is not
+            // evidence that the privileged transaction failed.  Only the
+            // tracked helper is allowed to report failure.
+            if (lastApplyState && lastApplyState.state === 'failed'
+                && lastApplyState.target === expectedMode) {
+                if (modeAnimation) modeAnimation.fail();
+                showOperationToast(
+                    'danger',
+                    lastApplyState.message || 'The requested Ethernet Mode failed and the previous network settings were restored.'
+                );
+                return;
+            }
+            if (lastApplyState && lastApplyState.state === 'success'
+                && lastApplyState.target === expectedMode) {
+                notifyTrackedSuccess();
+            }
+            refreshDashboardAfterApSwitch(expectClient, 15, modeAnimation, expectedMode, expectedGateway, successDetails, lastApplyState, notificationState);
             return;
         }
         window.setTimeout(function () {
-            fetch('/', {
+            var statusRequest = fetch('/ajax/networking/get_ethernet_mode_apply_status.php?t=' + Date.now(), {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            }).catch(function () { return lastApplyState || { state: 'unknown', target: '' }; });
+            var dashboardRequest = fetch('/', {
                 credentials: 'same-origin',
                 cache: 'no-store',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             }).then(function (response) {
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 return response.text();
-            }).then(function (html) {
-                var parsed = new DOMParser().parseFromString(html, 'text/html');
-                var channelNode = parsed.querySelector('[data-openap-ap-channel]');
+            }).catch(function () { return ''; });
+            Promise.all([statusRequest, dashboardRequest]).then(function (results) {
+                var applyState = results[0];
+                var html = results[1];
+                if (applyState.state === 'failed' && applyState.target === expectedMode) {
+                    if (modeAnimation) modeAnimation.fail();
+                    showOperationToast(
+                        'danger',
+                        applyState.message || 'The requested Ethernet Mode failed and the previous network settings were restored.'
+                    );
+                    return;
+                }
+                var transactionSucceeded = applyState.state === 'success'
+                    && applyState.target === expectedMode;
+                if (transactionSucceeded) notifyTrackedSuccess();
+                var parsed = html ? new DOMParser().parseFromString(html, 'text/html') : null;
+                var channelNode = parsed ? parsed.querySelector('[data-openap-ap-channel]') : null;
                 var channel = channelNode ? (channelNode.dataset.openapApChannel || '') : '';
                 var channelReady = channel !== '' && channel !== '-';
-                var modeNode = parsed.querySelector('.openap-mode-selector[data-current-mode]');
+                var modeNode = parsed ? parsed.querySelector('.openap-mode-selector[data-current-mode]') : null;
                 var modeReady = modeNode && modeNode.dataset.currentMode === expectedMode;
-                // Client reassociation is asynchronous and is not part of the
-                // mode-switch transaction. A temporarily empty station table
-                // must not turn a confirmed AP Ethernet mode into a failure.
-                if (modeReady && channelReady) {
+                var gatewayNode = parsed ? parsed.querySelector('[data-openap-uplink-gateway]') : null;
+                var verifiedGateway = gatewayNode ? gatewayNode.textContent.trim() : '';
+                var gatewayReady = expectedMode !== 'ap_ethernet'
+                    || expectedGateway === ''
+                    || verifiedGateway === expectedGateway;
+                var hotspotAddressNode = parsed ? parsed.querySelector('[data-openap-topology-hotspot-address]') : null;
+                var verifiedHotspotAddress = hotspotAddressNode ? hotspotAddressNode.textContent.trim() : '';
+                var hotspotAddressReady = expectedMode !== 'ap_ethernet_bridge'
+                    || isValidIpv4Address(verifiedHotspotAddress);
+                var clientNetworkNode = parsed
+                    ? parsed.querySelector('[data-openap-topology-node="clients"] [data-openap-topology-sub]')
+                    : null;
+                var verifiedClientNetwork = clientNetworkNode ? clientNetworkNode.textContent.trim() : '';
+                // The tracked helper is the authority for the committed mode.
+                // Dashboard fields can converge in different HTTP snapshots
+                // while the management route changes, so they must never keep
+                // the selector or overlay in the previous mode after success.
+                if (transactionSucceeded) {
+                    var verifiedDocument = modeReady && channelReady && gatewayReady
+                        && hotspotAddressReady ? parsed : null;
+                    if (verifiedDocument && verifiedGateway !== '') {
+                        animateUplinkGateway(verifiedGateway);
+                    }
+                    var reconcileWidgets = function () {
+                        refreshNetworkUplinkWidget(expectedMode, 20, verifiedDocument);
+                        if (verifiedDocument) {
+                            animateTopologyHotspotAddress(verifiedHotspotAddress);
+                            animateTopologyClientNetwork(verifiedClientNetwork);
+                        }
+                    };
                     if (modeAnimation) {
-                        modeAnimation.complete(function () {
-                            showOperationToast('success', successMessage || 'AP Ethernet mode enabled successfully.');
-                            window.setTimeout(function () { window.location.reload(); }, 2200);
-                        });
+                        modeAnimation.complete(reconcileWidgets, verifiedDocument ? html : '');
                     } else {
-                        showOperationToast('success', successMessage || 'AP Ethernet mode enabled successfully.');
-                        window.setTimeout(function () { window.location.reload(); }, 2200);
+                        delete window.openapLocalModeSwitchGuard;
+                        animateModeSelector(expectedMode);
+                        reconcileWidgets();
                     }
                     return;
                 }
-                refreshDashboardAfterApSwitch(expectClient, attemptsLeft - 1, modeAnimation, expectedMode, successMessage);
+                refreshDashboardAfterApSwitch(expectClient, attemptsLeft - 1, modeAnimation, expectedMode, expectedGateway, successDetails, applyState, notificationState);
             }).catch(function () {
-                refreshDashboardAfterApSwitch(expectClient, attemptsLeft - 1, modeAnimation, expectedMode, successMessage);
+                refreshDashboardAfterApSwitch(expectClient, attemptsLeft - 1, modeAnimation, expectedMode, expectedGateway, successDetails, lastApplyState, notificationState);
             });
         }, 2000);
     }
@@ -1132,12 +1598,16 @@
                 var content = document.getElementById('apEthernetModalContent');
                 var selectedMode = form.querySelector('input[name="network_mode"]:checked');
                 var expectedMode = selectedMode && selectedMode.value === 'bridge' ? 'ap_ethernet_bridge' : 'ap_ethernet';
+                var submittedGatewayInput = form.querySelector('[name="ethernet_gateway"]');
+                var requestedGateway = submittedGatewayInput ? submittedGatewayInput.value.trim() : '';
+                var currentModeNode = document.querySelector('.openap-mode-selector[data-current-mode]');
+                var previousMode = currentModeNode ? currentModeNode.dataset.currentMode : 'repeater_wifi';
                 if (!content) return;
                 window.openapLocalModeSwitchGuard = {
                     targetMode: expectedMode,
                     expiresAt: Date.now() + 90000
                 };
-                var modeAnimation = showModeSwitchAnimation('ap_ethernet');
+                var modeAnimation = showModeSwitchAnimation(expectedMode);
                 var expectClient = document.querySelector('.openap-topology-clients .client-table tbody tr') !== null;
                 var submit = form.querySelector('.js-ap-ethernet-submit');
                 if (submit) {
@@ -1159,18 +1629,22 @@
                 }).then(function (html) {
                     var parsed = new DOMParser().parseFromString(html, 'text/html');
                     if (parsed.querySelector('.alert-success') && !parsed.querySelector('.alert-danger')) {
+                        if (modeAnimation) modeAnimation.verify();
                         var saved = parsed.querySelector('.js-ap-ethernet-success');
                         var savedMode = saved ? saved.dataset.networkMode : (expectedMode === 'ap_ethernet_bridge' ? 'bridge' : 'routed');
                         var savedGateway = saved ? (saved.dataset.gateway || '') : '';
-                        var successMessage = savedMode === 'bridge'
-                            ? 'Saved: Ethernet Bridge. OpenAP management gateway: ' + savedGateway + '. Client addressing is provided by the upstream router.'
-                            : 'Saved: Routed / NAT. Gateway: ' + savedGateway + '.';
+                        var successDetails = [
+                            'Operating mode: ' + (previousMode === 'repeater_wifi' ? 'Repeater Mode' : (previousMode === 'ap_ethernet_bridge' ? 'Ethernet Bridge' : 'Ethernet Mode'))
+                                + ' \u2192 ' + (savedMode === 'bridge' ? 'Ethernet Bridge' : 'Ethernet Mode'),
+                            'Network type: ' + (savedMode === 'bridge' ? 'Bridge' : 'Routed / NAT'),
+                            'Management gateway: ' + (savedGateway || 'Automatically assigned')
+                        ];
                         var modalElement = document.getElementById('apEthernetModal');
                         if (modalElement && modalElement.classList.contains('show')) {
                             modalElement.dataset.openapModeApplied = '1';
                             bootstrap.Modal.getOrCreateInstance(modalElement).hide();
                         }
-                        refreshDashboardAfterApSwitch(expectClient, 14, modeAnimation, expectedMode, successMessage);
+                        refreshDashboardAfterApSwitch(expectClient, 14, modeAnimation, expectedMode, savedGateway || requestedGateway, successDetails);
                         return;
                     }
                     modeAnimation.fail();
@@ -1187,7 +1661,7 @@
                         content.innerHTML =
                             '<div class="text-center py-5" role="status">' +
                               '<div class="spinner-border text-primary mb-3" aria-hidden="true"></div>' +
-                              '<div class="openap-ap-ethernet-title">Verifying AP Ethernet</div>' +
+                              '<div class="openap-ap-ethernet-title">Verifying Ethernet Mode</div>' +
                               '<p style="font-size:12px;color:#64748b;margin:8px 20px 0">' +
                                 'The network changed before the browser received the response. ' +
                                 'OpenAP is checking the applied mode…' +
@@ -1198,13 +1672,18 @@
                             14,
                             modeAnimation,
                             expectedMode,
-                            'AP Ethernet mode enabled successfully.'
+                            requestedGateway,
+                            [
+                                'Operating mode: ' + (previousMode === 'repeater_wifi' ? 'Repeater Mode' : 'Ethernet Mode') + ' \u2192 Ethernet Mode',
+                                'Network type: ' + (expectedMode === 'ap_ethernet_bridge' ? 'Bridge' : 'Routed / NAT'),
+                                'Configuration verified after reconnecting'
+                            ]
                         );
                         return;
                     }
                     modeAnimation.fail();
                     content.innerHTML = '<div class="alert alert-danger m-3">Unable to apply configuration: ' + escapeHtml(error.message) + '</div>';
-                    showOperationToast('danger', 'Unable to enable AP Ethernet mode.');
+                    showOperationToast('danger', 'Unable to enable Ethernet Mode.');
                 });
             });
         });
@@ -1312,6 +1791,16 @@
                     expiresAt: Date.now() + 210000
                 };
                 var modeAnimation = showModeSwitchAnimation('repeater_wifi');
+                var currentModeNode = document.querySelector('.openap-mode-selector[data-current-mode]');
+                var previousMode = currentModeNode ? currentModeNode.dataset.currentMode : 'ap_ethernet';
+                var uplinkSsid = form.querySelector('[name="ssid"]');
+                var uplinkSecurity = form.querySelector('.js-uplink-security');
+                content.dataset.openapExpectedUplinkSsid = uplinkSsid && uplinkSsid.value ? uplinkSsid.value : '';
+                modeAnimation.setSuccessDetails([
+                    'Operating mode: ' + (previousMode === 'repeater_wifi' ? 'Repeater Mode' : (previousMode === 'ap_ethernet_bridge' ? 'Ethernet Bridge' : 'Ethernet Mode')) + ' \u2192 Repeater Mode',
+                    'Wi-Fi uplink: ' + (uplinkSsid && uplinkSsid.value ? uplinkSsid.value : 'Selected network'),
+                    'Uplink security: ' + (uplinkSecurity && uplinkSecurity.value === 'open' ? 'Open' : 'Protected')
+                ]);
                 var submit = form.querySelector('.js-openap-switch-submit');
                 if (submit) {
                     var spinner = submit.querySelector('.js-openap-switch-spinner');
@@ -1329,6 +1818,7 @@
                     body: new FormData(form)
                 }).then(function (response) {
                     if (!response.ok) throw new Error('HTTP ' + response.status);
+                    modeAnimation.apply();
                     return response.text();
                 }).then(function (html) {
                     replaceUplinkModalContent(content, html, function () { bindDynamicContent(content); });
@@ -1336,8 +1826,10 @@
                     var failure = content.querySelector('.alert-danger');
                     var modal = document.getElementById('uplinkModal');
                     if (success && modal) {
+                        modeAnimation.verify();
                         modeAnimation.complete();
-                        modal.dataset.refreshOnClose = '1';
+                        delete modal.dataset.refreshOnClose;
+                        refreshNetworkUplinkWidget('repeater_wifi', 20);
                     } else if (failure) {
                         delete window.openapUplinkSwitchGuard;
                         modeAnimation.fail();
@@ -1502,8 +1994,11 @@
             };
 
             function update() {
-                var url = '/ajax/networking/get_interface_traffic.php?interface='
-                    + encodeURIComponent(card.dataset.interface) + '&t=' + Date.now();
+                var multiple = card.dataset.interfaces || '';
+                var query = multiple
+                    ? 'interfaces=' + encodeURIComponent(multiple)
+                    : 'interface=' + encodeURIComponent(card.dataset.interface);
+                var url = '/ajax/networking/get_interface_traffic.php?' + query + '&t=' + Date.now();
                 fetch(url, { credentials: 'same-origin', cache: 'no-store' })
                     .then(function (response) {
                         if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -1539,6 +2034,11 @@
                         if (uploadBar) uploadBar.style.width = uploadPercent + '%';
                         if (downloadPercentNode) downloadPercentNode.textContent = downloadPercent + '%';
                         if (uploadPercentNode) uploadPercentNode.textContent = uploadPercent + '%';
+                        var role = card.dataset.trafficRole || '';
+                        var rxTotal = document.querySelector('[data-openap-traffic-total="' + role + '-rx"]');
+                        var txTotal = document.querySelector('[data-openap-traffic-total="' + role + '-tx"]');
+                        if (rxTotal) rxTotal.textContent = formatTrafficValue(rx, false);
+                        if (txTotal) txTotal.textContent = formatTrafficValue(tx, false);
                     })
                     .catch(function () {
                         card.classList.add('openap-traffic-paused');
@@ -1548,6 +2048,83 @@
             window.setTimeout(update, 1000);
             window.setInterval(update, 3000);
         });
+    }
+
+    function initDashboardClientMonitor() {
+        var counters = Array.from(document.querySelectorAll('[data-openap-client-count]'));
+        var bandCounters = Array.from(document.querySelectorAll('[data-openap-client-band]'));
+        if (!counters.length && !bandCounters.length) return;
+
+        function update() {
+            fetch('/ajax/networking/get_dashboard_clients.php?t=' + Date.now(), {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            }).then(function (data) {
+                var total = Math.max(0, Number(data.total) || 0);
+                counters.forEach(function (counter) { counter.textContent = total; });
+                bandCounters.forEach(function (counter) {
+                    var band = counter.dataset.openapClientBand;
+                    counter.textContent = Math.max(0, Number(data.bands && data.bands[band]) || 0);
+                });
+            }).catch(function () {});
+        }
+
+        window.setTimeout(update, 1200);
+        window.setInterval(update, 4000);
+    }
+
+    function rollTopologyLed(node, active) {
+        if (!node || node.classList.contains('active') === active ||
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        node.classList.remove('openap-led-to-active', 'openap-led-to-inactive');
+        void node.offsetWidth;
+        node.classList.add(active ? 'openap-led-to-active' : 'openap-led-to-inactive');
+        window.setTimeout(function () {
+            node.classList.remove('openap-led-to-active', 'openap-led-to-inactive');
+        }, 560);
+    }
+
+    function animateTopologyValueChanges(changes, applyState, onComplete) {
+        var changed = changes.filter(function (change) {
+            return change.node && change.node.textContent.trim() !== change.text;
+        });
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!changed.length || reducedMotion || typeof changed[0].node.animate !== 'function') {
+            applyState();
+            if (typeof onComplete === 'function') onComplete();
+            return;
+        }
+        changed.forEach(function (change) {
+            change.node.getAnimations().forEach(function (animation) { animation.cancel(); });
+            change.node.animate([
+                { transform: 'translateY(0)', opacity: 1 },
+                { transform: 'translateY(115%)', opacity: 0 }
+            ], {
+                duration: 320,
+                easing: 'cubic-bezier(.55,0,1,.45)',
+                fill: 'forwards'
+            });
+        });
+        window.setTimeout(function () {
+            applyState();
+            changed.forEach(function (change) {
+                change.node.getAnimations().forEach(function (animation) { animation.cancel(); });
+                change.node.animate([
+                    { transform: 'translateY(-115%)', opacity: 0 },
+                    { transform: 'translateY(8%)', opacity: 1, offset: .82 },
+                    { transform: 'translateY(0)', opacity: 1 }
+                ], {
+                    duration: 440,
+                    easing: 'cubic-bezier(.22,1,.36,1)'
+                });
+            });
+            window.setTimeout(function () {
+                if (typeof onComplete === 'function') onComplete();
+            }, 460);
+        }, 330);
     }
 
     function initUplinkRecoveryMonitor() {
@@ -1637,107 +2214,22 @@
                 return;
             }
             var nodes = [topologyInternet, topologyUplink].filter(Boolean);
-            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (reduceMotion || !nodes.length || typeof nodes[0].animate !== 'function') {
-                updateTopology(degraded, data, true);
-                return;
-            }
-
+            var internetSub = topologyInternet ? topologyInternet.querySelector('[data-openap-topology-sub]') : null;
+            var uplinkSub = topologyUplink ? topologyUplink.querySelector('[data-openap-topology-sub]') : null;
+            var nextInternetSub = degraded ? 'Offline' : ((internetSub && internetSub.dataset.readyText) || 'Upstream');
+            var nextUplinkSub = degraded
+                ? ((data && data.reason) || 'Uplink unavailable')
+                : ((uplinkSub && uplinkSub.dataset.readyText) || 'Uplink ready');
             topologyRecoveryAnimating = true;
-            var visuals = nodes.map(function (node) {
-                var icon = node.querySelector('.topo-icon');
-                var viewport = icon ? icon.querySelector('.openap-topology-recovery-icon-viewport') : null;
-                var glyph = viewport ? viewport.querySelector('i') : null;
-                var indicator = icon ? icon.querySelector('.topo-status-indicator') : null;
-                var lines = [node.querySelector('.topo-label'), node.querySelector('.topo-sub')].filter(Boolean);
-                return {
-                    node: node,
-                    icon: icon,
-                    viewport: viewport,
-                    glyph: glyph,
-                    indicator: indicator,
-                    lines: lines,
-                    color: icon ? window.getComputedStyle(icon).color : '',
-                    background: icon ? window.getComputedStyle(icon).backgroundColor : '',
-                    border: icon ? window.getComputedStyle(icon).borderColor : ''
-                };
-            });
-
-            visuals.forEach(function (visual) {
-                if (visual.indicator) {
-                    visual.indicator.getAnimations().forEach(function (animation) { animation.cancel(); });
-                    visual.indicator.animate([
-                        { transform: 'scale(1)', opacity: 1 },
-                        { transform: 'scale(0)', opacity: 0 }
-                    ], { duration: 240, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
-                }
-                visual.lines.forEach(function (line, index) {
-                    window.setTimeout(function () {
-                        line.animate([
-                            { transform: 'translateY(0)', opacity: 1 },
-                            { transform: 'translateY(115%)', opacity: 0 }
-                        ], { duration: 320, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
-                    }, index * 40);
-                });
-            });
-
-            window.setTimeout(function () {
+            nodes.forEach(function (node) { rollTopologyLed(node, !degraded); });
+            animateTopologyValueChanges([
+                { node: internetSub, text: nextInternetSub },
+                { node: uplinkSub, text: nextUplinkSub }
+            ], function () {
                 updateTopology(degraded, data, true);
-                visuals.forEach(function (visual) {
-                    if (!visual.icon || !visual.viewport || !visual.glyph) return;
-                    var desiredStyle = window.getComputedStyle(visual.icon);
-                    var nextGlyph = visual.glyph.cloneNode(true);
-                    nextGlyph.classList.add('openap-topology-recovery-glyph-next');
-                    nextGlyph.style.color = desiredStyle.color;
-                    visual.glyph.style.color = visual.color;
-                    visual.viewport.appendChild(nextGlyph);
-
-                    visual.icon.animate([
-                        { backgroundColor: visual.background, borderColor: visual.border },
-                        { backgroundColor: desiredStyle.backgroundColor, borderColor: desiredStyle.borderColor }
-                    ], { duration: 680, easing: 'cubic-bezier(.65,0,.35,1)' });
-
-                    var outgoing = visual.glyph.animate([
-                        { transform: 'translateX(0)', opacity: 1 },
-                        { transform: 'translateX(145%)', opacity: 0 }
-                    ], { duration: 680, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' });
-                    nextGlyph.animate([
-                        { transform: 'translateX(-145%)', opacity: 0 },
-                        { transform: 'translateX(0)', opacity: 1 }
-                    ], { duration: 680, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' });
-
-                    outgoing.finished.then(function () {
-                        visual.glyph.remove();
-                        nextGlyph.classList.remove('openap-topology-recovery-glyph-next');
-                        nextGlyph.style.color = '';
-                        nextGlyph.getAnimations().forEach(function (animation) { animation.cancel(); });
-                    }).catch(function () {});
-
-                    if (visual.indicator) {
-                        visual.indicator.getAnimations().forEach(function (animation) { animation.cancel(); });
-                        visual.indicator.animate([
-                            { transform: 'scale(0)', opacity: 0 },
-                            { transform: 'scale(1.18)', opacity: 1, offset: .72 },
-                            { transform: 'scale(1)', opacity: 1 }
-                        ], { duration: 360, easing: 'cubic-bezier(.22,1,.36,1)' });
-                    }
-                });
-
-                window.setTimeout(function () {
-                    visuals.forEach(function (visual) {
-                        visual.lines.forEach(function (line) {
-                            line.getAnimations().forEach(function (animation) { animation.cancel(); });
-                            line.animate([
-                                { transform: 'translateY(115%)', opacity: 0 },
-                                { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
-                                { transform: 'translateY(0)', opacity: 1 }
-                            ], { duration: 440, easing: 'cubic-bezier(.22,1,.36,1)' });
-                        });
-                    });
-                }, 100);
-
-                window.setTimeout(function () { topologyRecoveryAnimating = false; }, 760);
-            }, 250);
+            }, function () {
+                topologyRecoveryAnimating = false;
+            });
         }
 
         function updateTopology(degraded, data, skipAnimation) {
@@ -1978,8 +2470,8 @@
                         fallbackHandoff = false;
                         dismissed = false;
                         if (reason) reason.textContent = data.mode === 'ap_ethernet_bridge'
-                            ? 'AP Ethernet Bridge is now active'
-                            : 'AP Ethernet is now active';
+                            ? 'Ethernet Bridge is now active'
+                            : 'Ethernet Mode is now active';
                         if (attempt) {
                             attempt.textContent = 'The operating mode was changed from another OpenAP session.';
                         }
@@ -2041,6 +2533,494 @@
         window.setInterval(poll, 4000);
     }
 
+    function initRepeaterAvailabilityMonitor() {
+        var card = document.getElementById('openapRepeaterModeCard');
+        var selector = document.querySelector('.openap-mode-selector');
+        if (!card || !selector) return;
+        var icon = card.querySelector('.openap-repeater-mode-icon i');
+        var title = card.querySelector('.openap-repeater-mode-title');
+        var state = card.querySelector('.openap-repeater-mode-state');
+        var polling = false;
+        var repeaterAvailabilityState = null;
+        var hotspotNode = document.querySelector('[data-openap-topology-node="hotspot"]');
+        var clientsNode = document.querySelector('[data-openap-topology-node="clients"]');
+        var apLines = Array.from(document.querySelectorAll(
+            '[data-openap-topology-line="uplink-openap"], [data-openap-topology-line="openap-clients"]'
+        ));
+        var topologyHealth = document.querySelector('[data-openap-topology-health]');
+        var topologyLive = document.querySelector('[data-openap-topology-live]');
+        var apReadyState = hotspotNode ? hotspotNode.classList.contains('active') : null;
+        var apTopologyAnimating = false;
+        var apTopologySnapshot = {
+            healthClass: topologyHealth ? topologyHealth.className : '',
+            healthHtml: topologyHealth ? topologyHealth.innerHTML : '',
+            liveClass: topologyLive ? topologyLive.className : '',
+            liveHtml: topologyLive ? topologyLive.innerHTML : ''
+        };
+
+        [hotspotNode, clientsNode].forEach(function (node) {
+            if (!node) return;
+            var label = node.querySelector('[data-openap-topology-label], .topo-label');
+            var sub = node.querySelector('[data-openap-topology-sub], .topo-sub');
+            if (label) label.dataset.apReadyText = label.textContent;
+            if (sub) sub.dataset.apReadyText = sub.textContent;
+        });
+
+        function applyApTopologyState(ready) {
+            [hotspotNode, clientsNode].forEach(function (node) {
+                if (!node) return;
+                node.classList.toggle('active', ready);
+                node.classList.toggle('openap-uplink-interrupted', !ready);
+                var indicator = node.querySelector('.topo-status-indicator');
+                if (indicator) indicator.setAttribute('aria-label', ready ? 'Active' : 'Interrupted');
+            });
+            apLines.forEach(function (line) {
+                line.classList.toggle('active', ready);
+                line.classList.toggle('openap-uplink-interrupted', !ready);
+            });
+            if (hotspotNode) {
+                var hotspotSub = hotspotNode.querySelector('[data-openap-topology-sub]');
+                if (hotspotSub) hotspotSub.textContent = ready ? hotspotSub.dataset.apReadyText : 'Hotspot stopped';
+            }
+            if (clientsNode) {
+                var clientsSub = clientsNode.querySelector('[data-openap-topology-sub]');
+                if (clientsSub) clientsSub.textContent = ready ? clientsSub.dataset.apReadyText : 'Hotspot offline';
+            }
+            if (!ready) {
+                if (topologyHealth) {
+                    topologyHealth.className = 'openap-topology-health degraded';
+                    topologyHealth.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Status: Degraded';
+                }
+                if (topologyLive) {
+                    topologyLive.className = 'badge rounded-pill badge-openap openap-topology-live-badge degraded';
+                    topologyLive.innerHTML = '<i class="fas fa-circle"></i> <span>Hotspot offline</span>';
+                }
+            } else {
+                var uplinkNode = document.querySelector('[data-openap-topology-node="uplink"]');
+                if (!uplinkNode || uplinkNode.classList.contains('active')) {
+                    if (topologyHealth) {
+                        topologyHealth.className = apTopologySnapshot.healthClass;
+                        topologyHealth.innerHTML = apTopologySnapshot.healthHtml;
+                    }
+                    if (topologyLive) {
+                        topologyLive.className = apTopologySnapshot.liveClass;
+                        topologyLive.innerHTML = apTopologySnapshot.liveHtml;
+                    }
+                }
+            }
+        }
+
+        function updateApTopology(ready, animate) {
+            if (!hotspotNode || apTopologyAnimating || ready === apReadyState) return;
+            apReadyState = ready;
+            var nodes = [hotspotNode, clientsNode].filter(Boolean);
+            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!animate || reduceMotion || typeof hotspotNode.animate !== 'function') {
+                applyApTopologyState(ready);
+                return;
+            }
+            apTopologyAnimating = true;
+            var hotspotSub = hotspotNode.querySelector('[data-openap-topology-sub]');
+            var clientsSub = clientsNode ? clientsNode.querySelector('[data-openap-topology-sub]') : null;
+            var changes = [
+                {
+                    node: hotspotSub,
+                    text: ready ? ((hotspotSub && hotspotSub.dataset.apReadyText) || '-') : 'Hotspot stopped'
+                },
+                {
+                    node: clientsSub,
+                    text: ready ? ((clientsSub && clientsSub.dataset.apReadyText) || '-') : 'Hotspot offline'
+                }
+            ];
+            nodes.forEach(function (node) { rollTopologyLed(node, ready); });
+            animateTopologyValueChanges(changes, function () {
+                applyApTopologyState(ready);
+            }, function () {
+                apTopologyAnimating = false;
+            });
+        }
+
+        function replaceAvailabilityContent(selectable, active, bridgeBlocked, reason, animate) {
+            var nextIcon = 'fas ' + (selectable ? 'fa-wifi' : (bridgeBlocked ? 'fa-lock' : 'fa-ban'));
+            var nextState = active ? '● Active' : (bridgeBlocked ? 'Routed first' : (selectable ? 'Switch →' : reason));
+            var elements = [icon, title, state].filter(Boolean);
+            if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                if (icon) icon.className = nextIcon;
+                if (state) state.textContent = nextState;
+                return;
+            }
+            elements.forEach(function (element, index) {
+                window.setTimeout(function () {
+                    element.animate([
+                        { transform: 'translateY(0)', opacity: 1 },
+                        { transform: 'translateY(115%)', opacity: 0 }
+                    ], { duration: 280, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
+                }, index * 45);
+            });
+            window.setTimeout(function () {
+                if (icon) icon.className = nextIcon;
+                if (state) state.textContent = nextState;
+                elements.slice().reverse().forEach(function (element, index) {
+                    window.setTimeout(function () {
+                        element.getAnimations().forEach(function (animation) { animation.cancel(); });
+                        element.animate([
+                            { transform: 'translateY(115%)', opacity: 0 },
+                            { transform: 'translateY(-8%)', opacity: 1, offset: .82 },
+                            { transform: 'translateY(0)', opacity: 1 }
+                        ], { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+                    }, index * 55);
+                });
+            }, 430);
+        }
+
+        function update() {
+            if (polling || document.hidden || document.getElementById('openapModeSwitchOverlay')) return;
+            polling = true;
+            fetch('/ajax/networking/get_interface_roles.php?t=' + Date.now(), {
+                credentials: 'same-origin', cache: 'no-store'
+            }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            }).then(function (result) {
+                var bridgeBlocked = card.dataset.bridgeBlocked === '1';
+                var available = Boolean(result.repeater_available);
+                var unavailableReason = result.repeater_unavailable_reason || 'Repeater mode is unavailable.';
+                var apReady = Boolean(result.ap_present && result.ap_service_active);
+                var selectable = available && !bridgeBlocked;
+                var active = available && selector.dataset.currentMode === 'repeater_wifi';
+
+                updateApTopology(apReady, apReadyState !== null);
+
+                var nextAvailabilityState = bridgeBlocked
+                    ? 'bridge_blocked'
+                    : (available ? 'available' : (result.repeater_unavailable_code || unavailableReason));
+                var availabilityChanged = repeaterAvailabilityState !== null
+                    && repeaterAvailabilityState !== nextAvailabilityState;
+                if (card.dataset.suppressAvailabilityAnimationOnce === '1') {
+                    availabilityChanged = false;
+                    delete card.dataset.suppressAvailabilityAnimationOnce;
+                }
+                repeaterAvailabilityState = nextAvailabilityState;
+
+                card.classList.toggle('is-unavailable', !selectable);
+                card.classList.toggle('active', active);
+                if (selectable) {
+                    card.dataset.openapModal = 'uplink';
+                    card.removeAttribute('aria-disabled');
+                    card.removeAttribute('tabindex');
+                    card.title = 'Configure repeater mode';
+                } else {
+                    card.removeAttribute('data-openap-modal');
+                    card.setAttribute('aria-disabled', 'true');
+                    card.tabIndex = -1;
+                    card.title = bridgeBlocked
+                        ? 'Switch Ethernet Mode to Routed / NAT first'
+                        : unavailableReason;
+                }
+                if (active) card.setAttribute('aria-current', 'true');
+                else card.removeAttribute('aria-current');
+                replaceAvailabilityContent(selectable, active, bridgeBlocked, unavailableReason, availabilityChanged);
+            }).catch(function () {
+                // Preserve the last confirmed state after a transient request failure.
+            }).finally(function () {
+                polling = false;
+            });
+        }
+
+        update();
+        window.setInterval(update, 4000);
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) update();
+        });
+    }
+
+    function initDashboardWidgetArea() {
+        var area = document.getElementById('openapDashboardWidgetArea');
+        if (!area) return;
+
+        var grid = area.querySelector('[data-openap-widget-grid]');
+        var editButton = area.querySelector('[data-openap-widget-edit]');
+        var resetButton = area.querySelector('[data-openap-widget-reset]');
+        var status = area.querySelector('[data-openap-widget-status]');
+        var desktop = window.matchMedia('(min-width: 992px)');
+        var items = Array.from(grid.querySelectorAll('[data-openap-widget-id]'));
+        var defaultOrder = items.map(function (item) { return item.dataset.openapWidgetId; });
+        var configuredOrder = window.openapDashboardConfig && Array.isArray(window.openapDashboardConfig.widgetOrder)
+            ? window.openapDashboardConfig.widgetOrder : defaultOrder;
+        var accountOrder = configuredOrder.filter(function (id) { return defaultOrder.indexOf(id) !== -1; });
+        var dragging = null;
+        var dragArmed = false;
+        var wideSwapTarget = '';
+        var smallSwapTarget = '';
+        var saveTimer = 0;
+
+        function moveWithAnimation(callback) {
+            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var positions = new Map();
+            if (!reduceMotion) {
+                items.forEach(function (widget) {
+                    if (widget !== dragging) positions.set(widget, widget.getBoundingClientRect());
+                });
+            }
+            callback();
+            if (reduceMotion) return;
+            items.forEach(function (widget) {
+                var previous = positions.get(widget);
+                if (!previous) return;
+                var current = widget.getBoundingClientRect();
+                var offsetX = previous.left - current.left;
+                var offsetY = previous.top - current.top;
+                if (!offsetX && !offsetY) return;
+                widget.getAnimations().forEach(function (animation) {
+                    if (animation.id === 'openap-widget-reflow') animation.cancel();
+                });
+                var animation = widget.animate([
+                    { transform: 'translate(' + offsetX + 'px, ' + offsetY + 'px)' },
+                    { transform: 'translate(0, 0)' }
+                ], { duration: 180, easing: 'cubic-bezier(.2, .8, .3, 1)' });
+                animation.id = 'openap-widget-reflow';
+            });
+        }
+
+        function setDragGhost(event, item) {
+            if (!event.dataTransfer || typeof event.dataTransfer.setDragImage !== 'function') return;
+            var rect = item.getBoundingClientRect();
+            var ghost = item.cloneNode(true);
+            ghost.classList.remove('is-dragging', 'is-drag-target');
+            ghost.classList.add('openap-widget-drag-ghost');
+            ghost.removeAttribute('id');
+            ghost.style.width = rect.width + 'px';
+            ghost.style.height = rect.height + 'px';
+            ghost.style.top = rect.top + 'px';
+            ghost.style.left = rect.left + 'px';
+            ghost.style.opacity = '.34';
+            ghost.style.filter = 'grayscale(.18) saturate(.58)';
+            document.body.appendChild(ghost);
+            event.dataTransfer.setDragImage(
+                ghost,
+                Math.max(0, Math.min(rect.width, event.clientX - rect.left)),
+                Math.max(0, Math.min(rect.height, event.clientY - rect.top))
+            );
+            window.requestAnimationFrame(function () { ghost.remove(); });
+        }
+
+        function announce(message) {
+            if (!status) return;
+            status.textContent = '';
+            window.requestAnimationFrame(function () { status.textContent = message; });
+        }
+
+        function currentOrder() {
+            return Array.from(grid.querySelectorAll('[data-openap-widget-id]')).map(function (item) {
+                return item.dataset.openapWidgetId;
+            });
+        }
+
+        function applyOrder(order) {
+            var complete = order.concat(defaultOrder.filter(function (id) { return order.indexOf(id) === -1; }));
+            complete.forEach(function (id) {
+                var item = grid.querySelector('[data-openap-widget-id="' + id + '"]');
+                if (item) {
+                    item.style.order = '';
+                    grid.appendChild(item);
+                }
+            });
+        }
+
+        function saveOrder() {
+            accountOrder = currentOrder();
+            window.clearTimeout(saveTimer);
+            announce('Saving widget order for this account...');
+            saveTimer = window.setTimeout(function () {
+                var csrf = document.querySelector('meta[name="csrf_token"]');
+                var data = new URLSearchParams();
+                data.set('order', JSON.stringify(accountOrder));
+                if (csrf) data.set('csrf_token', csrf.content);
+                fetch('/ajax/dashboard/widget_layout.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: data.toString()
+                }).then(function (response) {
+                    return response.json().then(function (payload) {
+                        if (!response.ok || !payload.success) throw new Error(payload.message || ('HTTP ' + response.status));
+                        return payload;
+                    });
+                }).then(function (payload) {
+                    accountOrder = payload.order;
+                    announce('Widget order saved for this account.');
+                }).catch(function (error) {
+                    announce('Unable to save widget order: ' + error.message);
+                });
+            }, 180);
+        }
+
+        function setEditing(enabled) {
+            enabled = Boolean(enabled && desktop.matches);
+            area.classList.toggle('is-editing', enabled);
+            editButton.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+            editButton.querySelector('span').textContent = enabled ? 'Done' : 'Customize';
+            editButton.querySelector('i').className = enabled ? 'fas fa-check' : 'fas fa-sliders';
+            resetButton.hidden = !enabled;
+            items.forEach(function (item) { item.draggable = enabled; });
+            if (enabled) announce('Edit mode enabled. Drag a handle or use its arrow keys to arrange widgets.');
+            else if (status) status.textContent = '';
+        }
+
+        function isHalfWidth(item) {
+            return item && item.classList.contains('col-6');
+        }
+
+        function sameVisualRow(first, second) {
+            if (!isHalfWidth(first) || !isHalfWidth(second)) return false;
+            return Math.abs(first.getBoundingClientRect().top - second.getBoundingClientRect().top) < 4;
+        }
+
+        function halfWidthRow(target) {
+            var ordered = Array.from(grid.querySelectorAll('[data-openap-widget-id]')).filter(function (widget) {
+                return widget !== dragging;
+            });
+            var index = ordered.indexOf(target);
+            var previous = index > 0 ? ordered[index - 1] : null;
+            var next = index >= 0 && index < ordered.length - 1 ? ordered[index + 1] : null;
+            if (sameVisualRow(previous, target)) return [previous, target];
+            if (sameVisualRow(target, next)) return [target, next];
+            return [target];
+        }
+
+        items.forEach(function (item) {
+            var title = item.querySelector('.openap-widget-title');
+            var label = title ? title.textContent.trim() : item.dataset.openapWidgetId;
+            var handle = document.createElement('button');
+            handle.type = 'button';
+            handle.className = 'openap-widget-drag-handle';
+            handle.setAttribute('aria-label', 'Move ' + label + ' widget');
+            handle.title = 'Drag to reorder; use arrow keys for keyboard control';
+            handle.innerHTML = '<i class="fas fa-grip-vertical" aria-hidden="true"></i>';
+            item.appendChild(handle);
+
+            handle.addEventListener('pointerdown', function () { dragArmed = true; });
+            handle.addEventListener('pointerup', function () { dragArmed = false; });
+            handle.addEventListener('keydown', function (event) {
+                if (!area.classList.contains('is-editing') || !desktop.matches) return;
+                var sibling = null;
+                if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') sibling = item.previousElementSibling;
+                if (event.key === 'ArrowDown' || event.key === 'ArrowRight') sibling = item.nextElementSibling;
+                if (!sibling) return;
+                event.preventDefault();
+                if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') grid.insertBefore(item, sibling);
+                else grid.insertBefore(sibling, item);
+                saveOrder();
+                handle.focus();
+            });
+
+            item.addEventListener('dragstart', function (event) {
+                if (!dragArmed || !area.classList.contains('is-editing') || !desktop.matches) {
+                    event.preventDefault();
+                    return;
+                }
+                dragging = item;
+                wideSwapTarget = '';
+                smallSwapTarget = '';
+                item.classList.add('is-dragging');
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', item.dataset.openapWidgetId);
+                setDragGhost(event, item);
+            });
+            item.addEventListener('dragend', function () {
+                dragArmed = false;
+                if (dragging) saveOrder();
+                dragging = null;
+                wideSwapTarget = '';
+                smallSwapTarget = '';
+                items.forEach(function (widget) { widget.classList.remove('is-dragging', 'is-drag-target'); });
+            });
+            item.addEventListener('dragover', function (event) {
+                if (!dragging || dragging === item) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+                items.forEach(function (widget) { widget.classList.remove('is-drag-target'); });
+
+                if (isHalfWidth(dragging) && isHalfWidth(item) && sameVisualRow(dragging, item)) {
+                    item.classList.add('is-drag-target');
+                    var smallTargetKey = item.dataset.openapWidgetId;
+                    if (smallSwapTarget === smallTargetKey) return;
+                    var rowWidgets = Array.from(grid.querySelectorAll('[data-openap-widget-id]'));
+                    var smallDraggingIndex = rowWidgets.indexOf(dragging);
+                    var smallTargetIndex = rowWidgets.indexOf(item);
+                    smallSwapTarget = smallTargetKey;
+                    moveWithAnimation(function () {
+                        if (smallDraggingIndex < smallTargetIndex) grid.insertBefore(dragging, item.nextElementSibling);
+                        else grid.insertBefore(dragging, item);
+                    });
+                    return;
+                }
+
+                if (isHalfWidth(dragging) && isHalfWidth(item)) {
+                    wideSwapTarget = '';
+                    var verticalTargetKey = 'vertical:' + item.dataset.openapWidgetId;
+                    if (smallSwapTarget === verticalTargetKey) return;
+                    var verticalWidgets = Array.from(grid.querySelectorAll('[data-openap-widget-id]'));
+                    var verticalDraggingIndex = verticalWidgets.indexOf(dragging);
+                    var verticalTargetIndex = verticalWidgets.indexOf(item);
+                    smallSwapTarget = verticalTargetKey;
+                    verticalWidgets[verticalDraggingIndex] = item;
+                    verticalWidgets[verticalTargetIndex] = dragging;
+                    moveWithAnimation(function () {
+                        verticalWidgets.forEach(function (widget) { grid.appendChild(widget); });
+                    });
+                    return;
+                }
+
+                if (dragging.classList.contains('col-12') && isHalfWidth(item)) {
+                    smallSwapTarget = '';
+                    var targetRow = halfWidthRow(item);
+                    targetRow.forEach(function (widget) { widget.classList.add('is-drag-target'); });
+                    var targetKey = targetRow.map(function (widget) { return widget.dataset.openapWidgetId; }).join('|');
+                    if (wideSwapTarget === targetKey) return;
+                    var orderedWidgets = Array.from(grid.querySelectorAll('[data-openap-widget-id]'));
+                    var draggingIndex = orderedWidgets.indexOf(dragging);
+                    var targetIndex = orderedWidgets.indexOf(targetRow[0]);
+                    wideSwapTarget = targetKey;
+                    moveWithAnimation(function () {
+                        if (draggingIndex < targetIndex) {
+                            grid.insertBefore(dragging, targetRow[targetRow.length - 1].nextElementSibling);
+                        } else {
+                            grid.insertBefore(dragging, targetRow[0]);
+                        }
+                    });
+                    return;
+                }
+
+                wideSwapTarget = '';
+                smallSwapTarget = '';
+                item.classList.add('is-drag-target');
+                var rect = item.getBoundingClientRect();
+                var before = event.clientY < rect.top + (rect.height / 2);
+                moveWithAnimation(function () {
+                    grid.insertBefore(dragging, before ? item : item.nextElementSibling);
+                });
+            });
+        });
+
+        editButton.addEventListener('click', function () {
+            setEditing(!area.classList.contains('is-editing'));
+        });
+        resetButton.addEventListener('click', function () {
+            applyOrder(defaultOrder);
+            saveOrder();
+        });
+        var handleViewportChange = function () {
+            setEditing(false);
+            applyOrder(desktop.matches ? accountOrder : defaultOrder);
+        };
+        if (typeof desktop.addEventListener === 'function') desktop.addEventListener('change', handleViewportChange);
+        else desktop.addListener(handleViewportChange);
+
+        applyOrder(desktop.matches ? accountOrder : defaultOrder);
+    }
+
     document.addEventListener('click', function (event) {
         var trigger = event.target.closest('[data-openap-modal]');
         if (!trigger) {
@@ -2060,5 +3040,9 @@
     initHotspotModalRefresh();
     initUplinkModalRefresh();
     initLiveTraffic();
+    // Connected-client totals, AP bands and SSID are refreshed by the shared
+    // widget monitor in app/js/ui/widget_layout.js on every widget page.
+    initRepeaterAvailabilityMonitor();
     initUplinkRecoveryMonitor();
+    // initDashboardWidgetArea() replaced by app/js/ui/widget_layout.js
 }());

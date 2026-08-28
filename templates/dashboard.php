@@ -59,7 +59,7 @@ $topologyModeIcon = in_array($currentMode, ['ap_ethernet', 'ap_ethernet_bridge']
     : ($currentMode === 'repeater_wifi' ? 'fa-wifi' : 'fa-question-circle');
 $topologyModeLabel = $currentMode === 'ap_ethernet_bridge'
     ? _('Ethernet Bridge')
-    : ($currentMode === 'ap_ethernet' ? _('AP Ethernet') : ($currentMode === 'repeater_wifi' ? _('Repeater') : ucfirst((string) $currentMode)));
+    : ($currentMode === 'ap_ethernet' ? _('Ethernet Mode') : ($currentMode === 'repeater_wifi' ? _('Repeater') : ucfirst((string) $currentMode)));
 $topologyLiveState = !$hostapdEnabled ? 'offline' : ($topologyHealthy ? 'live' : 'degraded');
 $topologyLiveLabel = _('Live');
 
@@ -82,9 +82,13 @@ $sysUptimeStr = $sysUptime ?? '-';
 $dhcpActive = $dhcpPool['active'] ?? 0;
 $dhcpTotal = $dhcpPool['total'] ?? 150;
 $dhcpRange = ($dhcpPool['range_start'] ?? '10.88.77.50') . ' - ' . ($dhcpPool['range_end'] ?? '10.88.77.200');
-$topologyHotspotIpv4 = $currentMode === 'ap_ethernet_bridge'
-    ? (function_exists('openapInterfaceIpv4') ? openapInterfaceIpv4($uplinkIface) : $publicIpv4Address)
-    : $ipv4Address;
+$topologyHotspotIpv4 = function_exists('openapInterfaceIpv4')
+    ? openapInterfaceIpv4($currentMode === 'ap_ethernet_bridge' ? $uplinkIface : $hotspotInterface)
+    : ($currentMode === 'ap_ethernet_bridge' ? $publicIpv4Address : $ipv4Address);
+if (in_array($topologyHotspotIpv4, ['', '-', 'None'], true) && $currentMode !== 'ap_ethernet_bridge') {
+    $topologyHotspotIpv4 = (string) ($profile['network']['gateway'] ?? $ipv4Address);
+}
+$topologyHotspotIpv4Label = $currentMode === 'ap_ethernet_bridge' ? _('Management IP') : _('Gateway');
 $topologyClientNetwork = $currentMode === 'ap_ethernet_bridge' ? _('Upstream DHCP') : $dhcpRange;
 $dhcpLeaseTime = $dhcpPool['lease_time'] ?? '12h';
 $dhcpDns = $dhcpPool['dns'] ?? '10.88.77.1';
@@ -129,7 +133,7 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
             <div class="openap-widget-title"><?php echo _("DHCP setting"); ?></div>
             <div class="openap-widget-caption"><?php echo $currentMode === 'ap_ethernet_bridge' ? _("Upstream managed") : _("Hotspot address pool"); ?></div>
           </div>
-          <div class="openap-widget-icon openap-widget-icon-blue"><i class="fas <?php echo $currentMode === 'ap_ethernet_bridge' ? 'fa-router' : 'fa-arrow-right-arrow-left'; ?>"></i></div>
+          <div class="openap-widget-icon openap-widget-icon-blue"><i class="fas <?php echo $currentMode === 'ap_ethernet_bridge' ? 'fa-ban' : 'fa-arrow-right-arrow-left'; ?>"></i></div>
         </div>
         <?php if ($currentMode === 'ap_ethernet_bridge'): ?>
         <div class="openap-dhcp-summary">
@@ -159,7 +163,7 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
       </div>
       <div class="stat-bottom">
         <?php if ($currentMode === 'ap_ethernet_bridge'): ?>
-        <span><i class="fas fa-router"></i> <?php echo _("Managed upstream"); ?></span>
+        <span><i class="fas fa-ban"></i> <?php echo _("Managed upstream"); ?></span>
         <strong><?php echo _("Local DHCP disabled"); ?></strong>
         <?php else: ?>
         <span><i class="fas fa-network-wired"></i> <?php echo _("Pool"); ?></span>
@@ -170,34 +174,31 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
     <?php
     return ob_get_clean();
 };
+$dashboardWidgetOrder = is_array($dashboardWidgetOrder ?? null)
+    ? openapNormalizeDashboardWidgetOrder($dashboardWidgetOrder)
+    : openapDashboardWidgetIds();
+$dashboardWidgetPositions = array_flip($dashboardWidgetOrder);
 ?>
 
 
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 openap-dashboard-page">
 
   <?php $status->showMessages(); ?>
 
   <!-- ===== RIGA 2: TOPOLOGY + QUICK ACTIONS ===== -->
   <div class="row g-3 mb-3">
     <div class="col-xl-9 col-lg-8">
-      <div class="card shadow">
-        <div class="card-header openap-topology-header openap-topology-header-primary">
+      <div class="card shadow openap-dashboard-main-card">
+        <div class="card-header openap-topology-header openap-page-main-header openap-dashboard-main-header">
           <div class="openap-topology-header-title">
             <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-project-diagram"></i></span>
-            <div><strong><?php echo _("Network Topology"); ?></strong><small><?php echo _("Interfaces and connectivity"); ?></small></div>
-          </div>
-          <div class="openap-topology-health <?php echo $topologyHealthy ? 'healthy' : 'degraded'; ?>" data-openap-topology-health>
-            <i class="fas <?php echo $topologyHealthy ? 'fa-check-circle' : 'fa-exclamation-triangle'; ?>"></i>
-            <?php echo _("Status"); ?>: <?php echo $topologyHealthy ? _("Healthy") : _("Degraded"); ?>
-          </div>
-          <div class="openap-topology-header-meta">
-            <span class="badge rounded-pill openap-topology-mode-badge"><i class="fas <?php echo $topologyModeIcon; ?>"></i> <?php echo htmlspecialchars($topologyModeLabel, ENT_QUOTES); ?></span>
-            <span class="badge rounded-pill badge-openap openap-topology-live-badge <?php echo $topologyLiveState; ?>" data-openap-topology-live><i class="fas fa-circle"></i> <span><?php echo $topologyLiveLabel; ?></span></span>
+            <div><strong><?php echo _("Network Topology and Operating Mode"); ?></strong></div>
           </div>
         </div>
         <div class="card-body">
+          <div class="openap-topology-mode-shell">
           <!-- Topology -->
-          <div class="openap-topology d-flex align-items-center justify-content-center py-2" style="gap:0">
+          <div class="openap-topology openap-topology-led-panel d-flex align-items-center justify-content-center py-2" style="gap:0">
             <!-- Internet -->
             <div class="topo-node <?php echo $uplinkConnected ? 'active' : ''; ?>" data-openap-topology-node="internet">
               <div class="topo-icon openap-topology-recovery-icon">
@@ -227,31 +228,32 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
             <div class="topo-line <?php echo $uplinkConnected && $hostapdEnabled ? 'active' : ''; ?>" data-openap-topology-line="uplink-openap"></div>
 
             <!-- Hotspot node -->
-            <div class="topo-node <?php echo $hostapdEnabled ? 'active' : ''; ?>" style="flex-shrink:0">
+            <div class="topo-node <?php echo $hostapdEnabled ? 'active' : ''; ?>" data-openap-topology-node="hotspot" style="flex-shrink:0">
               <div class="openap-topology-node-badges">
                 <span class="badge rounded-pill openap-topology-node-badge openap-topology-node-badge-ap"><?php echo htmlspecialchars($interface); ?> AP</span>
                 <?php if ($uplinkIface): ?>
                 <span class="badge rounded-pill openap-topology-node-badge openap-topology-node-badge-up"><?php echo htmlspecialchars($uplinkIface); ?> UP</span>
                 <?php endif; ?>
               </div>
-              <div class="topo-icon openap-topology-hotspot-icon" aria-hidden="true">
-                <i class="fas fa-broadcast-tower"></i>
+              <div class="topo-icon openap-topology-hotspot-icon openap-topology-recovery-icon" aria-hidden="true">
+                <span class="openap-topology-recovery-icon-viewport"><i class="fas fa-broadcast-tower openap-topology-recovery-glyph"></i></span>
                 <span class="topo-status-indicator"><i class="fas fa-times"></i></span>
               </div>
               <div class="topo-label openap-topology-hotspot-name"><?php echo htmlspecialchars($ssid ?: OPENAP_BRAND_TEXT, ENT_QUOTES); ?></div>
-              <div class="topo-sub"><?php echo htmlspecialchars($topologyHotspotIpv4 ?: '-'); ?></div>
+              <div class="topo-sub" data-openap-topology-sub data-openap-topology-hotspot-address><?php echo htmlspecialchars($topologyHotspotIpv4 ?: '-', ENT_QUOTES); ?></div>
             </div>
 
             <!-- Line to clients -->
-            <div class="topo-line <?php echo $hostapdEnabled ? 'active' : ''; ?>"></div>
+            <div class="topo-line <?php echo $hostapdEnabled ? 'active' : ''; ?>" data-openap-topology-line="openap-clients"></div>
 
             <!-- Clients -->
-            <div class="topo-node <?php echo $hostapdEnabled ? 'active' : ''; ?>">
-              <div class="topo-icon">
-                <i class="fas fa-laptop"></i>
+            <div class="topo-node <?php echo $hostapdEnabled ? 'active' : ''; ?>" data-openap-topology-node="clients">
+              <div class="topo-icon openap-topology-recovery-icon">
+                <span class="openap-topology-recovery-icon-viewport"><i class="fas fa-laptop openap-topology-recovery-glyph"></i></span>
+                <span class="topo-status-indicator"><i class="fas fa-times"></i></span>
               </div>
-              <div class="topo-label" style="color:<?php echo $totalClients > 0 ? '#059669' : '#94a3b8'; ?>"><?php echo (int)$totalClients; ?> <?php echo _("Clients"); ?></div>
-              <div class="topo-sub"><?php echo htmlspecialchars($topologyClientNetwork); ?></div>
+              <div class="topo-label" style="color:<?php echo $totalClients > 0 ? '#059669' : '#94a3b8'; ?>" data-openap-topology-label><span data-openap-client-count><?php echo (int)$totalClients; ?></span> <?php echo _("Clients"); ?></div>
+              <div class="topo-sub" data-openap-topology-sub><?php echo htmlspecialchars($topologyClientNetwork); ?></div>
             </div>
           </div>
 
@@ -262,31 +264,31 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
                 <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-exchange-alt"></i></span>
                 <div>
                   <strong><?php echo _("Operating Mode"); ?></strong>
-                  <small><?php echo _("Choose the active uplink path"); ?></small>
                 </div>
               </div>
               <?php $apEthernetActive = in_array($currentMode, ['ap_ethernet', 'ap_ethernet_bridge'], true); ?>
               <?php $apEthernetState = $currentMode === 'ap_ethernet_bridge' ? _('● Bridge') : ($currentMode === 'ap_ethernet' ? _('● Routed / NAT') : 'Switch →'); ?>
-              <div class="openap-mode-selector <?php echo $currentMode === 'repeater_wifi' ? 'is-repeater' : 'is-ap-ethernet'; ?>" data-current-mode="<?php echo htmlspecialchars($currentMode, ENT_QUOTES); ?>" role="group" aria-label="<?php echo _("Operating Mode"); ?>">
+              <div class="openap-mode-selector <?php echo $currentMode === 'repeater_wifi' ? 'is-repeater' : 'is-ap-ethernet'; ?>" data-current-mode="<?php echo htmlspecialchars($currentMode, ENT_QUOTES); ?>" data-openap-ap-channel="<?php echo htmlspecialchars((string) ($apChannel ?: '-'), ENT_QUOTES); ?>" role="group" aria-label="<?php echo _("Operating Mode"); ?>">
                 <span class="openap-mode-selector-indicator" aria-hidden="true"></span>
                 <a href="#" data-openap-modal="ap-ethernet" class="openap-mode-option<?php echo $apEthernetActive ? ' active' : ''; ?>"<?php echo $apEthernetActive ? ' aria-current="true"' : ''; ?>>
                   <div class="openap-mode-option-icon">
                     <i class="fas fa-network-wired"></i>
                   </div>
-                  <div class="openap-mode-option-title"><?php echo _("AP Ethernet"); ?></div>
+                  <div class="openap-mode-option-title"><?php echo _("Ethernet Mode"); ?></div>
                   <div class="openap-mode-option-state"><?php echo htmlspecialchars($apEthernetState, ENT_QUOTES); ?></div>
                 </a>
                 <?php $repeaterModeAvailable = $repeaterModeAvailable ?? false; ?>
                 <?php $repeaterBlockedByBridge = $currentMode === 'ap_ethernet_bridge'; ?>
                 <?php $repeaterModeSelectable = $repeaterModeAvailable && !$repeaterBlockedByBridge; ?>
                 <?php $repeaterModeActive = $repeaterModeAvailable && $currentMode === 'repeater_wifi'; ?>
-                <a href="#" <?php echo $repeaterModeSelectable ? 'data-openap-modal="uplink"' : 'aria-disabled="true" tabindex="-1"'; ?> title="<?php echo htmlspecialchars($repeaterModeSelectable ? _("Configure repeater mode") : ($repeaterBlockedByBridge ? _("Switch AP Ethernet to Routed / NAT first") : ($repeaterModeUnavailableReason ?? _("Repeater mode requires at least 2 WiFi interfaces."))), ENT_QUOTES); ?>" class="openap-mode-option openap-repeater-mode-card<?php echo $repeaterModeActive ? ' active' : ''; ?><?php echo $repeaterModeSelectable ? '' : ' is-unavailable'; ?>"<?php echo $repeaterModeActive ? ' aria-current="true"' : ''; ?>>
+                <a href="#" id="openapRepeaterModeCard" data-bridge-blocked="<?php echo $repeaterBlockedByBridge ? '1' : '0'; ?>" <?php echo $repeaterModeSelectable ? 'data-openap-modal="uplink"' : 'aria-disabled="true" tabindex="-1"'; ?> title="<?php echo htmlspecialchars($repeaterModeSelectable ? _("Configure repeater mode") : ($repeaterBlockedByBridge ? _("Switch Ethernet Mode to Routed / NAT first") : ($repeaterModeUnavailableReason ?? _("Repeater mode requires at least 2 WiFi interfaces."))), ENT_QUOTES); ?>" class="openap-mode-option openap-repeater-mode-card<?php echo $repeaterModeActive ? ' active' : ''; ?><?php echo $repeaterModeSelectable ? '' : ' is-unavailable'; ?>"<?php echo $repeaterModeActive ? ' aria-current="true"' : ''; ?>>
                   <div class="openap-mode-option-icon openap-repeater-mode-icon"><i class="fas <?php echo $repeaterModeSelectable ? 'fa-wifi' : ($repeaterBlockedByBridge ? 'fa-lock' : 'fa-ban'); ?>"></i></div>
                   <div class="openap-mode-option-title openap-repeater-mode-title"><?php echo _("Repeater Mode"); ?></div>
-                  <div class="openap-mode-option-state openap-repeater-mode-state"><?php echo $repeaterModeActive ? '● Active' : ($repeaterBlockedByBridge ? _("Routed first") : ($repeaterModeSelectable ? 'Switch →' : _('2 WiFi required'))); ?></div>
+                  <div class="openap-mode-option-state openap-repeater-mode-state"><?php echo htmlspecialchars($repeaterModeActive ? '● Active' : ($repeaterBlockedByBridge ? _("Routed first") : ($repeaterModeSelectable ? 'Switch →' : ($repeaterModeUnavailableReason ?? _('Repeater unavailable')))), ENT_QUOTES); ?></div>
                 </a>
               </div>
             </div>
+          </div>
           </div>
 
           <!-- Hotspot Status -->
@@ -338,19 +340,18 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
               <div>
                 <div style="display:flex;align-items:center;padding:6px 12px;border-bottom:1px solid #f8fafc">
                   <span style="flex:0 0 60px;font-size:10px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:0.3px"><?php echo _("Band"); ?></span>
-                  <span data-openap-ap-channel="<?php echo htmlspecialchars($apChannel ?: '-', ENT_QUOTES); ?>" style="font-size:12px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:5px">
-                    <?php if ($frequency === '5'): ?>
-                      <span class="badge rounded-pill" style="background:rgba(30,58,138,0.08);color:#1e3a8a;font-weight:400;font-size:9px">5 GHz</span>
-                    <?php else: ?>
-                      <span class="badge rounded-pill" style="background:rgba(99,102,241,0.08);color:#6366f1;font-weight:400;font-size:9px">2.4 GHz</span>
-                    <?php endif; ?>
-                    <?php echo _("Ch"); ?> <?php echo htmlspecialchars($apChannel ?: '-', ENT_QUOTES); ?>
+                  <span style="font-size:12px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+                    <?php foreach ($apRadios as $index => $radio): ?>
+                      <?php if ($index): ?><span class="openap-dashboard-radio-separator" aria-hidden="true"></span><?php endif; ?>
+                      <span class="badge rounded-pill" style="background:rgba(30,58,138,0.08);color:#1e3a8a;font-weight:400;font-size:9px"><?php echo htmlspecialchars($radio['band'], ENT_QUOTES); ?> GHz · <?php echo _("Ch"); ?> <?php echo htmlspecialchars($radio['channel'], ENT_QUOTES); ?></span>
+                    <?php endforeach; ?>
+                    <?php if ($apRadios === []): ?>-<?php endif; ?>
                   </span>
                 </div>
                 <div style="display:flex;align-items:center;padding:6px 12px;border-bottom:1px solid #f8fafc">
                   <span style="flex:0 0 60px;font-size:10px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:0.3px"><?php echo _("Width"); ?></span>
                   <span style="font-size:12px;font-weight:600;color:#0f172a">
-                    <span class="badge rounded-pill" style="background:#e2e8f0;color:#475569;font-weight:400;font-size:9px"><?php echo (int) $apWidth; ?> MHz</span>
+                    <?php foreach ($apRadios as $index => $radio): ?><?php if ($index): ?><span class="openap-dashboard-radio-separator" aria-hidden="true"></span><?php endif; ?><span class="badge rounded-pill" style="background:#e2e8f0;color:#475569;font-weight:400;font-size:9px"><?php echo htmlspecialchars($radio['band'], ENT_QUOTES); ?> GHz · <?php echo (int) $radio['width']; ?> MHz</span><?php endforeach; ?><?php if ($apRadios === []): ?>-<?php endif; ?>
                   </span>
                 </div>
                 <div style="display:flex;align-items:center;padding:6px 12px">
@@ -369,13 +370,13 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
                 <div style="display:flex;align-items:center;padding:6px 12px;border-bottom:1px solid #f8fafc">
                   <span style="flex:0 0 60px;font-size:10px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:0.3px"><?php echo _("TX Power"); ?></span>
                   <span style="font-size:12px;font-weight:600;color:#0f172a">
-                    <span class="badge rounded-pill" style="background:rgba(217,119,6,0.08);color:#d97706;font-weight:400;font-size:9px;font-family:monospace"><?php echo htmlspecialchars($apTxPower, ENT_QUOTES); ?></span>
+                    <?php foreach ($apRadios as $index => $radio): ?><?php if ($index): ?><span class="openap-dashboard-radio-separator" aria-hidden="true"></span><?php endif; ?><span class="badge rounded-pill" style="background:rgba(217,119,6,0.08);color:#d97706;font-weight:400;font-size:9px;font-family:monospace"><?php echo htmlspecialchars($radio['band'], ENT_QUOTES); ?>G · <?php echo htmlspecialchars($radio['txpower'], ENT_QUOTES); ?></span><?php endforeach; ?><?php if ($apRadios === []): ?>-<?php endif; ?>
                   </span>
                 </div>
                 <div style="display:flex;align-items:center;padding:6px 12px;border-bottom:1px solid #f8fafc">
                   <span style="flex:0 0 60px;font-size:10px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:0.3px"><?php echo _("Clients"); ?></span>
                   <span style="font-size:12px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:6px">
-                    <span style="font-size:16px;font-weight:700;color:<?php echo $wirelessClients > 0 ? '#1e3a8a' : '#94a3b8'; ?>"><?php echo (int)$wirelessClients; ?></span>
+                    <span data-openap-client-count style="font-size:16px;font-weight:700;color:<?php echo $wirelessClients > 0 ? '#1e3a8a' : '#94a3b8'; ?>"><?php echo (int)$wirelessClients; ?></span>
                     <span style="font-size:10px;color:#64748b;font-weight:400"><?php echo _("connected"); ?></span>
                     <?php if (($clientBreakdown['avg_signal'] ?? 0) > 0): ?>
                       <span style="display:inline-flex;align-items:flex-end;gap:2px;height:12px;color:<?php echo $clientBreakdown['avg_signal'] >= -60 ? '#059669' : ($clientBreakdown['avg_signal'] >= -75 ? '#d97706' : '#dc2626'); ?>">
@@ -412,47 +413,47 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
               <span class="openap-network-traffic-heading-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
               <div>
                 <strong><?php echo _("Live Network Traffic"); ?></strong>
-                <small><?php echo _("Real-time throughput by interface"); ?></small>
               </div>
             </div>
           <div class="row g-2 openap-interface-details">
             <div class="col-12 col-md-6">
               <div class="iface-card openap-live-traffic openap-traffic-card"
-                   data-interface="<?php echo htmlspecialchars($interface, ENT_QUOTES); ?>"
-                   data-rx-bytes="<?php echo (int)($trafficAp['rx_bytes'] ?? 0); ?>"
-                   data-tx-bytes="<?php echo (int)($trafficAp['tx_bytes'] ?? 0); ?>"
-                   data-download-counter="tx">
-                <div class="openap-traffic-card-header">
-                  <span class="openap-traffic-interface-icon" aria-hidden="true"><i class="fas fa-wifi"></i></span>
-                  <div class="openap-traffic-interface-copy">
-                    <span class="iface-name"><?php echo htmlspecialchars($interface); ?></span>
-                    <span class="iface-ip d-block"><?php echo htmlspecialchars($ipv4Address ?: '-'); ?></span>
+                   data-traffic-role="uplink"
+                   data-interface="<?php echo htmlspecialchars($uplinkIface, ENT_QUOTES); ?>"
+                   data-rx-bytes="<?php echo (int)($trafficUplink['rx_bytes'] ?? 0); ?>"
+                   data-tx-bytes="<?php echo (int)($trafficUplink['tx_bytes'] ?? 0); ?>"
+                   data-download-counter="rx">
+                <div class="openap-hotspot-identity openap-traffic-identity has-corner-state">
+                  <span class="openap-hotspot-identity-icon <?php echo $uplinkConnected ? 'is-running' : ''; ?>" aria-hidden="true"><i class="fas <?php echo $isRepeaterWifi ? 'fa-wifi' : 'fa-network-wired'; ?>"></i></span>
+                  <div class="openap-hotspot-identity-copy">
+                    <div class="openap-hotspot-name-row"><strong><?php echo _("Uplink"); ?>: <span data-openap-traffic-uplink-name><?php echo $isRepeaterWifi ? htmlspecialchars((string) ($uplinkDetails['ssid'] ?? '-'), ENT_QUOTES) : _("Ethernet"); ?></span></strong></div>
+                    <div class="openap-traffic-uplink-details">
+                      <div><small><?php echo _("Device"); ?>:</small><strong data-openap-traffic-uplink-device><?php echo htmlspecialchars($uplinkIface ?: '-', ENT_QUOTES); ?></strong></div>
+                      <div><small><?php echo _("IP address"); ?>:</small><strong data-openap-traffic-uplink-address><?php echo htmlspecialchars((string) ($uplinkDetails['ip_address'] ?? '-'), ENT_QUOTES); ?></strong></div>
+                    </div>
                   </div>
-                  <div class="text-end openap-traffic-interface-state">
-                    <span class="iface-stat">AP &middot; hostapd</span>
-                    <span class="iface-stat d-block"><span class="iface-led" style="background:<?php echo svcLed($hostapdEnabled); ?>"></span> <?php echo svcLabel($hostapdEnabled); ?></span>
+                  <div class="openap-hotspot-state openap-hotspot-state-corner">
+                    <span class="openap-hotspot-state-slot openap-traffic-connection-slot"><span class="openap-hotspot-status <?php echo $uplinkConnected ? 'is-running' : 'is-stopped'; ?>"><i class="fas fa-circle" aria-hidden="true"></i><?php echo $uplinkConnected ? _("Connected") : _("Disconnected"); ?></span></span>
                   </div>
                 </div>
                 <div class="openap-traffic-live">
-                  <div class="openap-traffic-speed download">
-                    <span><i class="fas fa-arrow-down"></i> <?php echo _("Download"); ?></span>
-                    <strong class="openap-rate-download">0 B/s</strong>
+                  <div class="openap-traffic-direction-row download">
+                    <div class="openap-hotspot-band-cell"><span class="openap-hotspot-band-badge openap-traffic-direction-badge" aria-label="<?php echo _("Download"); ?>"><i class="fas fa-arrow-down"></i></span></div>
+                    <div class="openap-hotspot-band-metric openap-traffic-direction-metric">
+                      <div class="openap-traffic-metric-heading"><small><?php echo _("Download"); ?></small><strong class="openap-rate-download">0 B/s</strong></div>
+                      <div class="openap-traffic-share"><div class="openap-traffic-share-track"><span class="openap-share-download"></span></div><span class="openap-percent-download">0%</span></div>
+                    </div>
                   </div>
-                  <div class="openap-traffic-speed upload">
-                    <span><i class="fas fa-arrow-up"></i> <?php echo _("Upload"); ?></span>
-                    <strong class="openap-rate-upload">0 B/s</strong>
-                  </div>
-                  <div class="openap-traffic-share download">
-                    <div class="openap-traffic-share-track"><span class="openap-share-download"></span></div>
-                    <span class="openap-percent-download">0%</span>
-                  </div>
-                  <div class="openap-traffic-share upload">
-                    <div class="openap-traffic-share-track"><span class="openap-share-upload"></span></div>
-                    <span class="openap-percent-upload">0%</span>
+                  <div class="openap-traffic-direction-row upload">
+                    <div class="openap-hotspot-band-cell"><span class="openap-hotspot-band-badge openap-traffic-direction-badge" aria-label="<?php echo _("Upload"); ?>"><i class="fas fa-arrow-up"></i></span></div>
+                    <div class="openap-hotspot-band-metric openap-traffic-direction-metric">
+                      <div class="openap-traffic-metric-heading"><small><?php echo _("Upload"); ?></small><strong class="openap-rate-upload">0 B/s</strong></div>
+                      <div class="openap-traffic-share"><div class="openap-traffic-share-track"><span class="openap-share-upload"></span></div><span class="openap-percent-upload">0%</span></div>
+                    </div>
                   </div>
                   <div class="openap-traffic-total-row">
                     <span><?php echo _("Traffic total"); ?></span>
-                    <strong class="openap-traffic-total"><?php echo openapFormatBytes((int)($trafficAp['rx_bytes'] ?? 0) + (int)($trafficAp['tx_bytes'] ?? 0)); ?></strong>
+                    <strong class="openap-traffic-total"><?php echo openapFormatBytes((int)($trafficUplink['rx_bytes'] ?? 0) + (int)($trafficUplink['tx_bytes'] ?? 0)); ?></strong>
                     <span class="openap-traffic-since"><?php echo _("since interface start"); ?></span>
                   </div>
                 </div>
@@ -460,41 +461,43 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
             </div>
             <div class="col-12 col-md-6">
               <div class="iface-card openap-live-traffic openap-traffic-card"
-                   data-interface="<?php echo htmlspecialchars($uplinkIface, ENT_QUOTES); ?>"
-                   data-rx-bytes="<?php echo (int)($trafficUplink['rx_bytes'] ?? 0); ?>"
-                   data-tx-bytes="<?php echo (int)($trafficUplink['tx_bytes'] ?? 0); ?>"
-                   data-download-counter="rx">
-                <div class="openap-traffic-card-header">
-                  <span class="openap-traffic-interface-icon" aria-hidden="true"><i class="fas <?php echo $isRepeaterWifi ? 'fa-wifi' : 'fa-network-wired'; ?>"></i></span>
-                  <div class="openap-traffic-interface-copy">
-                    <span class="iface-name"><?php echo htmlspecialchars($uplinkIface); ?></span>
-                    <span class="iface-ip d-block"><?php echo htmlspecialchars($publicIpv4Address ?: '-'); ?></span>
+                   data-traffic-role="ap"
+                   data-interface="<?php echo htmlspecialchars($apIface, ENT_QUOTES); ?>"
+                   data-interfaces="<?php echo htmlspecialchars(implode(',', $apInterfaces), ENT_QUOTES); ?>"
+                   data-rx-bytes="<?php echo (int)($trafficAp['rx_bytes'] ?? 0); ?>"
+                   data-tx-bytes="<?php echo (int)($trafficAp['tx_bytes'] ?? 0); ?>"
+                   data-download-counter="tx">
+                <div class="openap-hotspot-identity openap-traffic-identity has-corner-state">
+                  <span class="openap-hotspot-identity-icon <?php echo $hostapdEnabled ? 'is-running' : ''; ?>" aria-hidden="true"><i class="fas fa-wifi"></i></span>
+                  <div class="openap-hotspot-identity-copy">
+                    <div class="openap-hotspot-name-row"><strong><?php echo _("AP"); ?>: <?php echo htmlspecialchars($ssid ?: OPENAP_BRAND_TEXT, ENT_QUOTES); ?></strong></div>
+                    <div class="openap-traffic-uplink-details">
+                      <div><small><?php echo _("Device"); ?>:</small><strong><?php echo htmlspecialchars(implode(' + ', $apInterfaces) ?: '-', ENT_QUOTES); ?></strong></div>
+                      <div><small><?php echo _("IP address"); ?>:</small><strong data-openap-traffic-ap-address><?php echo htmlspecialchars(function_exists('openapInterfaceIpv4') ? openapInterfaceIpv4($hotspotInterface) : ($ipv4Address ?: '-'), ENT_QUOTES); ?></strong></div>
+                    </div>
                   </div>
-                  <div class="text-end openap-traffic-interface-state">
-                    <span class="iface-stat"><?php echo $isRepeaterWifi ? 'Uplink &middot; wpa_supplicant' : 'Ethernet uplink'; ?></span>
-                    <span class="iface-stat d-block"><span class="iface-led" style="background:<?php echo svcLed($uplinkConnected); ?>"></span> <?php echo $uplinkConnected ? _('Connected') : _('Disconnected'); ?></span>
+                  <div class="openap-hotspot-state openap-hotspot-state-corner">
+                    <span class="openap-hotspot-state-slot openap-traffic-connection-slot"><span class="openap-hotspot-status <?php echo $hostapdEnabled ? 'is-running' : 'is-stopped'; ?>"><i class="fas fa-circle" aria-hidden="true"></i><?php echo svcLabel($hostapdEnabled); ?></span></span>
                   </div>
                 </div>
                 <div class="openap-traffic-live">
-                  <div class="openap-traffic-speed download">
-                    <span><i class="fas fa-arrow-down"></i> <?php echo _("Download"); ?></span>
-                    <strong class="openap-rate-download">0 B/s</strong>
+                  <div class="openap-traffic-direction-row download">
+                    <div class="openap-hotspot-band-cell"><span class="openap-hotspot-band-badge openap-traffic-direction-badge" aria-label="<?php echo _("Download"); ?>"><i class="fas fa-arrow-down"></i></span></div>
+                    <div class="openap-hotspot-band-metric openap-traffic-direction-metric">
+                      <div class="openap-traffic-metric-heading"><small><?php echo _("Download"); ?></small><strong class="openap-rate-download">0 B/s</strong></div>
+                      <div class="openap-traffic-share"><div class="openap-traffic-share-track"><span class="openap-share-download"></span></div><span class="openap-percent-download">0%</span></div>
+                    </div>
                   </div>
-                  <div class="openap-traffic-speed upload">
-                    <span><i class="fas fa-arrow-up"></i> <?php echo _("Upload"); ?></span>
-                    <strong class="openap-rate-upload">0 B/s</strong>
-                  </div>
-                  <div class="openap-traffic-share download">
-                    <div class="openap-traffic-share-track"><span class="openap-share-download"></span></div>
-                    <span class="openap-percent-download">0%</span>
-                  </div>
-                  <div class="openap-traffic-share upload">
-                    <div class="openap-traffic-share-track"><span class="openap-share-upload"></span></div>
-                    <span class="openap-percent-upload">0%</span>
+                  <div class="openap-traffic-direction-row upload">
+                    <div class="openap-hotspot-band-cell"><span class="openap-hotspot-band-badge openap-traffic-direction-badge" aria-label="<?php echo _("Upload"); ?>"><i class="fas fa-arrow-up"></i></span></div>
+                    <div class="openap-hotspot-band-metric openap-traffic-direction-metric">
+                      <div class="openap-traffic-metric-heading"><small><?php echo _("Upload"); ?></small><strong class="openap-rate-upload">0 B/s</strong></div>
+                      <div class="openap-traffic-share"><div class="openap-traffic-share-track"><span class="openap-share-upload"></span></div><span class="openap-percent-upload">0%</span></div>
+                    </div>
                   </div>
                   <div class="openap-traffic-total-row">
                     <span><?php echo _("Traffic total"); ?></span>
-                    <strong class="openap-traffic-total"><?php echo openapFormatBytes((int)($trafficUplink['rx_bytes'] ?? 0) + (int)($trafficUplink['tx_bytes'] ?? 0)); ?></strong>
+                    <strong class="openap-traffic-total"><?php echo openapFormatBytes((int)($trafficAp['rx_bytes'] ?? 0) + (int)($trafficAp['tx_bytes'] ?? 0)); ?></strong>
                     <span class="openap-traffic-since"><?php echo _("since interface start"); ?></span>
                   </div>
                 </div>
@@ -508,7 +511,7 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
             <div class="openap-topology-clients-header">
               <div class="openap-connected-clients-heading">
                 <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-users"></i></span>
-                <div><strong><?php echo _("Connected Clients"); ?></strong><small><?php echo _("Associated hotspot devices"); ?></small></div>
+                <div><strong><?php echo _("Connected Clients"); ?></strong></div>
               </div>
               <div class="openap-connected-clients-meta">
                 <span class="badge rounded-pill badge-openap me-1"><i class="fas fa-wifi"></i> <?php echo (int)$totalClients; ?> <?php echo _("total"); ?></span>
@@ -554,7 +557,7 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
                     <td style="font-size:10px;color:#64748b;font-family:monospace"><?php echo htmlspecialchars($c['mac']); ?></td>
                     <td>
                       <?php echo sigDots($c['signal'] ?? null); ?>
-                      <span style="font-size:10px;color:#64748b;margin-left:4px"><?php echo $c['signal'] ? $c['signal'].' dBm' : '-'; ?></span>
+                      <span class="openap-client-signal-value" style="font-size:10px;color:#64748b;margin-left:4px"><?php echo $c['signal'] ? $c['signal'].' dBm' : '-'; ?></span>
                     </td>
                     <td style="text-align:right">
                       <span class="badge rounded-pill" style="background:rgba(5,150,105,0.08);color:#059669;font-weight:400;font-size:9px"><i class="fas fa-circle" style="font-size:6px;vertical-align:middle"></i> <?php echo _("Online"); ?></span>
@@ -649,151 +652,7 @@ $renderDhcpPool = function () use ($currentMode, $dhcpActive, $dhcpTotal, $dhcpF
       </div>
     </div>
     <div class="col-xl-3 col-lg-4">
-      <div class="row g-3">
-<div class="col-6">
-      <div class="stat-card border-top-blue">
-        <div class="stat-top openap-widget-body">
-          <div class="openap-widget-heading">
-            <div>
-              <div class="openap-widget-title"><?php echo _("Connected clients"); ?></div>
-              <div class="openap-widget-caption"><?php echo _("Stations on the hotspot"); ?></div>
-            </div>
-            <div class="openap-widget-icon openap-widget-icon-blue"><i class="fas fa-wifi"></i></div>
-          </div>
-          <div class="openap-widget-metric">
-            <div class="openap-widget-direction openap-widget-direction-blue"><i class="fas fa-users"></i></div>
-            <div class="openap-widget-copy">
-              <span><?php echo _("Connected"); ?></span>
-              <small><?php echo _("WiFi stations"); ?></small>
-            </div>
-            <div class="openap-widget-value"><?php echo (int)$totalClients; ?></div>
-          </div>
-          <div class="d-flex gap-1 flex-wrap">
-            <span class="device-chip"><i class="fas fa-signal" style="color:#059669;font-size:10px"></i> <?php echo $clientBreakdown['strong'] ?? 0; ?> strong</span>
-            <span class="device-chip"><i class="fas fa-signal" style="color:#d97706;font-size:10px"></i> <?php echo $clientBreakdown['medium'] ?? 0; ?> medium</span>
-            <span class="device-chip"><i class="fas fa-signal" style="color:#dc2626;font-size:10px"></i> <?php echo $clientBreakdown['weak'] ?? 0; ?> weak</span>
-          </div>
-        </div>
-        <div class="stat-bottom">
-          <span><i class="far fa-clock"></i> Avg signal: <?php echo $clientBreakdown['avg_signal'] ?: '-'; ?> dBm</span>
-        </div>
-      </div>
-    </div>
-<div class="col-6">
-      <div class="stat-card border-top-green">
-        <div class="stat-top openap-traffic-widget">
-          <div class="openap-traffic-heading openap-widget-heading">
-            <div>
-              <div class="openap-traffic-title openap-widget-title"><?php echo _("Hotspot traffic"); ?></div>
-              <div class="openap-traffic-caption openap-widget-caption"><?php echo _("Totals since interface start"); ?></div>
-            </div>
-            <div class="openap-traffic-main-icon openap-widget-icon openap-widget-icon-green"><i class="fas fa-arrow-right-arrow-left"></i></div>
-          </div>
-          <div class="openap-traffic-metric openap-traffic-tx openap-widget-metric">
-            <div class="openap-traffic-direction openap-widget-direction"><i class="fas fa-arrow-up"></i></div>
-            <div class="openap-traffic-copy openap-widget-copy">
-              <span><?php echo _("Sent"); ?> <strong>TX</strong></span>
-              <small><?php echo _("AP → clients"); ?></small>
-            </div>
-            <div class="openap-traffic-value openap-widget-value"><?php echo $trafficApTx; ?></div>
-          </div>
-          <div class="openap-traffic-metric openap-traffic-rx openap-widget-metric">
-            <div class="openap-traffic-direction openap-widget-direction"><i class="fas fa-arrow-down"></i></div>
-            <div class="openap-traffic-copy openap-widget-copy">
-              <span><?php echo _("Received"); ?> <strong>RX</strong></span>
-              <small><?php echo _("Clients → AP"); ?></small>
-            </div>
-            <div class="openap-traffic-value openap-widget-value"><?php echo $trafficApRx; ?></div>
-          </div>
-        </div>
-        <div class="stat-bottom openap-traffic-uplink">
-          <span title="<?php echo _("Sent through the uplink"); ?>"><i class="fas fa-arrow-up"></i> <?php echo _("Uplink sent"); ?> <strong><?php echo $trafficUplinkTx; ?></strong></span>
-          <span title="<?php echo _("Received through the uplink"); ?>"><i class="fas fa-arrow-down"></i> <?php echo _("Uplink received"); ?> <strong><?php echo $trafficUplinkRx; ?></strong></span>
-        </div>
-      </div>
-    </div>
-<div class="col-6">
-      <div class="stat-card border-top-gold">
-        <div class="stat-top openap-widget-body">
-          <div class="openap-widget-heading">
-            <div>
-              <div class="openap-widget-title"><?php echo $isRepeaterWifi ? _("WiFi uplink") : _("Ethernet uplink"); ?></div>
-              <div class="openap-widget-caption"><?php echo _("Active network path"); ?></div>
-            </div>
-            <div class="openap-widget-icon openap-widget-icon-gold"><i class="fas <?php echo $isRepeaterWifi ? 'fa-signal' : 'fa-network-wired'; ?>"></i></div>
-          </div>
-          <?php if ($isRepeaterWifi): ?>
-          <div class="openap-widget-metric openap-widget-metric-uplink">
-            <div class="openap-widget-direction openap-widget-direction-gold"><i class="fas fa-wifi"></i></div>
-            <div class="openap-widget-copy">
-              <span><?php echo _("Network"); ?></span>
-              <small title="<?php echo htmlspecialchars($uplinkIface, ENT_QUOTES); ?>"><?php echo htmlspecialchars($uplinkIface); ?></small>
-            </div>
-            <div class="openap-widget-value openap-widget-value-compact" title="<?php echo htmlspecialchars($uplinkSsid, ENT_QUOTES); ?>"><?php echo htmlspecialchars($uplinkSsid); ?></div>
-          </div>
-          <div class="openap-widget-metric">
-            <div class="openap-widget-direction openap-widget-direction-gold"><i class="fas fa-route"></i></div>
-            <div class="openap-widget-copy">
-              <span><?php echo _("Gateway"); ?></span>
-              <small><?php echo _("Default route"); ?></small>
-            </div>
-            <div class="openap-widget-value openap-widget-value-compact"><?php echo htmlspecialchars($uplinkGateway ?: '-'); ?></div>
-          </div>
-          <?php else: ?>
-          <div class="openap-widget-metric">
-            <div class="openap-widget-direction openap-widget-direction-gold"><i class="fas fa-network-wired"></i></div>
-            <div class="openap-widget-copy">
-              <span><?php echo _("Interface"); ?></span>
-              <small><?php echo htmlspecialchars($uplinkIface); ?></small>
-            </div>
-            <div class="openap-widget-value openap-widget-value-compact"><?php echo htmlspecialchars($publicIpv4Address ?: '-'); ?></div>
-          </div>
-          <div class="openap-widget-metric">
-            <div class="openap-widget-direction openap-widget-direction-gold"><i class="fas fa-route"></i></div>
-            <div class="openap-widget-copy">
-              <span><?php echo _("Gateway"); ?></span>
-              <small><?php echo _("Default route"); ?></small>
-            </div>
-            <div class="openap-widget-value openap-widget-value-compact"><?php echo htmlspecialchars($uplinkGateway ?: '-'); ?></div>
-          </div>
-          <?php endif; ?>
-        </div>
-        <div class="stat-bottom">
-          <span>Uplink: <?php echo $uplinkConnected ? 'Connected' : 'Disconnected'; ?></span>
-          <span>AP band: <?php echo $apBand; ?></span>
-        </div>
-      </div>
-    </div>
-<div class="col-6">
-      <div class="stat-card border-top-purple">
-        <div class="stat-top openap-widget-body">
-          <div class="openap-widget-heading">
-            <div>
-              <div class="openap-widget-title"><?php echo _("System health"); ?></div>
-              <div class="openap-widget-caption"><?php echo _("Live resource usage"); ?></div>
-            </div>
-            <div class="openap-widget-icon openap-widget-icon-purple"><i class="fas fa-microchip"></i></div>
-          </div>
-          <div class="openap-widget-resource-grid">
-            <div><span><?php echo _("CPU used"); ?></span><strong><?php echo (int)$cpuPercent; ?>%</strong></div>
-            <div><span><?php echo _("RAM used"); ?></span><strong><?php echo (int)$memUsedPct; ?>%</strong></div>
-            <div><span><?php echo _("Temperature"); ?></span><strong><?php echo htmlspecialchars($sysTemp); ?>&deg;C</strong></div>
-            <div><span><?php echo _("Uptime"); ?></span><strong><?php echo htmlspecialchars($sysUptimeStr); ?></strong></div>
-          </div>
-        </div>
-        <div class="stat-bottom">
-          <span><i class="fas fa-hdd"></i> <?php echo _("Disk"); ?>: <?php echo (int)$diskUsedPct; ?>%</span>
-          <span><?php echo _("Load"); ?>: <?php echo htmlspecialchars($loadAvg); ?></span>
-        </div>
-      </div>
-    </div>
-    <div class="col-12">
-      <?php echo $renderServiceStatus(); ?>
-    </div>
-    <div class="col-12">
-      <?php echo $renderDhcpPool(); ?>
-    </div>
-      </div>
+      <?php $openapWidgetPage = 'dashboard'; require __DIR__ . '/openap_widget_area.php'; ?>
     </div>
 
   </div>
@@ -1054,9 +913,13 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
       <div class="modal-dialog modal-dialog-centered wifi-qr-dialog">
         <div class="modal-content wifi-qr-modal">
           <div class="modal-header wifi-qr-header">
-            <div>
-              <div class="wifi-qr-eyebrow"><i class="fas fa-qrcode"></i> <?php echo _("WiFi access"); ?></div>
-              <h2 id="wifiQrModalTitle" class="wifi-qr-title"><?php echo htmlspecialchars($ssid ?: '-', ENT_QUOTES); ?></h2>
+            <div class="wifi-qr-heading">
+              <span class="wifi-qr-heading-icon" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
+              <div>
+                <div class="wifi-qr-eyebrow"><?php echo _("WiFi access"); ?></div>
+                <h2 id="wifiQrModalTitle" class="wifi-qr-title"><?php echo htmlspecialchars($ssid ?: '-', ENT_QUOTES); ?></h2>
+                <div class="wifi-qr-subtitle"><?php echo _("Scan to connect to the OpenAP hotspot"); ?></div>
+              </div>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo _("Close"); ?>"></button>
           </div>
@@ -1065,8 +928,8 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
               <img src="app/img/wifi-qr-code.php" alt="<?php echo _("OpenAP WiFi QR code"); ?>" class="wifi-qr-image">
             </div>
             <div class="wifi-qr-details">
-              <div class="wifi-qr-detail"><span><?php echo _("Network"); ?></span><strong><?php echo htmlspecialchars($ssid ?: '-', ENT_QUOTES); ?></strong></div>
-              <div class="wifi-qr-detail"><span><?php echo _("Security"); ?></span><strong><?php echo htmlspecialchars($apSecurityType ?: 'WPA', ENT_QUOTES); ?></strong></div>
+              <div class="wifi-qr-detail"><span><i class="fas fa-wifi" aria-hidden="true"></i><?php echo _("Network"); ?></span><strong><?php echo htmlspecialchars($ssid ?: '-', ENT_QUOTES); ?></strong></div>
+              <div class="wifi-qr-detail"><span><i class="fas fa-shield-alt" aria-hidden="true"></i><?php echo _("Security"); ?></span><strong><?php echo htmlspecialchars($apSecurityType ?: 'WPA', ENT_QUOTES); ?></strong></div>
             </div>
             <div class="wifi-qr-hint"><i class="fas fa-mobile-alt"></i> <?php echo _("Scan with a phone camera to join the hotspot."); ?></div>
           </div>
@@ -1102,7 +965,7 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
         <div class="modal-content openap-ap-ethernet-modal">
           <div class="modal-header openap-ap-ethernet-header">
             <div>
-              <div class="openap-ap-ethernet-title"><?php echo _("AP via Ethernet"); ?></div>
+              <div class="openap-ap-ethernet-title"><?php echo _("Configure Ethernet Mode"); ?></div>
               <div class="openap-ap-ethernet-subtitle"><?php echo _("Configure wired uplink"); ?></div>
             </div>
             <div class="openap-ap-ethernet-header-actions">
@@ -1113,7 +976,7 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
           <div class="modal-body openap-ap-ethernet-body">
             <div id="apEthernetModalContent">
               <div class="text-center py-4">
-                <div class="openap-ap-ethernet-title"><?php echo _("AP via Ethernet"); ?></div>
+                <div class="openap-ap-ethernet-title"><?php echo _("Ethernet Mode"); ?></div>
                 <p style="font-size:13px;color:#64748b;margin-top:8px"><?php echo _("Loading configuration..."); ?></p>
               </div>
             </div>
@@ -1189,11 +1052,11 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
 
           <div class="openap-recovery-fallback" id="uplinkRecoveryFallback">
             <div>
-              <strong><i class="fas fa-network-wired"></i> <?php echo _("AP Ethernet fallback"); ?></strong>
+              <strong><i class="fas fa-network-wired"></i> <?php echo _("Ethernet Mode fallback"); ?></strong>
               <span id="uplinkRecoveryEthernetReason"><?php echo _("Checking the Ethernet connection…"); ?></span>
             </div>
             <button type="button" class="btn-ss primary" id="uplinkRecoveryEthernetButton" hidden>
-              <i class="fas fa-arrow-right"></i> <?php echo _("Switch to AP Ethernet"); ?>
+              <i class="fas fa-arrow-right"></i> <?php echo _("Switch to Ethernet Mode"); ?>
             </button>
           </div>
         </div>
@@ -1202,24 +1065,18 @@ window.openapDashboardConfig.modeSwitchSettling = <?php echo !empty($modeSwitchS
 
     <?php if (isset($_GET['rebooting'])): ?>
     <div class="modal fade" id="rebootProgressModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="rebootProgressTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" style="max-width:420px">
-        <div class="modal-content" style="background:#fff;border:1px solid #d7e2e7;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,0.16);overflow:hidden">
-          <div class="modal-body text-center" style="padding:30px 26px">
-            <div style="width:58px;height:58px;margin:0 auto 16px;border-radius:50%;border:4px solid #e5f2f1;border-top-color:#126869;animation:openap-reboot-spin 0.9s linear infinite"></div>
-            <div id="rebootProgressTitle" style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:6px"><?php echo _("System is rebooting"); ?></div>
-            <div id="rebootProgressText" style="font-size:13px;color:#607080;line-height:1.45">
+      <div class="modal-dialog modal-dialog-centered openap-reboot-progress-dialog">
+        <div class="modal-content openap-mode-switch-card openap-universal-mode-apply openap-reboot-progress-card">
+          <div class="modal-body openap-reboot-progress-body">
+            <div id="rebootProgressTitle" class="openap-mode-switch-title"><?php echo _("System is rebooting"); ?></div>
+            <div class="openap-universal-mode-visual" aria-hidden="true"><span><i class="fas fa-power-off"></i></span></div>
+            <div id="rebootProgressText" class="openap-mode-switch-caption">
               <?php echo _("Waiting for OpenAP to become reachable again."); ?>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <style>
-      @keyframes openap-reboot-spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-    </style>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         var modalEl = document.getElementById('rebootProgressModal');

@@ -175,7 +175,10 @@ class Sysinfo
      */
     public function adBlockStatus(): bool
     {
-        exec('cat '. OPENAP_ADBLOCK_CONFIG, $return);
+        $return = [];
+        if (is_readable(OPENAP_ADBLOCK_CONFIG)) {
+            $return = file(OPENAP_ADBLOCK_CONFIG, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+        }
         $arrConf = ParseConfig($return);
         $enabled = false;
         if (sizeof($arrConf) > 0) {

@@ -57,6 +57,17 @@ applied=0
 cleanup() {
   rm -rf "$work_dir"
 }
+start_dnscrypt() {
+  # Starting the socket and service in a single systemctl transaction can race:
+  # dnscrypt-proxy may inherit descriptors from the socket that is then
+  # restarted.  Keep the ordering explicit on Debian, Ubuntu and Raspberry Pi
+  # OS so the readiness probe always targets the descriptors held by the
+  # running service.
+  systemctl enable dnscrypt-proxy.socket dnscrypt-proxy.service >/dev/null
+  systemctl stop dnscrypt-proxy.service
+  systemctl restart dnscrypt-proxy.socket
+  systemctl start dnscrypt-proxy.service
+}
 rollback() {
   cp -a "$backup_dir/dnscrypt-proxy.toml" "$dnscrypt_config"
   cp -a "$backup_dir/openap-repeater.conf" "$dnsmasq_config"
@@ -65,8 +76,19 @@ rollback() {
   else
     rm -f "$state_file"
   fi
-  systemctl restart dnscrypt-proxy.socket dnscrypt-proxy.service >/dev/null 2>&1 || true
-  [ "$bridge_mode" -eq 1 ] || systemctl restart dnsmasq.service >/dev/null 2>&1 || true
+  restored_encrypted=false
+  if [ -f "$state_file" ]; then
+    restored_encrypted="$(awk -F ' *= *' '$1 == "enabled" {print $2; exit}' "$state_file")"
+  fi
+  if [ "$restored_encrypted" = true ]; then
+    start_dnscrypt >/dev/null 2>&1 || true
+  else
+    systemctl disable --now dnscrypt-proxy.service dnscrypt-proxy.socket >/dev/null 2>&1 || true
+  fi
+  if [ "$bridge_mode" -eq 0 ]; then
+    systemctl reset-failed dnsmasq.service >/dev/null 2>&1 || true
+    systemctl restart dnsmasq.service >/dev/null 2>&1 || true
+  fi
 }
 finish() {
   rc=$?
@@ -120,7 +142,9 @@ awk -v resolver="$resolver_name" '
   }
 ' "$dnscrypt_config" > "$work_dir/dnscrypt-proxy.toml"
 
-awk '!/^server=/ && $0 != "no-resolv" {print}' "$dnsmasq_config" > "$work_dir/dnsmasq.conf"
+# Local and encrypted DNS both require dnsmasq to listen on the gateway.  An
+# earlier External DNS policy may have left port=0 in this file.
+awk '!/^server=/ && $0 != "no-resolv" && $0 != "port=0" {print}' "$dnsmasq_config" > "$work_dir/dnsmasq.conf"
 if [ "$mode" = enable ]; then
   printf '%s\n' "server=127.0.2.1" "no-resolv" >> "$work_dir/dnsmasq.conf"
 else
@@ -130,6 +154,9 @@ else
   printf '%s\n' "no-resolv" >> "$work_dir/dnsmasq.conf"
 fi
 
+dnscrypt_group="$(id -gn _dnscrypt-proxy 2>/dev/null || printf '%s' _dnscrypt-proxy)"
+install -d -o _dnscrypt-proxy -g "$dnscrypt_group" -m 0755 /var/cache/dnscrypt-proxy
+
 dnscrypt-proxy -check -config "$work_dir/dnscrypt-proxy.toml" >/dev/null
 dnsmasq --test --conf-file="$work_dir/dnsmasq.conf" >/dev/null
 
@@ -137,8 +164,7 @@ applied=1
 install -o root -g root -m 0644 "$work_dir/dnscrypt-proxy.toml" "$dnscrypt_config"
 
 if [ "$mode" = enable ]; then
-  systemctl enable --now dnscrypt-proxy.socket dnscrypt-proxy.service >/dev/null
-  systemctl restart dnscrypt-proxy.socket dnscrypt-proxy.service
+  start_dnscrypt
   systemctl is-active --quiet dnscrypt-proxy.socket
   systemctl is-active --quiet dnscrypt-proxy.service
   dnscrypt_ready=0
@@ -159,6 +185,7 @@ fi
 
 if [ "$bridge_mode" -eq 0 ]; then
   install -o root -g root -m 0644 "$work_dir/dnsmasq.conf" "$dnsmasq_config"
+  systemctl reset-failed dnsmasq.service >/dev/null 2>&1 || true
   systemctl restart dnsmasq.service
   systemctl is-active --quiet dnsmasq.service
   dns_query "$gateway" 53

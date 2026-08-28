@@ -31,7 +31,7 @@ function DisplaySystem(&$extraFooterScripts)
     $openapMode = openapReadIniValue('/etc/openap/repeater.ini', 'current', 'Unknown');
     $openapModeLabel = [
         'ap_ethernet' => 'AP over Ethernet',
-        'ap_ethernet_bridge' => 'AP Ethernet Bridge',
+        'ap_ethernet_bridge' => 'Ethernet Bridge',
         'repeater_wifi' => 'Repeater WiFi',
         'uplink_wifi' => 'Uplink WiFi'
     ][$openapMode] ?? $openapMode;

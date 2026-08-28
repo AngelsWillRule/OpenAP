@@ -17,6 +17,8 @@ bridge_netdev=/etc/systemd/network/05-openap-bridge.netdev
 bridge_network=/etc/systemd/network/05-openap-bridge.network
 bridge_port=/etc/systemd/network/05-openap-bridge-port.network
 bridge_ap=/etc/systemd/network/06-openap-bridge-ap.network
+bridge_hotspot=/etc/systemd/network/06-openap-bridge-hotspot.network
+dual_hostapd_configs="/etc/hostapd/openap-ap-24ghz.conf /etc/hostapd/openap-ap-5ghz.conf"
 
 fail() { echo "$1" >&2; exit 1; }
 ini_value() { awk -F ' *= *' -v key="$1" '$1 == key {print $2; exit}' "$profile" 2>/dev/null; }
@@ -29,10 +31,14 @@ printf '%s' "$eth_iface" | grep -Eq '^[A-Za-z0-9_.:-]+$' || fail "Invalid Ethern
 
 if [ "$action" = --disable ]; then
   systemctl stop hostapd.service >/dev/null 2>&1 || true
-  rm -f "$bridge_ap" "$bridge_port" "$bridge_network" "$bridge_netdev"
+  rm -f "$bridge_ap" "$bridge_hotspot" "$bridge_port" "$bridge_network" "$bridge_netdev"
   if [ -f "$hostapd_conf" ]; then
     sed -i '/^bridge=br0$/d' "$hostapd_conf"
   fi
+  for conf in $dual_hostapd_configs; do
+    [ -f "$conf" ] || continue
+    sed -i 's/^bridge=br0$/bridge=openap0/' "$conf"
+  done
   networkctl reload >/dev/null 2>&1 || true
   ip link set dev "$eth_iface" nomaster >/dev/null 2>&1 || true
   ip link del "$bridge_iface" type bridge >/dev/null 2>&1 || true
@@ -46,11 +52,14 @@ ap_iface=""
 for net_path in /sys/class/net/*; do
   [ -r "$net_path/address" ] || continue
   [ "$(tr 'A-F' 'a-f' < "$net_path/address")" = "$ap_mac" ] || continue
-  ap_iface="$(basename "$net_path")"
+  candidate_iface="$(basename "$net_path")"
+  # The hotspot bridge can inherit the AP radio MAC.  Ignore non-wireless
+  # duplicates and retain the physical radio associated with the role.
+  is_wireless "$candidate_iface" || continue
+  ap_iface="$candidate_iface"
   break
 done
 [ -n "$ap_iface" ] || fail "Selected AP interface not found"
-is_wireless "$ap_iface" || fail "Selected AP interface is not wireless"
 [ "$(cat "/sys/class/net/$eth_iface/carrier" 2>/dev/null || echo 0)" = 1 ] || fail "Ethernet carrier is down"
 printf '%s' "$gateway_arg" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || fail "Invalid management gateway"
 python3 - "$eth_iface" "$gateway_arg" <<'PY' || fail "Management gateway is not on the Ethernet subnet"
@@ -76,6 +85,13 @@ PY
 addresses="$(ip -4 -o address show dev "$eth_iface" scope global | awk '{print $4}' | paste -sd, -)"
 gateway="$gateway_arg"
 dns="$(resolvectl dns "$eth_iface" 2>/dev/null | sed 's/^[^:]*:[[:space:]]*//' | tr ' ' '\n' | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$' | paste -sd' ' - || true)"
+if [ -z "$dns" ] && [ -r "$dnsmasq_conf" ]; then
+  dns="$(sed -n 's/^server=//p' "$dnsmasq_conf" | sed '/^[[:space:]]*$/d' | paste -sd' ' -)"
+fi
+if [ -z "$dns" ] && [ -r /etc/resolv.conf ]; then
+  dns="$(awk '$1 == "nameserver" && $2 != "127.0.0.53" {print $2}' /etc/resolv.conf | paste -sd' ' -)"
+fi
+[ -n "$dns" ] || dns="1.1.1.1 9.9.9.9"
 eth_mac="$(tr 'A-F' 'a-f' < "/sys/class/net/$eth_iface/address")"
 
 if [ "$action" = --gateway ]; then
@@ -121,6 +137,9 @@ mkdir -p "$backup_dir"
 for path in "$profile" "$hostapd_conf" "$nft_conf" "$dnsmasq_conf"; do
   [ ! -e "$path" ] || cp -a "$path" "$backup_dir/"
 done
+for path in $dual_hostapd_configs; do
+  [ ! -e "$path" ] || cp -a "$path" "$backup_dir/"
+done
 cp -a /etc/systemd/network "$backup_dir/systemd-network"
 
 rollback() {
@@ -128,13 +147,16 @@ rollback() {
   trap - EXIT INT TERM
   [ "$rc" -eq 0 ] && return 0
   systemctl stop hostapd.service >/dev/null 2>&1 || true
-  rm -f "$bridge_ap" "$bridge_port" "$bridge_network" "$bridge_netdev"
+  rm -f "$bridge_ap" "$bridge_hotspot" "$bridge_port" "$bridge_network" "$bridge_netdev"
   rm -rf /etc/systemd/network
   cp -a "$backup_dir/systemd-network" /etc/systemd/network
   [ ! -f "$backup_dir/hostapd.conf" ] || cp -a "$backup_dir/hostapd.conf" "$hostapd_conf"
   [ ! -f "$backup_dir/openap.nft" ] || cp -a "$backup_dir/openap.nft" "$nft_conf"
   [ ! -f "$backup_dir/openap-repeater.conf" ] || cp -a "$backup_dir/openap-repeater.conf" "$dnsmasq_conf"
   [ ! -f "$backup_dir/repeater.ini" ] || cp -a "$backup_dir/repeater.ini" "$profile"
+  for path in $dual_hostapd_configs; do
+    [ ! -f "$backup_dir/$(basename "$path")" ] || cp -a "$backup_dir/$(basename "$path")" "$path"
+  done
   ip link set dev "$eth_iface" nomaster >/dev/null 2>&1 || true
   ip link del "$bridge_iface" type bridge >/dev/null 2>&1 || true
   systemctl restart systemd-networkd.service >/dev/null 2>&1 || true
@@ -204,17 +226,43 @@ LinkLocalAddressing=no
 IPv6AcceptRA=no
 EOF
 
+# Keep the persistent routed-hotspot definition installed, but override its
+# address while Ethernet Bridge mode is active.  Removing this lower-numbered
+# match in --disable lets networkd restore openap0 automatically.
+cat > "$bridge_hotspot" <<EOF
+[Match]
+Name=openap0
+
+[Link]
+RequiredForOnline=no
+
+[Network]
+DHCP=no
+LinkLocalAddressing=no
+ConfigureWithoutCarrier=yes
+EOF
+
 hostapd_tmp="$(mktemp)"
 awk -v iface="$ap_iface" 'BEGIN{i=0;b=0} /^interface=/{if(!i)print "interface="iface;i=1;next} /^bridge=/{if(!b)print "bridge=br0";b=1;next} {print} END{if(!i)print "interface="iface;if(!b)print "bridge=br0"}' "$hostapd_conf" > "$hostapd_tmp"
 chown root:www-data "$hostapd_tmp"
 chmod 0640 "$hostapd_tmp"
 mv "$hostapd_tmp" "$hostapd_conf"
+for conf in $dual_hostapd_configs; do
+  [ -f "$conf" ] || continue
+  if grep -q '^bridge=' "$conf"; then
+    sed -i 's/^bridge=.*/bridge=br0/' "$conf"
+  else
+    printf '\nbridge=br0\n' >> "$conf"
+  fi
+done
 
 systemctl stop hostapd.service
 systemctl stop dnsmasq.service
 systemctl stop openap-firewall.service
 systemctl stop openap-ap-address.service >/dev/null 2>&1 || true
+ip link set dev "$ap_iface" nomaster >/dev/null 2>&1 || true
 ip -4 address flush dev "$ap_iface" scope global >/dev/null 2>&1 || true
+ip -4 address flush dev openap0 scope global >/dev/null 2>&1 || true
 systemctl restart systemd-networkd.service
 
 tries=20
@@ -269,6 +317,15 @@ country = $profile_country
 EOF
 chown www-data:www-data "$profile"
 chmod 0640 "$profile"
+dns_ready=false
+for _attempt in 1 2 3 4 5 6 7 8 9 10; do
+  if getent ahostsv4 example.com >/dev/null 2>&1; then
+    dns_ready=true
+    break
+  fi
+  sleep 1
+done
+[ "$dns_ready" = true ] || fail "Ethernet Bridge DNS did not become ready on the host"
 mkdir -p /run/openap
 date +%s > /run/openap/mode-switch
 trap - EXIT INT TERM

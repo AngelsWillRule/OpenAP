@@ -11,9 +11,11 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
+# Leave enough time for the POST redirect to load the dashboard and show the
+# reboot progress modal before the web server goes offline.
 exec /usr/bin/systemd-run \
   --quiet \
   --collect \
   --unit=openap-system-reboot \
-  --on-active=2s \
+  --on-active=8s \
   /bin/systemctl reboot

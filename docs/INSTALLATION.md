@@ -20,6 +20,22 @@ passes the clean validation matrix.
 
 ## Prerequisites
 
+OpenAP requires a fully updated and internally consistent operating system.
+Before downloading or installing OpenAP, run:
+
+```bash
+sudo apt update
+sudo apt full-upgrade
+sudo reboot
+```
+
+The reboot is required when the distribution reports that a new kernel or
+other reboot-sensitive component was installed. The OpenAP installer performs
+read-only APT/dpkg preflight checks and stops when broken dependencies,
+incomplete package configuration or pending system updates are detected. It
+does not run `apt update`, `apt --fix-broken install`, `apt upgrade` or
+`apt full-upgrade` on behalf of the administrator.
+
 OpenAP does not install Wi-Fi firmware or hardware drivers. Before running the
 installer, the operating system must expose:
 

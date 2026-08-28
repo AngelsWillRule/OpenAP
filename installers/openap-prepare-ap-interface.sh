@@ -31,8 +31,12 @@ profile_value() {
 
 ap_iface="$(profile_value ap)"
 ap_mac="$(profile_value ap_mac | tr '[:upper:]' '[:lower:]')"
+ap_24ghz="$(profile_value ap_24ghz)"
+ap_5ghz="$(profile_value ap_5ghz)"
+current_mode="$(profile_value current)"
 gateway="$(profile_value gateway)"
 subnet="$(profile_value subnet)"
+bridge_iface="$(profile_value bridge)"
 prefix="${subnet#*/}"
 
 case "$ap_iface" in
@@ -54,6 +58,18 @@ case "$prefix" in
     exit 1
     ;;
 esac
+[ "$prefix" -ge 1 ] && [ "$prefix" -le 32 ] || {
+  echo "Invalid OpenAP hotspot prefix: $prefix" >&2
+  exit 1
+}
+case "$bridge_iface" in
+  ''|*[!A-Za-z0-9_.:-]*)
+    [ -z "$bridge_iface" ] || {
+      echo "Invalid OpenAP hotspot bridge: $bridge_iface" >&2
+      exit 1
+    }
+    ;;
+esac
 
 remaining="$timeout"
 while [ "$remaining" -gt 0 ]; do
@@ -73,6 +89,69 @@ done
   echo "Timed out waiting for OpenAP AP interface $ap_iface" >&2
   exit 1
 }
+
+# NetworkManager persists its global Wi-Fi radio state separately from rfkill.
+# The systemd unit orders this helper after NetworkManager so both states can
+# be released deterministically during a cold boot.
+if command -v /usr/bin/nmcli >/dev/null 2>&1 \
+  && /usr/bin/systemctl is-active --quiet NetworkManager.service; then
+  /usr/bin/nmcli radio wifi on
+fi
+/usr/sbin/rfkill unblock wifi
+
+if [ "$current_mode" = ap_ethernet_bridge ]; then
+  # The routed dual-band topology uses openap0.  It must not retain its old
+  # hotspot address after hostapd moves the radios to the upstream bridge.
+  if [ "$bridge_iface" != openap0 ] && [ -d /sys/class/net/openap0/bridge ]; then
+    /usr/sbin/ip -4 address flush dev openap0 scope global
+    /usr/sbin/ip link set dev openap0 down
+  fi
+  /usr/sbin/ip link set dev "$ap_iface" up
+  exit 0
+fi
+
+if [ -n "$bridge_iface" ]; then
+  if [ ! -e "/sys/class/net/$bridge_iface" ]; then
+    /usr/sbin/ip link add name "$bridge_iface" type bridge
+  fi
+  [ -d "/sys/class/net/$bridge_iface/bridge" ] || {
+    echo "OpenAP hotspot interface is not a bridge: $bridge_iface" >&2
+    exit 1
+  }
+  /usr/sbin/ip link set dev "$bridge_iface" type bridge stp_state 0
+  /usr/sbin/ip -4 -o address show dev "$bridge_iface" \
+    | awk -v expected="$gateway/$prefix" '$4 != expected {print $4}' \
+    | while IFS= read -r stale_address; do
+        [ -n "$stale_address" ] || continue
+        /usr/sbin/ip -4 address del "$stale_address" dev "$bridge_iface"
+      done
+  # networkd may assign the bridge address concurrently during boot.  A
+  # check followed by "address add" races with that assignment and can fail
+  # with EEXIST.  "address replace" is idempotent whether the address is
+  # already present or appears while this command is running.
+  /usr/sbin/ip address replace "$gateway/$prefix" dev "$bridge_iface"
+  /usr/sbin/ip link set dev "$bridge_iface" up
+  configured_ap_ifaces=""
+  for configured_ap in "$ap_iface" "$ap_24ghz" "$ap_5ghz"; do
+    [ -n "$configured_ap" ] || continue
+    case " $configured_ap_ifaces " in *" $configured_ap "*) continue ;; esac
+    [ -e "/sys/class/net/$configured_ap" ] || {
+      echo "Configured OpenAP AP interface is absent: $configured_ap" >&2
+      exit 1
+    }
+    configured_ap_ifaces="$configured_ap_ifaces $configured_ap"
+    # A bridge member must not retain either the current or a stale hotspot
+    # gateway after the subnet is changed.
+    /usr/sbin/ip -4 address flush dev "$configured_ap" scope global
+    /usr/sbin/ip link set dev "$configured_ap" up
+  done
+  /usr/sbin/ip -4 -o address show dev "$bridge_iface" \
+    | awk -v gateway="$gateway" -v prefix="$prefix" '
+        $4 == gateway "/" prefix { found=1 }
+        END { exit found ? 0 : 1 }
+      '
+  exit $?
+fi
 
 if [ "$action" = "--ensure-address" ]; then
   # hostapd is already running. Never cycle the link here: doing so terminates

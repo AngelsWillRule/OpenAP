@@ -5,10 +5,8 @@ Debian-based systems. It provides one focused interface for hotspot, DHCP/DNS,
 uplink, firewall and system status while keeping privileged network changes in
 explicit root-owned helpers.
 
-> OpenAP `0.2.5.1` is in pre-release validation. The current `main` branch is a
-> release candidate, not a supported production release. Versioned downloads
-> and checksum-linked installation instructions will appear after the exact
-> release candidate passes the clean validation matrix.
+> OpenAP `0.8.0` is the first versioned stable release. Use the tagged source
+> archive and its published SHA-256 checksum for reproducible installations.
 
 ## What OpenAP does
 
@@ -36,10 +34,14 @@ flow. Repeater Mode is selected later from the dashboard.
 | Raspberry Pi 4 and 5 | Expected compatible; physical reports wanted |
 | Other Debian-like systems | Experimental |
 
-These labels become release claims only when the exact `0.2.5.1` candidate and
-checksum pass the clean-platform matrix.
+The tested labels apply to the exact `0.8.0` release archive and checksum.
 
 ## Hardware prerequisites
+
+> **Important:** Update the operating system completely before installing
+> OpenAP. The installer checks APT/dpkg state but does not update, repair or
+> upgrade the host. Run `sudo apt update` and `sudo apt full-upgrade`, then
+> reboot when required, before starting the installation.
 
 > **Important:** Every Wi-Fi adapter intended for OpenAP must already be
 > detected and operational before the installer is started. OpenAP does not
@@ -66,19 +68,16 @@ See [Hardware and Wi-Fi prerequisites](docs/HARDWARE.md).
 
 The detector and installer live in `openap-installer/bin`.
 
-To test the current pre-release on a clean supported system, install Git and
-clone the repository:
+To install on a clean supported system, install Git and clone the tagged
+release:
 
 ```bash
 sudo apt update
 sudo apt install -y git
 git clone https://github.com/AngelsWillRule/OpenAP.git
 cd OpenAP
+git checkout v0.8.0
 ```
-
-The default `main` branch is a moving pre-release target. Use this procedure
-only on a test system; the first supported release will provide a fixed archive
-and checksum-linked installation instructions.
 
 Read-only detection:
 

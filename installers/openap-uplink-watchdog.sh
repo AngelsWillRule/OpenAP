@@ -172,6 +172,13 @@ ip -4 -o address show dev "$actual_iface" scope global | grep -q ' inet ' \
 default_route="$(ip -4 route show default dev "$actual_iface" | head -1)"
 [ -n "$default_route" ] || record_failure "Uplink has no default route" "$actual_iface"
 
+# In repeater mode all hotspot traffic must follow the Wi-Fi UPLINK selected
+# by the NAT rules. networkd may recreate the management Ethernet default
+# route after a restart or rollback, so remove that competing route once the
+# Wi-Fi route is known to be ready.
+[ -z "$ethernet_interface" ] \
+  || ip -4 route del default dev "$ethernet_interface" >/dev/null 2>&1 || true
+
 rm -f "$failure_file"
 gateway="$(printf '%s\n' "$default_route" | awk '/ via / {print $3; exit}')"
 internet=unknown

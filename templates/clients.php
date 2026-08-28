@@ -1,8 +1,11 @@
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-xl-9 col-lg-8">
     <div class="card shadow">
-      <div class="card-header">
-        <i class="fas fa-laptop me-2"></i><?php echo _("Hotspot clients"); ?>
+      <div class="card-header openap-topology-header openap-page-main-header openap-dashboard-main-header">
+        <div class="openap-topology-header-title">
+          <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-laptop"></i></span>
+          <div><strong><?php echo _("Hotspot clients"); ?></strong></div>
+        </div>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -44,4 +47,5 @@
       <div class="card-footer"><?php echo _("Information provided by hostapd, dnsmasq and ARP."); ?></div>
     </div>
   </div>
+  <div class="col-xl-3 col-lg-4"><?php echo openapWidgetArea('clients'); ?></div>
 </div>

@@ -59,7 +59,71 @@ while IFS= read -r -d '' source_file; do
     bash -n "$source_file"
 done < <(find . -path ./.git -prune -o -type f -name '*.sh' -print0)
 bash -n openap-installer/bin/openap-install
+sh -n openap-installer/bin/openap-apply-dual-hostapd
+sh -n installers/openap-prepare-ap-interface.sh
+grep -Fq 'baseline_requires_bridge=0' openap-installer/bin/openap-apply-dual-hostapd
+grep -Fq '[ "$baseline_requires_bridge" -eq 1 ]' openap-installer/bin/openap-apply-dual-hostapd
+grep -Fq 'Address=$gateway/$hotspot_prefix' openap-installer/bin/openap-apply-dual-hostapd
+grep -Fq 'ip link add name "$bridge_iface" type bridge' installers/openap-prepare-ap-interface.sh
+grep -Fq '/usr/bin/nmcli radio wifi on' installers/openap-prepare-ap-interface.sh
+grep -Fq 'After=network-pre.target NetworkManager.service systemd-rfkill.service' installers/openap-ap-address.service
+grep -Fq 'Requires=openap-ap-address.service hostapd.service' installers/20-openap-ap-address.conf
+grep -Fq 'ExecCondition=/usr/local/sbin/openap-routed-service-required' openap-installer/config/25-openap-dnsmasq-mode.conf
+grep -Fq 'Requires=hostapd.service' openap-installer/config/25-openap-dnsmasq-mode.conf
+grep -Fq 'After=hostapd.service' openap-installer/config/25-openap-dnsmasq-mode.conf
+grep -Fq 'ExecCondition=/usr/local/sbin/openap-routed-service-required' openap-installer/config/25-openap-firewall-mode.conf
+grep -Fq '[ "$mode" != ap_ethernet_bridge ]' installers/openap-routed-service-required.sh
+grep -Fq 'Timed out waiting for configured OpenAP AP interfaces:' installers/openap-wait-ap-address.sh
+grep -Fq 'systemctl reset-failed hostapd.service dnsmasq.service' installers/openap-apply-ap-ethernet.sh
+grep -Fq 'systemctl reset-failed dnsmasq.service' installers/openap-apply-repeater-wifi.sh
+grep -Fq 'release_repeater_uplink 1' installers/openap-apply-ap-ethernet-bridge.sh
+grep -Fq 'ip -4 route get "$gateway_arg" oif "$eth_iface"' installers/openap-apply-ap-ethernet-bridge.sh
+grep -Fq 'openap-uplink-watchdog.timer' installers/openap-apply-ap-ethernet.sh
+grep -Fq 'systemctl reset-failed openap-uplink-watchdog.service' installers/openap-apply-ap-ethernet.sh
+grep -Fq 'ip -4 route get "$ethernet_gateway" oif "$ethernet_iface"' installers/openap-apply-ap-ethernet.sh
+grep -Fq 'systemctl reset-failed openap-uplink-watchdog.service' installers/openap-apply-ap-ethernet-bridge.sh
+grep -Fq 'systemctl enable --now openap-uplink-watchdog.timer' installers/openap-apply-repeater-wifi.sh
+grep -Fq "var transactionSucceeded = applyState.state === 'success'" app/js/ui/dashboard.js
+grep -Fq 'if (transactionSucceeded) notifyTrackedSuccess();' app/js/ui/dashboard.js
+grep -Fq 'notificationState.successShown = true;' app/js/ui/dashboard.js
+grep -Fq 'if (transactionSucceeded) {' app/js/ui/dashboard.js
+grep -Fq 'modeAnimation.complete(reconcileWidgets, verifiedDocument ? html' app/js/ui/dashboard.js
+grep -Fq 'delete window.openapLocalModeSwitchGuard;' app/js/ui/dashboard.js
+grep -Fq 'systemctl reset-failed dnsmasq.service' installers/openap-apply-dhcp-settings.sh
+grep -Fq 'systemctl reset-failed dnsmasq.service' installers/openap-apply-encrypted-dns.sh
+grep -Fq 'systemctl reset-failed hostapd.service dnsmasq.service' openap-installer/bin/openap-apply-dual-hostapd
+grep -Fq 'inhibit_package_service_starts' openap-installer/bin/openap-install
+grep -Fq 'exit 101' openap-installer/bin/openap-install
+grep -Fq 'release_package_start_policy' openap-installer/bin/openap-install
+grep -Fq 'lighttpd-maint.timer' openap-installer/bin/openap-install
+grep -Fq 'phpsessionclean.timer' openap-installer/bin/openap-install
+if grep -Fq 'systemctl mask --runtime' openap-installer/bin/openap-install; then
+    printf 'Installer must not runtime-mask package units before apt configures them.\n' >&2
+    exit 1
+fi
+grep -Fq 'persist_service_state' openap-installer/bin/openap-install
+grep -Fq 'disable_new_dnscrypt_services' openap-installer/bin/openap-install
+grep -Fq 'resume_preexisting_dnscrypt_services' openap-installer/bin/openap-install
+grep -Fq 'platform_update_preflight' openap-installer/bin/openap-install
+grep -Fq 'apt-get --simulate dist-upgrade' openap-installer/bin/openap-install
+grep -Fq -- '--no-install-recommends --no-upgrade' openap-installer/bin/openap-install
+if grep -Eq '^[[:space:]]*run apt-get (update|--fix-broken|upgrade|dist-upgrade|full-upgrade)' openap-installer/bin/openap-install; then
+    printf 'Installer must not update, repair or upgrade the host operating system.\n' >&2
+    exit 1
+fi
+if grep -Fq 'platform_core_packages=' openap-installer/bin/openap-install; then
+    printf 'Installer must not carry a host core-package upgrade set.\n' >&2
+    exit 1
+fi
+grep -Fq 'restore_managed_service_state' openap-installer/bin/openap-uninstall
+grep -Fq 'dnscrypt-proxy.toml' openap-installer/bin/openap-uninstall
+grep -Fq 'ip link delete dev openap0 type bridge' openap-installer/bin/openap-uninstall
 python3 -c 'compile(open("openap-installer/bin/openap-detect", encoding="utf-8").read(), "openap-detect", "exec")'
+python3 tests/test_openap_detect.py
+python3 tests/test_generate_dual_hostapd.py
+php tests/wifi-inventory.php
+php tests/wifi-roles.php
+php tests/user-preferences.php
 
 section "JSON syntax"
 while IFS= read -r -d '' source_file; do
@@ -90,5 +154,14 @@ section "Installer dry run"
 openap-installer/bin/openap-install --yes >"$dry_run_log"
 grep -Fq 'No changes were made.' "$dry_run_log"
 grep -Fq 'DRY-RUN: write OpenAP version metadata to /etc/openap/release' "$dry_run_log"
+grep -Fq 'DRY-RUN: do not update, repair or upgrade the operating system' "$dry_run_log"
+grep -Fq -- '--no-install-recommends --no-upgrade' "$dry_run_log"
+
+section "Installer Wi-Fi role model"
+grep -Fq '/etc/openap/wifi-roles.ini' openap-installer/bin/openap-install
+grep -Fq 'ap_24ghz = $ap_mac' openap-installer/bin/openap-install
+grep -Fq 'uplink = $uplink_mac' openap-installer/bin/openap-install
+grep -Fq 'if [ ! -e /etc/openap/wifi-roles.ini ]; then' openap-installer/bin/openap-install
+grep -Fq 'mv "$roles_tmp" /etc/openap/wifi-roles.ini' openap-installer/bin/openap-install
 
 printf '\nAll CI checks passed.\n'

@@ -85,40 +85,94 @@ function openapGetClientList(string $interface): array
     return $clients;
 }
 
-function openapGetClientDeviceBreakdown(string $interface): array
+/**
+ * Return the stations associated with every active AP radio.  In the
+ * multi-radio layout DHCP and neighbour information belongs to the hotspot
+ * bridge, while station counters continue to belong to the individual radios.
+ */
+function openapGetClientListForInterfaces(array $interfaces, string $neighborInterface = ''): array
 {
-    $clients = array_values(array_filter(
-        openapGetClientList($interface),
-        static fn(array $client): bool => !empty($client['connected'])
-    ));
-    $signals = [];
-    $breakdown = [
-        'total' => count($clients),
-        'avg_signal' => 0,
-        'strong' => 0,
-        'medium' => 0,
-        'weak' => 0,
-    ];
+    $interfaces = array_values(array_unique(array_filter($interfaces, static function ($interface): bool {
+        return is_string($interface) && preg_match('/^[A-Za-z0-9_.:-]+$/', $interface) === 1;
+    })));
+    if ($interfaces === []) {
+        return [];
+    }
 
+    $leases = getDnsmasqLeases();
+    $neighbors = getInterfaceNeighbors($neighborInterface !== '' ? $neighborInterface : $interfaces[0]);
+    $clients = [];
+    foreach ($interfaces as $interface) {
+        $band = openapGetInterfaceBand($interface);
+        foreach (getIwStations($interface) as $mac => $station) {
+            $lease = $leases[$mac] ?? [];
+            $candidate = [
+                'mac' => $mac,
+                'ip' => $lease['ip'] ?? ($neighbors[$mac]['ip'] ?? '-'),
+                'hostname' => $lease['hostname'] ?? '-',
+                'signal' => $station['signal'] ?? '-',
+                'rx_rate' => $station['rx_rate_info'] ?? '-',
+                'tx_rate' => $station['tx_rate_info'] ?? '-',
+                'connected' => true,
+                'connected_seconds' => (int) ($station['connected_time'] ?? 0),
+                'connected_for' => formatClientUptime((int) ($station['connected_time'] ?? 0)),
+                'state' => $neighbors[$mac]['state'] ?? '-',
+                'upload_bytes' => (int) ($station['rx_bytes'] ?? 0),
+                'download_bytes' => (int) ($station['tx_bytes'] ?? 0),
+                'traffic_bytes' => (int) ($station['rx_bytes'] ?? 0) + (int) ($station['tx_bytes'] ?? 0),
+                'interface' => $interface,
+                'band' => $band,
+            ];
+            if (!isset($clients[$mac]) || $candidate['connected_seconds'] >= $clients[$mac]['connected_seconds']) {
+                $clients[$mac] = $candidate;
+            }
+        }
+    }
+
+    ksort($clients);
+    return array_values($clients);
+}
+
+function openapGetInterfaceBand(string $interface): string
+{
+    if (!preg_match('/^[A-Za-z0-9_.:-]+$/', $interface)) {
+        return '';
+    }
+    exec('/usr/sbin/iw dev ' . escapeshellarg($interface) . ' info 2>/dev/null', $output, $status);
+    if ($status !== 0) {
+        return '';
+    }
+    if (preg_match('/\bchannel\s+\d+\s+\((\d+)\s+MHz\)/', implode("\n", $output), $match)) {
+        return (int) $match[1] >= 5000 ? '5' : '2.4';
+    }
+    return '';
+}
+
+function openapGetClientBreakdownForList(array $clients): array
+{
+    $signals = [];
+    $breakdown = ['total' => 0, 'avg_signal' => 0, 'strong' => 0, 'medium' => 0, 'weak' => 0];
     foreach ($clients as $client) {
+        if (empty($client['connected'])) {
+            continue;
+        }
+        $breakdown['total']++;
         if (!is_numeric($client['signal'] ?? null)) {
             continue;
         }
         $signal = (int) $client['signal'];
         $signals[] = $signal;
-        if ($signal >= -60) {
-            $breakdown['strong']++;
-        } elseif ($signal >= -75) {
-            $breakdown['medium']++;
-        } else {
-            $breakdown['weak']++;
-        }
+        $signal >= -60 ? $breakdown['strong']++ : ($signal >= -75 ? $breakdown['medium']++ : $breakdown['weak']++);
     }
-
     if ($signals !== []) {
         $breakdown['avg_signal'] = (int) round(array_sum($signals) / count($signals));
     }
     return $breakdown;
+}
+
+function openapGetClientDeviceBreakdown(string $interface): array
+{
+    return openapGetClientBreakdownForList(openapGetClientList($interface));
 }
 
 function getHostapdStations(string $interface): array
