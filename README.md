@@ -24,17 +24,47 @@ explicit root-owned helpers.
 The initial installer intentionally offers only the validated AP-over-Ethernet
 flow. Repeater Mode is selected later from the dashboard.
 
+## Interface preview
+
+These screenshots are illustrative previews of the OpenAP interface and the
+features users can expect. Runtime values, interface names, addresses and
+version labels depend on the system and the installation captured.
+
+### Dashboard
+
+![OpenAP Dashboard](docs/images/dashboard.png)
+
+### AP Configuration
+
+![OpenAP AP Configuration](docs/images/ap-configuration.png)
+
+### DHCP and DNS
+
+![OpenAP DHCP and DNS settings](docs/images/dhcp-dns.png)
+
+### Logging
+
+![OpenAP Logging](docs/images/logging.png)
+
+### System
+
+![OpenAP System](docs/images/system.png)
+
 ## Intended first-release platforms
 
 | Platform | Intended status |
 | --- | --- |
-| Debian 13 x86-64 | Tested |
-| Ubuntu 26.04 x86-64 | Tested |
+| Debian 13 x86-64 | Tested; intended for physical machines and VMs |
+| Ubuntu 26.04 x86-64 | Tested; intended for physical machines and VMs, including Incus |
 | Current Raspberry Pi OS 64-bit on Raspberry Pi 3B+ | Tested |
 | Raspberry Pi 4 and 5 | Expected compatible; physical reports wanted |
 | Other Debian-like systems | Experimental |
 
 The tested labels apply to the exact `0.8.0` release archive and checksum.
+On x86-64, OpenAP is designed to run on both physical hardware and virtual
+machines. Incus has been validated with bridged networking and Wi-Fi hardware
+passthrough; other hypervisors should expose equivalent Ethernet and Wi-Fi
+devices that satisfy the hardware prerequisites below.
 
 ## Hardware prerequisites
 
