@@ -94,6 +94,83 @@ machines. Incus has been validated with bridged networking and Wi-Fi hardware
 passthrough; other hypervisors should expose equivalent Ethernet and Wi-Fi
 devices that satisfy the hardware prerequisites below.
 
+<details>
+<summary><strong>Incus tutorial: add Wi-Fi interfaces to an OpenAP VM</strong></summary>
+
+The VM needs an Ethernet uplink and at least one Wi-Fi radio with AP support.
+WiFi Repeater Mode needs a second suitable radio for the managed uplink. Run
+the following commands on the Incus host and replace the example values with
+your VM and hardware identifiers.
+
+1. Set the VM name and inspect the host devices:
+
+   ```bash
+   OPENAP_VM=openap-vm
+   lsusb
+   lspci -Dnn | grep -iE 'network|wireless'
+   incus config show "$OPENAP_VM" --expanded
+   ```
+
+2. If the VM does not already have a suitable Ethernet device, connect it to
+   an existing host bridge such as `br0`:
+
+   ```bash
+   incus config device add "$OPENAP_VM" lan nic \
+     nictype=bridged parent=br0
+   ```
+
+3. Add a USB Wi-Fi adapter using the vendor and product IDs shown by `lsusb`.
+   For example, `ID 0bda:c820` becomes:
+
+   ```bash
+   incus config device add "$OPENAP_VM" wifi-usb usb \
+     vendorid=0bda productid=c820 required=false
+   ```
+
+   Prefer stable vendor/product IDs, and use the `serial` option as well when
+   identical adapters must be distinguished. Avoid fixed `busnum`/`devnum`
+   values because they can change after reconnecting or rebooting the device.
+   Incus supports USB hot-plug for VMs.
+
+4. To pass through an internal PCIe Wi-Fi card instead, stop the VM and use
+   the complete address reported by `lspci -D`:
+
+   ```bash
+   incus stop "$OPENAP_VM"
+   incus config device add "$OPENAP_VM" wifi-pcie pci \
+     address=0000:01:00.0
+   incus start "$OPENAP_VM"
+   ```
+
+   Raw PCI devices do not support VM hot-plug. The host must provide working
+   hardware virtualization and IOMMU support, and the passed radio becomes
+   unavailable to the host and other instances.
+
+5. Start the VM and verify that Linux sees the Ethernet and Wi-Fi devices:
+
+   ```bash
+   incus start "$OPENAP_VM"   # omit if it is already running
+   incus exec "$OPENAP_VM" -- ip -brief link
+   incus exec "$OPENAP_VM" -- iw dev
+   ```
+
+   If the Incus guest agent is unavailable, perform the same checks from the
+   VM console. Confirm that the intended radio supports AP mode before running
+   the OpenAP installer; OpenAP does not install guest drivers or firmware.
+
+To remove a USB device, run:
+
+```bash
+incus config device remove "$OPENAP_VM" wifi-usb
+```
+
+Stop the VM before removing a PCI device. See the official Incus documentation
+for [USB devices](https://linuxcontainers.org/incus/docs/main/reference/devices_usb/),
+[PCI devices](https://linuxcontainers.org/incus/docs/main/reference/devices_pci/)
+and [bridged NICs](https://linuxcontainers.org/incus/docs/main/reference/devices_nic/).
+
+</details>
+
 ## Hardware prerequisites
 
 > **Important:** Update the operating system completely before installing
