@@ -1,28 +1,56 @@
 # OpenAP
 
-OpenAP is a web-managed Wi-Fi access point and two-radio repeater for supported
-Debian-based systems. It provides one focused interface for hotspot, DHCP/DNS,
-uplink, firewall and system status while keeping privileged network changes in
+[![Release](https://img.shields.io/github/v/release/AngelsWillRule/OpenAP)](https://github.com/AngelsWillRule/OpenAP/releases/latest)
+[![CI](https://github.com/AngelsWillRule/OpenAP/actions/workflows/ci.yml/badge.svg)](https://github.com/AngelsWillRule/OpenAP/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
+OpenAP turns supported Debian-based systems into a web-managed wireless access
+point, dual-band hotspot or Wi-Fi repeater. It combines hardware-aware radio
+management, DHCP/DNS, encrypted DNS, nftables forwarding and live system
+status in one responsive interface while keeping privileged network changes in
 explicit root-owned helpers.
 
-> OpenAP `0.8.0` is the first versioned stable release. Use the tagged source
-> archive and its published SHA-256 checksum for reproducible installations.
+> **Current stable release:** [OpenAP 0.8.0](https://github.com/AngelsWillRule/OpenAP/releases/tag/v0.8.0).
+> Use the versioned archive and its published SHA-256 checksum for a
+> reproducible installation.
 
 ## What OpenAP does
 
-- creates a Wi-Fi hotspot over an Ethernet uplink;
+- creates single-band or simultaneous 2.4 GHz and 5 GHz hotspots over an
+  Ethernet uplink;
 - detects interfaces by capability and hardware identity instead of assuming
   names such as `wlan0` or `eth0`;
-- provides DHCP, DNS policy and nftables-based forwarding for hotspot clients;
-- switches to WiFi Repeater Mode after installation when a second suitable
-  Wi-Fi interface is available;
+- assigns persistent `ap_24ghz`, `ap_5ghz` and `uplink` roles and supports
+  transactional role swaps between compatible radios;
+- detects late, removed, reinserted and replacement Wi-Fi hardware and updates
+  AP Configuration, Repeater Mode and Network Topology live;
+- provides dynamic hotspot addressing, DHCP, DNS policy, encrypted DNS and
+  nftables-based forwarding for hotspot clients;
+- switches among WiFi Repeater Mode, Ethernet Routed NAT and Ethernet Bridge
+  without reinstalling OpenAP;
 - manages saved Wi-Fi uplinks without returning stored passphrases to the
   browser;
-- exposes AP configuration, DHCP/DNS, clients, logs and service health through
-  a responsive light/dark web interface.
+- exposes per-band channel, width and transmit-power controls, Wi-Fi QR codes,
+  clients, traffic, logs, service health and per-user widgets through a
+  responsive light/dark interface;
+- preserves and restores pre-existing shared-service configuration and state
+  during installation and removal.
 
 The initial installer intentionally offers only the validated AP-over-Ethernet
 flow. Repeater Mode is selected later from the dashboard.
+
+## Operating modes
+
+| Mode | Purpose |
+| --- | --- |
+| Ethernet Routed NAT | Runs the hotspot on an isolated subnet with OpenAP DHCP/DNS and nftables forwarding |
+| Ethernet Bridge | Bridges hotspot clients to the upstream Ethernet network and its DHCP/DNS services |
+| WiFi Repeater | Uses a separate managed-mode radio as the wireless uplink |
+
+Mode changes use ordered readiness checks and transactional recovery for
+interfaces, bridges, routes, hostapd, dnsmasq, encrypted DNS, firewall and the
+uplink watchdog. The Dashboard follows the confirmed runtime state rather than
+assuming a transition succeeded.
 
 ## Interface preview
 
@@ -50,9 +78,9 @@ version labels depend on the system and the installation captured.
 
 ![OpenAP System](docs/images/system.png)
 
-## Intended first-release platforms
+## Supported and tested platforms
 
-| Platform | Intended status |
+| Platform | Status |
 | --- | --- |
 | Debian 13 x86-64 | Tested; intended for physical machines and VMs |
 | Ubuntu 26.04 x86-64 | Tested; intended for physical machines and VMs, including Incus |
@@ -137,6 +165,11 @@ terminal, `--yes` generates unique passwords and displays them once at the end.
 Review the complete [installation guidance](docs/INSTALLATION.md) before
 deployment.
 
+The installer performs a read-only APT/dpkg preflight and stops if the host has
+missing package indexes, incomplete configuration, broken dependencies or
+pending upgrades. It installs only OpenAP dependencies with `--no-upgrade` and
+does not update, repair or upgrade the operating system automatically.
+
 ## Security model
 
 The Lighttpd/PHP dashboard runs without unrestricted root access. Network
@@ -151,15 +184,16 @@ operating-system security updates.
 
 Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-## Known pre-release limitations
+## Current limitations
 
-- installation, reinstall and mode switching still require the complete
-  release-candidate validation matrix;
 - headless unattended installation requires explicit hotspot and administrator
   passwords in the installer environment;
+- Repeater Mode requires two suitable Wi-Fi radios;
 - WPA3-only Wi-Fi uplinks are not supported;
-- automatic configuration rollback is planned but not yet implemented;
+- the full multi-radio rollback path still needs deliberate fault-injection
+  validation;
 - Raspberry Pi 4/5 compatibility has not yet been physically validated;
+- other Debian-like systems remain experimental;
 - OpenAP installs no Wi-Fi firmware or driver.
 
 ## Documentation
@@ -185,9 +219,10 @@ license audit.
 
 ## Contributing
 
-OpenAP does not yet offer production support guarantees. Code, documentation
-and hardware-validation contributions are welcome through the workflow in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Code, documentation and hardware-validation contributions are welcome through
+the workflow in [CONTRIBUTING.md](CONTRIBUTING.md). Reports from additional
+Wi-Fi adapters, Raspberry Pi 4/5 hardware and virtualized environments are
+particularly useful.
 
 ## License
 
