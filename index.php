@@ -10,7 +10,7 @@
  * @author  Bill Zimmerman <billzimmerman@gmail.com>
  * @author  OpenAP contributors
  * @license GNU General Public License, version 3 (GPL-3.0)
- * @version 0.2.5.1
+ * @version 0.8.0
  * @link    https://github.com/AngelsWillRule/OpenAP
  * @see     https://github.com/RaspAP/raspap-webgui
  */
@@ -37,6 +37,7 @@ require_once 'includes/hostapd.php';
 require_once 'includes/system.php';
 require_once 'includes/sysstats.php';
 require_once 'includes/about.php';
+require_once 'includes/widgets.php';
 
 // Load optional feature modules only when the active profile enables them.
 // This keeps disabled legacy modules outside the OpenAP request path while

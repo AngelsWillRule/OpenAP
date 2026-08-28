@@ -2,6 +2,11 @@
 set -eu
 
 mode=new
+allow_configured_ap=0
+if [ "${1:-}" = "--cold-role-swap" ]; then
+  allow_configured_ap=1
+  shift
+fi
 if [ "${1:-}" = "--saved" ]; then
   mode=saved
   iface="${2:-}"
@@ -29,8 +34,35 @@ is_wireless_iface() {
 
 is_wireless_iface "$iface" || fail "Uplink interface is not wireless"
 
+nm_managed_before=unknown
+release_from_networkmanager() {
+  command -v nmcli >/dev/null 2>&1 || return 0
+  systemctl is-active --quiet NetworkManager.service || return 0
+  nm_managed_before="$(nmcli -g GENERAL.NM-MANAGED device show "$iface" 2>/dev/null || true)"
+  nmcli device set "$iface" managed no \
+    || fail "Unable to release uplink interface $iface from NetworkManager"
+  attempts=50
+  while [ "$attempts" -gt 0 ] && [ -S "/run/wpa_supplicant/$iface" ]; do
+    attempts=$((attempts - 1))
+    sleep 0.1
+  done
+  if [ -S "/run/wpa_supplicant/$iface" ]; then
+    restore_networkmanager_ownership
+    fail "NetworkManager did not release the wpa_supplicant control interface for $iface"
+  fi
+}
+
+restore_networkmanager_ownership() {
+  [ "$nm_managed_before" = yes ] || return 0
+  command -v nmcli >/dev/null 2>&1 || return 0
+  systemctl is-active --quiet NetworkManager.service || return 0
+  nmcli device set "$iface" managed yes >/dev/null 2>&1 || true
+}
+
 configured_uplink="$(awk -F ' *= *' '$1 == "uplink" {print $2}' /etc/openap/repeater.ini 2>/dev/null | head -1)"
 configured_uplink_mac="$(awk -F ' *= *' '$1 == "uplink_mac" {print tolower($2)}' /etc/openap/repeater.ini 2>/dev/null | head -1)"
+configured_ap24="$(awk -F ' *= *' '$1 == "ap_24ghz" {print $2}' /etc/openap/repeater.ini 2>/dev/null | head -1)"
+configured_ap5="$(awk -F ' *= *' '$1 == "ap_5ghz" {print $2}' /etc/openap/repeater.ini 2>/dev/null | head -1)"
 iface_mac="$(tr A-F a-f < "/sys/class/net/$iface/address")"
 owned_by_openap=0
 [ -n "$configured_uplink" ] && [ "$configured_uplink" = "$iface" ] && owned_by_openap=1
@@ -51,6 +83,16 @@ install -d -m 0750 -o root -g www-data "$store_dir"
 [ -e "$dest" ] && cp -a "$dest" "$backup_dir/"
 [ -e /etc/systemd/system/openap-uplink.service ] && cp -a /etc/systemd/system/openap-uplink.service "$backup_dir/"
 [ -e "$network_conf" ] && cp -a "$network_conf" "$backup_dir/"
+if [ "$allow_configured_ap" -eq 1 ]; then
+  systemctl is-active --quiet hostapd.service \
+    && fail "Cold role swap requires the AP service to be stopped"
+fi
+for ap_iface in $configured_ap24 $configured_ap5; do
+  [ "$ap_iface" != "$iface" ] || [ "$allow_configured_ap" -eq 1 ] \
+    || fail "Uplink interface collides with an active AP interface"
+  stale_ap_network="/etc/systemd/network/30-${ap_iface}-sta.network"
+  [ -e "$stale_ap_network" ] && cp -a "$stale_ap_network" "$backup_dir/"
+done
 
 profile_ssid() {
   sed -n 's/^[[:space:]]*ssid="\(.*\)"[[:space:]]*$/\1/p' "$1" | head -1
@@ -107,13 +149,14 @@ EOF
 cat > /etc/systemd/system/openap-uplink.service <<EOF
 [Unit]
 Description=OpenAP upstream WiFi client on $iface
-After=systemd-udev-settle.service systemd-networkd.service
+After=systemd-udev-settle.service systemd-networkd.service NetworkManager.service
 Wants=systemd-udev-settle.service systemd-networkd.service
 Before=network-online.target
 
 [Service]
 Type=simple
 ExecStartPre=/bin/sh -c 'for i in \$(seq 1 30); do [ -e /sys/class/net/$iface ] && exit 0; sleep 1; done; exit 1'
+ExecStartPre=/bin/sh -c 'if /bin/systemctl is-active --quiet NetworkManager.service && command -v /usr/bin/nmcli >/dev/null 2>&1; then /usr/bin/nmcli device set $iface managed no || exit 1; for i in \$(seq 1 50); do [ ! -S /run/wpa_supplicant/$iface ] && exit 0; sleep 0.1; done; exit 1; fi'
 ExecStartPre=/bin/sh -c '/usr/sbin/iw dev $iface set power_save off 2>/dev/null || true'
 ExecStart=/sbin/wpa_supplicant -c $dest -i $iface
 Restart=always
@@ -125,10 +168,20 @@ EOF
 
 chmod 0644 /etc/systemd/system/openap-uplink.service
 chmod 0644 "$network_conf"
+for ap_iface in $configured_ap24 $configured_ap5; do
+  if [ "$allow_configured_ap" -eq 1 ] && [ "$ap_iface" = "$iface" ]; then
+    continue
+  fi
+  rm -f -- "/etc/systemd/network/30-${ap_iface}-sta.network"
+done
 systemctl daemon-reload
 systemctl restart systemd-networkd.service
+release_from_networkmanager
 systemctl enable openap-uplink.service
-systemctl restart openap-uplink.service
+if ! systemctl restart openap-uplink.service; then
+  restore_networkmanager_ownership
+  fail "Unable to start the OpenAP uplink service on $iface"
+fi
 
 attempt_invocation=""
 invocation_tries=20
@@ -146,6 +199,7 @@ attempt_events() {
 
 restore_rejected_candidate() {
   systemctl disable --now openap-uplink.service >/dev/null 2>&1 || true
+  restore_networkmanager_ownership
   if [ "$mode" = new ]; then
     previous_conf="$backup_dir/$(basename "$dest")"
     if [ -f "$previous_conf" ]; then

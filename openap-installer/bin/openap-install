@@ -17,6 +17,8 @@ wireless_country_override=""
 wireless_country=""
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 detector="$repo_dir/openap-installer/bin/openap-detect"
+dual_hostapd_generator="$repo_dir/openap-installer/bin/openap-generate-dual-hostapd"
+dual_hostapd_applier="$repo_dir/openap-installer/bin/openap-apply-dual-hostapd"
 webroot_excludes="$repo_dir/openap-installer/config/webroot-excludes.txt"
 version_file="$repo_dir/VERSION"
 release_file="/etc/openap/release"
@@ -40,6 +42,19 @@ address_backend="systemd-networkd"
 firewall_backend="openap-firewall"
 hostapd_config="/etc/hostapd/hostapd.conf"
 ui_config="$repo_dir/config/config.repeater.php"
+service_state_work=""
+package_start_policy_active=0
+package_start_policy_backup=""
+managed_services=(
+  hostapd.service
+  dnsmasq.service
+  dnscrypt-proxy.service
+  dnscrypt-proxy.socket
+  dnscrypt-proxy-resolvconf.service
+  lighttpd.service
+  lighttpd-maint.timer
+  phpsessionclean.timer
+)
 
 # Keep a dedicated terminal descriptor for the one-time credential recap.
 # Long-running package and service commands may alter stdin semantics, while
@@ -444,6 +459,130 @@ copy_if_exists() {
   fi
 }
 
+capture_service_state() {
+  local state_dir service key package enabled active package_preexisting config_preexisting
+  [ "$apply" -eq 1 ] || {
+    echo "DRY-RUN: record pre-OpenAP package, service and dnscrypt-proxy configuration state"
+    return 0
+  }
+  state_dir="$(mktemp -d /tmp/openap-service-state.XXXXXX)"
+  service_state_work="$state_dir"
+  config_preexisting=false
+  if [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    cp -a /etc/dnscrypt-proxy/dnscrypt-proxy.toml "$state_dir/dnscrypt-proxy.toml"
+    config_preexisting=true
+  fi
+  {
+    printf 'format_version=1\n'
+    printf 'dnscrypt_config_preexisting=%s\n' "$config_preexisting"
+    for service in "${managed_services[@]}"; do
+      key="${service//[.-]/_}"
+      case "$service" in
+        hostapd.service) package=hostapd ;;
+        dnsmasq.service) package=dnsmasq ;;
+        dnscrypt-proxy.service|dnscrypt-proxy.socket|dnscrypt-proxy-resolvconf.service) package=dnscrypt-proxy ;;
+        lighttpd.service|lighttpd-maint.timer) package=lighttpd ;;
+        phpsessionclean.timer) package=php-common ;;
+      esac
+      package_preexisting=false
+      dpkg-query -W -f='${db:Status-Abbrev}' "$package" 2>/dev/null | grep -q '^ii ' \
+        && package_preexisting=true
+      enabled="$(systemctl is-enabled "$service" 2>/dev/null || true)"
+      active="$(systemctl is-active "$service" 2>/dev/null || true)"
+      printf 'service_%s_package=%s\n' "$key" "$package"
+      printf 'service_%s_package_preexisting=%s\n' "$key" "$package_preexisting"
+      printf 'service_%s_enabled_before=%s\n' "$key" "${enabled:-not-found}"
+      printf 'service_%s_active_before=%s\n' "$key" "${active:-inactive}"
+    done
+  } > "$state_dir/install-state.env"
+}
+
+inhibit_package_service_starts() {
+  [ "$apply" -eq 1 ] || {
+    echo "DRY-RUN: stop managed services and inhibit package service starts during installation"
+    return 0
+  }
+  systemctl stop "${managed_services[@]}" 2>/dev/null || true
+  package_start_policy_backup="$(mktemp -d /tmp/openap-policy-rc.d.XXXXXX)"
+  if [ -e /usr/sbin/policy-rc.d ] || [ -L /usr/sbin/policy-rc.d ]; then
+    cp -a /usr/sbin/policy-rc.d "$package_start_policy_backup/policy-rc.d"
+  fi
+  rm -f -- /usr/sbin/policy-rc.d
+  cat > /usr/sbin/policy-rc.d <<'EOF'
+#!/bin/sh
+# Temporarily installed by OpenAP while packages are configured.
+exit 101
+EOF
+  chmod 0755 /usr/sbin/policy-rc.d
+  package_start_policy_active=1
+}
+
+release_package_start_policy() {
+  [ "$package_start_policy_active" -eq 1 ] || return 0
+  if [ -e "$package_start_policy_backup/policy-rc.d" ] \
+    || [ -L "$package_start_policy_backup/policy-rc.d" ]; then
+    rm -f -- /usr/sbin/policy-rc.d
+    cp -a "$package_start_policy_backup/policy-rc.d" /usr/sbin/policy-rc.d
+  else
+    rm -f -- /usr/sbin/policy-rc.d
+  fi
+  rm -rf -- "$package_start_policy_backup"
+  package_start_policy_backup=""
+  package_start_policy_active=0
+}
+
+disable_new_dnscrypt_services() {
+  local preexisting
+  [ "$apply" -eq 1 ] || return 0
+  preexisting="$(awk -F= '$1 == "service_dnscrypt_proxy_service_package_preexisting" {print $2}' \
+    "$service_state_work/install-state.env")"
+  [ "$preexisting" = true ] && return 0
+  systemctl disable --now dnscrypt-proxy.service dnscrypt-proxy.socket \
+    dnscrypt-proxy-resolvconf.service >/dev/null 2>&1 || true
+}
+
+resume_preexisting_dnscrypt_services() {
+  local service key active_before
+  [ "$apply" -eq 1 ] || return 0
+  for service in dnscrypt-proxy.socket dnscrypt-proxy.service dnscrypt-proxy-resolvconf.service; do
+    key="${service//[.-]/_}"
+    active_before="$(awk -F= -v wanted="service_${key}_active_before" \
+      '$1 == wanted {print $2}' "$service_state_work/install-state.env")"
+    [ "$active_before" = active ] || continue
+    systemctl start "$service"
+  done
+}
+
+installer_exit_cleanup() {
+  local exit_status=$?
+  release_package_start_policy
+  [ -z "$service_state_work" ] || [ ! -d "$service_state_work" ] \
+    || rm -rf -- "$service_state_work"
+  if [ "$exit_status" -ne 0 ]; then
+    echo "ERROR: OpenAP installer stopped before completion (exit status: $exit_status)." >&2
+  fi
+  return "$exit_status"
+}
+
+persist_service_state() {
+  local target=/etc/openap/preinstall-state config_preexisting
+  [ "$apply" -eq 1 ] || return 0
+  [ -n "$service_state_work" ] && [ -r "$service_state_work/install-state.env" ] || {
+    echo "ERROR: pre-install service state was not captured" >&2
+    exit 1
+  }
+  mkdir -p "$target"
+  install -o root -g root -m 0600 "$service_state_work/install-state.env" "$target/install-state.env"
+  config_preexisting="$(awk -F= '$1 == "dnscrypt_config_preexisting" {print $2}' "$service_state_work/install-state.env")"
+  if [ "$config_preexisting" = true ]; then
+    install -o root -g root -m 0600 "$service_state_work/dnscrypt-proxy.toml" "$target/dnscrypt-proxy.toml"
+  elif [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    # Preserve the package default so a package retained after uninstall is
+    # left with a valid, non-OpenAP configuration.
+    install -o root -g root -m 0600 /etc/dnscrypt-proxy/dnscrypt-proxy.toml "$target/dnscrypt-proxy.toml"
+  fi
+}
+
 migrate_legacy_config_tree() {
   local legacy_dir="/etc/raspap"
   local config_dir="/etc/openap"
@@ -492,6 +631,69 @@ os_supported() {
     *" debian "*|*" ubuntu "*|*" neon "*) return 0 ;;
   esac
   return 1
+}
+
+platform_update_preflight() {
+  local audit_output="" simulation="" summary="" upgraded="" newly_installed="" removed="" held=""
+
+  echo
+  echo "Operating-system update preflight"
+  if [ "$apply" -eq 0 ]; then
+    echo "DRY-RUN: require current APT indexes, a clean dpkg state and no pending dist-upgrade actions"
+    echo "DRY-RUN: do not update, repair or upgrade the operating system"
+    return 0
+  fi
+
+  if ! find /var/lib/apt/lists -maxdepth 1 -type f -name '*_Packages*' -print -quit 2>/dev/null \
+      | grep -q .; then
+    echo "ERROR: APT package indexes are unavailable." >&2
+    echo "OpenAP requires an operating system updated before installation." >&2
+    echo "Run 'sudo apt update' and 'sudo apt full-upgrade', reboot if required, then run the installer again." >&2
+    exit 1
+  fi
+
+  audit_output="$(dpkg --audit 2>&1 || true)"
+  if [ -n "$audit_output" ]; then
+    echo "ERROR: dpkg reports incomplete or inconsistent package state:" >&2
+    printf '%s\n' "$audit_output" >&2
+    echo "Repair and fully update the operating system before installing OpenAP." >&2
+    echo "Typical administrator commands are 'sudo dpkg --configure -a' and 'sudo apt --fix-broken install'." >&2
+    exit 1
+  fi
+
+  if ! LC_ALL=C apt-get check >/dev/null; then
+    echo "ERROR: APT reports broken package dependencies." >&2
+    echo "Repair and fully update the operating system before installing OpenAP." >&2
+    echo "OpenAP will not run apt --fix-broken or upgrade system packages automatically." >&2
+    exit 1
+  fi
+
+  if ! simulation="$(LC_ALL=C apt-get --simulate dist-upgrade 2>&1)"; then
+    echo "ERROR: unable to verify that the operating system is fully updated." >&2
+    printf '%s\n' "$simulation" >&2
+    echo "Run 'sudo apt update' and 'sudo apt full-upgrade', then try again." >&2
+    exit 1
+  fi
+  summary="$(printf '%s\n' "$simulation" | sed -nE \
+    's/^([0-9]+) upgraded, ([0-9]+) newly installed, ([0-9]+) to remove and ([0-9]+) not upgraded\.?$/\1 \2 \3 \4/p' \
+    | tail -n 1)"
+  if [[ ! "$summary" =~ ^[0-9]+\ [0-9]+\ [0-9]+\ [0-9]+$ ]]; then
+    echo "ERROR: APT returned an unrecognized update summary." >&2
+    echo "OpenAP cannot safely confirm that the operating system is current." >&2
+    echo "Run 'sudo apt update' and 'sudo apt full-upgrade', then try again." >&2
+    exit 1
+  fi
+  read -r upgraded newly_installed removed held <<< "$summary"
+  if [ "$upgraded" -ne 0 ] || [ "$newly_installed" -ne 0 ] \
+      || [ "$removed" -ne 0 ] || [ "$held" -ne 0 ]; then
+    echo "ERROR: operating-system updates are pending." >&2
+    echo "APT simulation: $upgraded upgraded, $newly_installed newly installed, $removed removed, $held not upgraded." >&2
+    echo "OpenAP does not upgrade the host operating system." >&2
+    echo "Run 'sudo apt update' and 'sudo apt full-upgrade', reboot if required, then run the installer again." >&2
+    exit 1
+  fi
+
+  echo "Operating-system package state is clean and fully updated."
 }
 
 json_value() {
@@ -1105,6 +1307,8 @@ if ! os_supported; then
   exit 1
 fi
 
+platform_update_preflight
+
 for file in \
   "$detector" \
   "$version_file" \
@@ -1123,13 +1327,18 @@ for file in \
   "$repo_dir/installers/openap-apply-encrypted-dns.sh" \
   "$repo_dir/installers/openap-apply-repeater-wifi.sh" \
   "$repo_dir/installers/openap-switch-interface-roles.sh" \
+  "$dual_hostapd_generator" \
+  "$dual_hostapd_applier" \
   "$repo_dir/installers/openap-apply-uplink-wifi.sh" \
   "$repo_dir/installers/openap-scan-wifi.sh" \
   "$repo_dir/installers/openap-forget-uplink-wifi.sh" \
   "$repo_dir/installers/openap-resolve-interfaces.sh" \
   "$repo_dir/installers/openap-set-txpower.sh" \
   "$repo_dir/installers/openap-system-reboot.sh" \
+  "$repo_dir/installers/openap-routed-service-required.sh" \
   "$repo_dir/installers/openap-wait-ap-address.sh" \
+  "$repo_dir/openap-installer/config/25-openap-dnsmasq-mode.conf" \
+  "$repo_dir/openap-installer/config/25-openap-firewall-mode.conf" \
   "$repo_dir/installers/openap-refresh-bridge-neighbors.sh" \
   "$repo_dir/installers/openap-uplink-watchdog.sh" \
   "$repo_dir/installers/openap-uplink-watchdog.service" \
@@ -1165,6 +1374,7 @@ packages=(
   iw
   usbutils
   usb-modeswitch
+  usb-modeswitch-data
   wireless-regdb
   rfkill
   wpasupplicant
@@ -1200,8 +1410,13 @@ fi
 
 echo
 echo "Package install set"
-run apt-get update
-run apt-get install "${apt_yes[@]}" --no-install-recommends "${packages[@]}"
+capture_service_state
+inhibit_package_service_starts
+trap installer_exit_cleanup EXIT
+run apt-get install "${apt_yes[@]}" --no-install-recommends --no-upgrade "${packages[@]}"
+run apt-get check
+release_package_start_policy
+disable_new_dnscrypt_services
 if [ "$apply" -eq 1 ] && [ "$wireless_regdb_missing" -eq 1 ] \
   && dpkg-query -W -f='${db:Status-Abbrev}' wireless-regdb 2>/dev/null | grep -q '^ii '; then
   reboot_required=1
@@ -1275,6 +1490,7 @@ for path in \
   /etc/systemd/system/openap-uplink.service \
   /etc/nftables.conf \
   /etc/openap/repeater.ini \
+  /etc/openap/wifi-roles.ini \
   /etc/openap/openap.auth \
   /etc/sudoers.d/090_raspap \
   "/etc/sudoers.d/$sudoers_name" \
@@ -1307,7 +1523,7 @@ run chown -R www-data:www-data "$webroot"
 
 echo
 echo "Install runtime directories"
-run mkdir -p /etc/openap/backups /etc/openap/hostapd /etc/openap/networking /etc/openap/system
+run mkdir -p /etc/openap/backups /etc/openap/hostapd /etc/openap/networking /etc/openap/system /etc/openap/user-preferences /var/cache/openap/detect
 if [ "$apply" -eq 1 ]; then
   {
     printf 'version=%s\n' "$openap_version"
@@ -1321,6 +1537,8 @@ fi
 run cp "$repo_dir/config/defaults.json" /etc/openap/networking/defaults.json
 run cp "$repo_dir/installers/debuglog.sh" /etc/openap/system/debuglog.sh
 run chown -R www-data:www-data /etc/openap
+run chown -R www-data:www-data /var/cache/openap
+persist_service_state
 run chmod 0644 "$release_file"
 run chown root:root /etc/openap/system/debuglog.sh
 run chmod 0750 /etc/openap/system/debuglog.sh
@@ -1339,13 +1557,18 @@ run cp "$repo_dir/installers/openap-forget-uplink-wifi.sh" /usr/local/sbin/opena
 run cp "$repo_dir/installers/openap-resolve-interfaces.sh" /usr/local/sbin/openap-resolve-interfaces
 run cp "$repo_dir/installers/openap-set-txpower.sh" /usr/local/sbin/openap-set-txpower
 run cp "$repo_dir/installers/openap-system-reboot.sh" /usr/local/sbin/openap-system-reboot
+run rm -f /usr/local/sbin/openap-dnsmasq-required
+run cp "$repo_dir/installers/openap-routed-service-required.sh" /usr/local/sbin/openap-routed-service-required
 run cp "$repo_dir/installers/openap-wait-ap-address.sh" /usr/local/sbin/openap-wait-ap-address
+run cp "$repo_dir/installers/openap-prepare-ap-interface.sh" /usr/local/sbin/openap-prepare-ap-interface
 run cp "$repo_dir/installers/openap-refresh-bridge-neighbors.sh" /usr/local/sbin/openap-refresh-bridge-neighbors
 run cp "$repo_dir/installers/openap-uplink-watchdog.sh" /usr/local/sbin/openap-uplink-watchdog
 run cp "$repo_dir/installers/openap-switch-interface-roles.sh" /usr/local/sbin/openap-switch-interface-roles
 run cp "$detector" /usr/local/sbin/openap-detect
-run chown root:root /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect
-run chmod 0755 /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect
+run cp "$dual_hostapd_generator" /usr/local/sbin/openap-generate-dual-hostapd
+run cp "$dual_hostapd_applier" /usr/local/sbin/openap-apply-dual-hostapd
+run chown root:root /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-routed-service-required /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-prepare-ap-interface /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect /usr/local/sbin/openap-generate-dual-hostapd /usr/local/sbin/openap-apply-dual-hostapd
+run chmod 0755 /usr/local/sbin/openap-apply-ap-ethernet /usr/local/sbin/openap-apply-ap-ethernet-bridge /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd /usr/local/sbin/openap-apply-dhcp-settings /usr/local/sbin/openap-apply-encrypted-dns /usr/local/sbin/openap-apply-repeater-wifi /usr/local/sbin/openap-apply-uplink-wifi /usr/local/sbin/openap-scan-wifi /usr/local/sbin/openap-forget-uplink-wifi /usr/local/sbin/openap-resolve-interfaces /usr/local/sbin/openap-set-txpower /usr/local/sbin/openap-system-reboot /usr/local/sbin/openap-routed-service-required /usr/local/sbin/openap-wait-ap-address /usr/local/sbin/openap-prepare-ap-interface /usr/local/sbin/openap-refresh-bridge-neighbors /usr/local/sbin/openap-uplink-watchdog /usr/local/sbin/openap-switch-interface-roles /usr/local/sbin/openap-detect /usr/local/sbin/openap-generate-dual-hostapd /usr/local/sbin/openap-apply-dual-hostapd
 
 echo
 echo "Install AP-Ethernet bridge neighbour refresh timer"
@@ -1368,11 +1591,15 @@ run systemctl enable --now openap-uplink-watchdog.timer
 echo
 echo "Install AP-address startup ordering"
 run mkdir -p /etc/systemd/system/dnsmasq.service.d /etc/systemd/system/hostapd.service.d
+run cp "$repo_dir/openap-installer/config/25-openap-dnsmasq-mode.conf" /etc/systemd/system/dnsmasq.service.d/25-openap-dnsmasq-mode.conf
+run chown root:root /etc/systemd/system/dnsmasq.service.d/25-openap-dnsmasq-mode.conf
+run chmod 0644 /etc/systemd/system/dnsmasq.service.d/25-openap-dnsmasq-mode.conf
+run mkdir -p /etc/systemd/system/openap-firewall.service.d
+run cp "$repo_dir/openap-installer/config/25-openap-firewall-mode.conf" /etc/systemd/system/openap-firewall.service.d/25-openap-firewall-mode.conf
+run chown root:root /etc/systemd/system/openap-firewall.service.d/25-openap-firewall-mode.conf
+run chmod 0644 /etc/systemd/system/openap-firewall.service.d/25-openap-firewall-mode.conf
 if [ "$raspberry_native" -eq 1 ]; then
   run rm -f /etc/systemd/system/dnsmasq.service.d/20-openap-wait-ap-address.conf /etc/systemd/system/hostapd.service.d/20-openap-wait-ap-address.conf
-  run cp "$repo_dir/installers/openap-prepare-ap-interface.sh" /usr/local/sbin/openap-prepare-ap-interface
-  run chown root:root /usr/local/sbin/openap-prepare-ap-interface
-  run chmod 0755 /usr/local/sbin/openap-prepare-ap-interface
   run cp "$repo_dir/installers/openap-ap-address.service" /etc/systemd/system/openap-ap-address.service
   run cp "$repo_dir/installers/20-openap-ap-address.conf" /etc/systemd/system/dnsmasq.service.d/20-openap-ap-address.conf
   run cp "$repo_dir/installers/20-openap-hostapd-address.conf" /etc/systemd/system/hostapd.service.d/20-openap-ap-address.conf
@@ -1448,6 +1675,31 @@ country = $wireless_country
 EOF
   chown www-data:www-data /etc/openap/repeater.ini
   chmod 0640 /etc/openap/repeater.ini
+
+  # The initial hotspot is configured below for 2.4 GHz (hw_mode=g,
+  # channel 6). Create the schema-v2 role model required by the Dashboard
+  # Ethernet/Repeater helpers. Preserve an existing model during upgrades,
+  # because it may contain an applied dual-band layout or an unsaved draft.
+  if [ ! -e /etc/openap/wifi-roles.ini ]; then
+    roles_tmp="$(mktemp /etc/openap/.wifi-roles.ini.XXXXXX)"
+    cat > "$roles_tmp" <<EOF
+[meta]
+version = 2
+
+[active]
+ap_24ghz = $ap_mac
+ap_5ghz =
+uplink = $uplink_mac
+
+[draft]
+ap_24ghz = $ap_mac
+ap_5ghz =
+uplink = $uplink_mac
+EOF
+    chown www-data:www-data "$roles_tmp"
+    chmod 0640 "$roles_tmp"
+    mv "$roles_tmp" /etc/openap/wifi-roles.ini
+  fi
 
   # Keep the legacy hotspot state file coherent for code paths and upgrades
   # that still inspect it. The runtime role profile remains authoritative.
@@ -1612,9 +1864,9 @@ After=network.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStartPre=-/usr/sbin/nft delete table ip openap_nat
+ExecStartPre=/bin/sh -c '/usr/sbin/nft list table ip openap_nat >/dev/null 2>&1 && /usr/sbin/nft delete table ip openap_nat || true'
 ExecStart=/usr/sbin/nft -f /etc/openap/networking/openap.nft
-ExecStop=-/usr/sbin/nft delete table ip openap_nat
+ExecStop=/bin/sh -c '/usr/sbin/nft list table ip openap_nat >/dev/null 2>&1 && /usr/sbin/nft delete table ip openap_nat || true'
 
 [Install]
 WantedBy=multi-user.target
@@ -1765,9 +2017,14 @@ if [ "$mode" = "ap-ethernet" ]; then
     systemctl restart openap-regdomain.service
     dnsmasq --test
     nft -c -f /etc/openap/networking/openap.nft
-    systemctl restart openap-firewall.service
-    systemctl restart dnsmasq.service
-    systemctl restart hostapd.service
+    # Restart the hotspot stack in one systemd transaction.  dnsmasq requires
+    # hostapd on OpenAP installations; restarting hostapd separately after
+    # dnsmasq can therefore leave dnsmasq briefly activating and make the
+    # immediate is-active check fail with status 3 even though startup later
+    # completes successfully.
+    systemctl reset-failed hostapd.service dnsmasq.service >/dev/null 2>&1 || true
+    systemctl restart hostapd.service dnsmasq.service openap-firewall.service
+    resume_preexisting_dnscrypt_services
     systemctl is-active --quiet openap-firewall.service
     systemctl is-active --quiet dnsmasq.service
     systemctl is-active --quiet hostapd.service
@@ -1780,6 +2037,8 @@ if [ "$mode" = "ap-ethernet" ]; then
     echo "DRY-RUN: enable and start openap-regdomain, hostapd, dnsmasq and openap-firewall"
   fi
 fi
+
+release_package_start_policy
 
 echo
 echo "Done."

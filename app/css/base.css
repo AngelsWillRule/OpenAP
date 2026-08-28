@@ -1,6 +1,13 @@
 /* OpenAP V3 — Clean Light Theme */
-:root{--bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--border-light:#f1f5f9;--primary:#1e3a8a;--primary-dark:#1e40af;--primary-soft:rgba(30,58,138,0.06);--primary-light:#e8edf5;--accent:#d97706;--accent-soft:rgba(217,119,6,0.08);--text:#0f172a;--text-muted:#64748b;--text-light:#94a3b8;--success:#059669;--danger:#dc2626;--radius:16px;--radius-sm:10px;--shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow-lg:0 4px 20px rgba(0,0,0,0.07)}
+:root{--bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;--border-light:#f1f5f9;--primary:#1e3a8a;--primary-dark:#1e40af;--primary-soft:rgba(30,58,138,0.06);--primary-light:#e8edf5;--accent:#d97706;--accent-soft:rgba(217,119,6,0.08);--text:#0f172a;--text-muted:#64748b;--text-light:#7f919d;--success:#059669;--danger:#dc2626;--radius:16px;--radius-sm:10px;--shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow-lg:0 4px 20px rgba(0,0,0,0.07)}
+:root { --openap-text-support-strong: #111820; }
+html[data-bs-theme="dark"] { --openap-text-support-strong: #fff; }
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+html:not([data-bs-theme="dark"]) body,
+html:not([data-bs-theme="dark"]) #layoutSidenav_content,
+html:not([data-bs-theme="dark"]) #layoutSidenav_content > main {
+  background: #fff;
+}
 a{--bs-link-color:var(--primary);--bs-link-hover-color:var(--primary-dark);text-decoration:none}
 
 /* ===== TOPBAR ===== */
@@ -38,7 +45,7 @@ a{--bs-link-color:var(--primary);--bs-link-hover-color:var(--primary-dark);text-
 
 /* Mobile-only primary navigation. */
 .openap-mobile-bottom-nav{display:none}
-@media(max-width:767.98px){
+@media(max-width:767.98px),(max-width:712px) and (max-height:1138px),(max-width:800px) and (max-height:1280px),(max-width:820px) and (max-height:1180px),(max-width:834px) and (max-height:1210px),(max-width:846px) and (max-height:414px),(max-width:915px) and (max-height:412px),(max-width:1138px) and (max-height:712px),(max-width:1180px) and (max-height:820px),(max-width:1280px) and (max-height:800px){
   .openap-mobile-bottom-nav{
     position:fixed;
     left:50%;
@@ -149,11 +156,12 @@ a{--bs-link-color:var(--primary);--bs-link-hover-color:var(--primary-dark);text-
     box-shadow:inset 0 0 0 1px rgba(121,221,213,.08);
   }
 }
-@media(max-width:767.98px) and (prefers-reduced-motion:reduce){
+@media(max-width:767.98px) and (prefers-reduced-motion:reduce),(max-width:712px) and (max-height:1138px) and (prefers-reduced-motion:reduce),(max-width:800px) and (max-height:1280px) and (prefers-reduced-motion:reduce),(max-width:820px) and (max-height:1180px) and (prefers-reduced-motion:reduce),(max-width:834px) and (max-height:1210px) and (prefers-reduced-motion:reduce),(max-width:846px) and (max-height:414px) and (prefers-reduced-motion:reduce),(max-width:915px) and (max-height:412px) and (prefers-reduced-motion:reduce){
   .openap-mobile-bottom-nav.is-sliding .openap-mobile-bottom-indicator{transition:none}
 }
 .openap-theme-toggle{display:flex;align-items:center}
-.openap-theme-toggle-button{height:32px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 11px;border:1px solid rgba(255,255,255,.24);border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:600;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease;user-select:none}
+.openap-theme-toggle-button{height:32px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 11px;border:1px solid rgba(255,255,255,.24);border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-family:"Rajdhani","DejaVu Sans",Arial,sans-serif;font-size:11px;font-weight:800;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease;user-select:none}
+.openap-theme-toggle-button span{font-weight:800!important}
 .openap-theme-toggle-button:hover{background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.36);color:#fff}
 .openap-theme-toggle-button:active{transform:translateY(1px)}
 .openap-theme-toggle .dark-mode-toggle:focus-visible + .openap-theme-toggle-button{outline:2px solid #fff;outline-offset:2px}
@@ -298,6 +306,14 @@ footer .text-muted{color:var(--text-muted)!important}
 .openap-clients-view { display:flex; justify-content:center; padding:9px 12px; border-top:1px solid var(--border,#e2e8f0); background:var(--bg,#f8fafc); }
 .openap-clients-view-button { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border:1px solid rgba(30,58,138,.22); border-radius:7px; background:var(--surface,#fff); color:var(--primary,#1e3a8a); font-size:12px; font-weight:600; line-height:1; transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease; }
 .openap-clients-view-button:hover,.openap-clients-view-button:focus-visible { border-color:var(--primary,#1e3a8a); background:var(--primary,#1e3a8a); color:#fff; transform:translateY(-1px); }
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body > .text-center.py-4 { background:var(--bg); }
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body:has(> .text-center.py-4) { background:var(--bg); }
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body:has(> .text-center.py-4) > .openap-clients-view {
+  background:#fff;
+}
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body > .openap-clients-view .openap-clients-view-button { background:var(--bg); }
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body > .openap-clients-view .openap-clients-view-button:hover,
+html:not([data-bs-theme="dark"]) .openap-topology-clients-body > .openap-clients-view .openap-clients-view-button:focus-visible { background:var(--primary,#1e3a8a); }
 .openap-clients-modal { overflow:hidden; border:1px solid var(--border,#e2e8f0); border-radius:10px; background:var(--surface,#fff); }
 .openap-clients-modal .modal-header { border-bottom-color:var(--border,#e2e8f0); }
 .openap-clients-modal-list { padding:6px 10px 8px; background:var(--surface,#fff); }
@@ -1789,6 +1805,11 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   margin-right: 5px;
   color: rgba(255, 255, 255, .5);
 }
+.openap-hotspot-section-heading small,
+.openap-network-traffic-heading small,
+.openap-connected-clients-heading small {
+  display: none !important;
+}
 .openap-topology-header-title {
   display: flex;
   align-items: center;
@@ -1905,9 +1926,12 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   gap: 5px;
 }
 .openap-connected-clients-meta .badge-openap {
-  border: 1px solid rgba(255, 255, 255, .22);
+  border: 1px solid #fff;
   background: rgba(255, 255, 255, .14);
-  color: #fff;
+  color: #fff !important;
+}
+.openap-connected-clients-meta .badge-openap i {
+  color: #fff !important;
 }
 .openap-topology-clients .openap-topology-clients-body {
   border-color: rgba(18, 104, 105, .42);
@@ -1954,23 +1978,124 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   border-radius: 0 !important;
   box-shadow: none;
 }
+.openap-wifi-hotspot-card,
+.openap-hotspot-section-heading,
+.hs-section.openap-hotspot-summary {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+}
+.openap-hotspot-section-heading strong {
+  font-size: 12px;
+  line-height: 12px;
+}
+.openap-hotspot-section-heading small {
+  font-size: 10px;
+  line-height: 10px;
+}
+.openap-network-traffic-heading {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+}
+.openap-network-traffic-section {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+}
+.openap-network-traffic-heading strong {
+  font-size: 12px;
+  line-height: 12px;
+}
+.openap-network-traffic-heading small {
+  font-size: 10px;
+  line-height: 10px;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-name-row strong {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+}
+.openap-wifi-hotspot-card button,
+.openap-wifi-hotspot-card input,
+.openap-wifi-hotspot-card select,
+.openap-hotspot-summary button,
+.openap-hotspot-summary input,
+.openap-hotspot-summary select {
+  font-family: inherit;
+}
 .openap-hotspot-identity {
+  position: relative;
   display: flex;
   min-height: 58px;
   align-items: center;
   gap: 10px;
   padding: 9px 11px;
   border-bottom: 1px solid rgba(18, 104, 105, .2);
-  background: var(--surface);
+  background: var(--bg);
 }
+.openap-hotspot-identity.has-corner-state {
+  padding-right: 114px;
+}
+.openap-hotspot-state.openap-hotspot-state-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 92px;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+}
+.openap-hotspot-state-corner .openap-hotspot-state-slot {
+  border-top: 0;
+  border-right: 0;
+  border-radius: 0 0 0 8px;
+}
+.openap-hotspot-state-corner .openap-hotspot-actions {
+  margin-top: 4px;
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/rajdhani/Rajdhani-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/rajdhani/Rajdhani-Medium.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/rajdhani/Rajdhani-SemiBold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/rajdhani/Rajdhani-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/rajdhani/Rajdhani-Bold.ttf") format("truetype");
+}
+
 .openap-hotspot-identity-icon,
 .openap-hotspot-metric-icon {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid rgba(18, 104, 105, .24);
-  background: #fff;
   color: #1e3a8a;
+}
+.openap-hotspot-identity-icon {
+  background: #fff;
+}
+.openap-hotspot-metric-icon {
+  background: var(--bg);
 }
 .openap-hotspot-identity-icon {
   width: 36px;
@@ -1985,11 +2110,18 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   min-width: 0;
   line-height: 1.15;
 }
+.openap-hotspot-name-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
 .openap-hotspot-identity-copy strong,
 .openap-hotspot-identity-copy small {
   display: block;
 }
 .openap-hotspot-identity-copy strong {
+  min-width: 0;
   overflow: hidden;
   color: var(--text);
   font-size: 12px;
@@ -1997,16 +2129,162 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.openap-hotspot-identity-copy [data-openap-hotspot-field="ssid"] {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .45px;
+}
+.openap-hotspot-dual-band-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 18px;
+  padding: 2px 6px;
+  border: 1px solid rgba(30, 58, 138, .24);
+  border-radius: 6px;
+  background: rgba(30, 58, 138, .09);
+  color: #1e3a8a;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .15px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.openap-hotspot-security {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+}
+.openap-hotspot-security i {
+  color: #16847f;
+  font-size: 11px;
+}
+.openap-hotspot-network-badges {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.openap-hotspot-network-badges .openap-hotspot-security {
+  min-height: 18px;
+  padding: 2px 6px;
+  border: 1px solid rgba(18, 104, 105, .28);
+  border-radius: 6px;
+  background: #d8ece9;
+  color: #334155;
+}
+.openap-hotspot-hidden-badge {
+  margin-top: 4px;
+}
+html[data-bs-theme="dark"] .openap-hotspot-network-badges .openap-hotspot-security {
+  border-color: rgba(85, 195, 187, .3);
+  background: rgba(85, 195, 187, .055);
+  color: var(--text);
+}
 .openap-hotspot-identity-copy small {
   margin-top: 3px;
   color: var(--text-light);
   font-size: 10px;
+}
+.openap-hotspot-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.openap-hotspot-actions.openap-hotspot-actions-end {
+  margin-top: 0;
+  margin-left: auto;
+}
+.openap-hotspot-actions form {
+  display: inline-flex;
+  margin: 0;
+}
+.openap-hotspot-action {
+  display: inline-grid;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.openap-hotspot-action.is-start:not(:disabled) {
+  color: #059669;
+}
+.openap-hotspot-action.is-stop:not(:disabled) {
+  color: #dc2626;
+}
+.openap-hotspot-action.is-restart:not(:disabled) {
+  color: #d97706;
+}
+.openap-hotspot-action:not(:disabled):hover,
+.openap-hotspot-action:not(:disabled):focus-visible {
+  border-color: currentColor;
+  background: var(--bg);
+}
+.openap-hotspot-action:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+.openap-hotspot-action:disabled i {
+  opacity: .35;
+}
+html[data-bs-theme="dark"] .openap-hotspot-action {
+  border-color: rgba(85, 195, 187, .32);
+  background: var(--bg);
+}
+.openap-hotspot-action.is-pending {
+  opacity: 1;
+}
+.openap-hotspot-action.is-pending i {
+  animation: openap-hotspot-control-spin .8s linear infinite;
+  opacity: 1;
+}
+@keyframes openap-hotspot-control-spin {
+  to { transform: rotate(360deg); }
 }
 .openap-hotspot-state {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-left: auto;
+}
+.openap-hotspot-state.openap-hotspot-inline-state {
+  margin-top: 4px;
+  margin-left: 0;
+}
+.openap-hotspot-state-slot {
+  display: inline-grid;
+  width: 92px;
+  min-width: 92px;
+  height: 27px;
+  overflow: hidden;
+  align-items: center;
+  border: 1px solid rgba(5, 150, 105, .34);
+  border-radius: 8px;
+  background: #d8ece9;
+  box-shadow: 0 1px 2px rgba(5, 150, 105, .08);
+}
+.openap-hotspot-state-slot > .openap-hotspot-status {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 25px;
+  justify-content: center;
+  box-sizing: border-box;
 }
 .openap-hotspot-status {
   display: inline-flex;
@@ -2021,16 +2299,83 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   font-size: 5px;
 }
 .openap-hotspot-status.is-running {
-  background: rgba(5, 150, 105, .1);
-  color: #059669;
+  padding: 4px 8px;
+  color: #334155;
+  font-weight: 750;
+  letter-spacing: .12px;
+}
+.openap-hotspot-status.is-running i {
+  width: 7px;
+  height: 7px;
+  border: 2px solid #d1fae5;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, .16);
+  color: transparent;
+  font-size: 0;
 }
 .openap-hotspot-status.is-stopped {
-  background: rgba(220, 38, 38, .1);
+  padding: 4px 8px;
+  color: #334155;
+  font-weight: 750;
+  letter-spacing: .12px;
+}
+.openap-hotspot-status.is-stopped i {
+  width: 7px;
+  height: 7px;
+  border: 2px solid #fee2e2;
+  border-radius: 50%;
+  background: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, .12);
+  color: transparent;
+  font-size: 0;
+}
+.openap-hotspot-status.is-pending {
+  padding: 4px 8px;
+  color: #334155;
+  font-weight: 750;
+  letter-spacing: .12px;
+}
+.openap-hotspot-status.is-pending i {
+  color: #10b981;
+  font-size: 10px;
+}
+.openap-hotspot-status.is-pending.is-stopping i {
   color: #dc2626;
 }
 .openap-hotspot-status.is-hidden {
   background: rgba(217, 119, 6, .1);
   color: #d97706;
+}
+html[data-bs-theme="dark"] .openap-hotspot-state-slot {
+  border-color: rgba(85, 195, 187, .34);
+  background: color-mix(in srgb, var(--bg) 84%, #16847f 16%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .18);
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-running {
+  color: #8ddbd5;
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-running i {
+  border-color: #183f3d;
+  background: #55c3bb;
+  box-shadow: 0 0 0 2px rgba(85, 195, 187, .14);
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-stopped {
+  color: #8ddbd5;
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-stopped i {
+  border-color: #4b2023;
+  background: #f87171;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, .12);
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-pending {
+  color: #8ddbd5;
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-pending i {
+  color: #55c3bb;
+}
+html[data-bs-theme="dark"] .openap-hotspot-status.is-pending.is-stopping i {
+  color: #f87171;
 }
 .openap-hotspot-metrics {
   display: grid;
@@ -2082,6 +2427,39 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   font-size: 10px;
   font-weight: 500;
 }
+.openap-hotspot-metric strong.openap-dual-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  overflow: visible;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 750;
+  text-align: left;
+  text-overflow: clip;
+}
+.openap-hotspot-metric strong.openap-dual-value .openap-dual-value-item {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 750;
+}
+.openap-hotspot-metric strong.openap-dual-value .openap-dual-value-item span {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 750;
+}
+.openap-hotspot-metric .openap-dual-value-separator {
+  display: block;
+  width: 1px;
+  height: 16px;
+  background: rgba(18, 104, 105, .28);
+}
 @media (max-width: 820px) {
   .openap-hotspot-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2111,6 +2489,201 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   }
 }
 
+.openap-hotspot-band-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px;
+  background: var(--bg);
+}
+.openap-hotspot-band-grid.is-service-stopped {
+  display: flex;
+}
+.openap-hotspot-stopped-message {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.openap-hotspot-stopped-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1px solid rgba(18, 104, 105, .48);
+  border-radius: 8px;
+  background: var(--bg);
+  color: #dc2626;
+  font-size: 13px;
+}
+.openap-hotspot-stopped-icon i {
+  display: inline-block;
+  line-height: 1;
+}
+.openap-hotspot-stopped-message > div {
+  min-width: 0;
+}
+.openap-hotspot-stopped-message > div > strong,
+.openap-hotspot-stopped-message > div > span {
+  display: block;
+}
+.openap-hotspot-stopped-message strong {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 800;
+}
+.openap-hotspot-stopped-message div > .openap-hotspot-stopped-info {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  margin-top: 5px;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 1px solid #c9d8ec;
+  border-radius: 7px;
+  background: #f3f6fb;
+  color: #3d5873;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.openap-hotspot-stopped-info i {
+  flex: 0 0 auto;
+  width: 14px;
+  color: #2563a6;
+  font-size: 12px;
+  text-align: center;
+}
+html[data-bs-theme="dark"] .openap-hotspot-stopped-message,
+html[data-bs-theme="dark"] .openap-hotspot-stopped-icon {
+  border-color: rgba(85, 195, 187, .32);
+}
+html[data-bs-theme="dark"] .openap-hotspot-stopped-message {
+  background: var(--bg);
+}
+html[data-bs-theme="dark"] .openap-hotspot-stopped-icon {
+  background: var(--surface);
+  color: #dc2626;
+}
+html[data-bs-theme="dark"] .openap-hotspot-stopped-message div > .openap-hotspot-stopped-info {
+  border-color: #294e68;
+  background: #10293a;
+  color: #a9c3d3;
+}
+html[data-bs-theme="dark"] .openap-hotspot-stopped-info i {
+  color: var(--primary, #55c3bb);
+}
+.openap-hotspot-band-row {
+  display: grid;
+  grid-template-columns: 72px repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.openap-hotspot-band-cell,
+.openap-hotspot-band-metric {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.openap-hotspot-band-cell {
+  justify-content: center;
+  padding-inline: 0;
+  border-color: transparent;
+  background: transparent;
+}
+html:not([data-bs-theme="dark"]) .openap-hotspot-band-metric {
+  border-color: rgba(18, 104, 105, .48);
+}
+html:not([data-bs-theme="dark"]) .openap-hotspot-band-metric .openap-hotspot-metric-icon {
+  border-color: rgba(18, 104, 105, .48);
+}
+html:not([data-bs-theme="dark"]) .openap-hotspot-identity {
+  border-bottom-color: rgba(18, 104, 105, .24);
+}
+.openap-hotspot-band-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid rgba(30, 58, 138, .24);
+  border-radius: 6px;
+  background: rgba(30, 58, 138, .09);
+  color: #1e3a8a;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.openap-hotspot-band-metric {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  justify-content: center;
+}
+.openap-hotspot-band-metric > div { min-width: 0; }
+.openap-hotspot-band-metric small,
+.openap-hotspot-band-metric strong { display: block; }
+.openap-hotspot-band-metric small {
+  margin-bottom: 3px;
+  color: var(--text-light);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+}
+.openap-hotspot-band-metric strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-hotspot-band-metric strong .openap-hotspot-configured-value {
+  display: block;
+  margin-top: 2px;
+  color: #d97706;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.openap-hotspot-band-empty {
+  padding: 14px;
+  color: var(--text-light);
+  font-size: 11px;
+  text-align: center;
+}
+@media (max-width: 480px) {
+  .openap-hotspot-band-grid { gap: 6px; padding: 8px; }
+  .openap-hotspot-band-row {
+    grid-template-columns: 56px repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .openap-hotspot-band-cell,
+  .openap-hotspot-band-metric { min-height: 45px; padding: 6px; }
+  .openap-hotspot-band-metric { grid-template-columns: 26px minmax(0, 1fr); gap: 5px; }
+  .openap-hotspot-band-metric .openap-hotspot-metric-icon { width: 26px; height: 26px; }
+  .openap-hotspot-band-badge { min-width: 38px; padding-inline: 5px; font-size: 10px; }
+  .openap-hotspot-band-metric small { font-size: 7px; letter-spacing: 0; }
+  .openap-hotspot-band-metric strong { font-size: 10px; }
+}
+
 .openap-mode-switch-overlay {
   position: fixed;
   inset: 0;
@@ -2133,6 +2706,54 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   border-radius: 14px;
   background: var(--surface);
   box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
+}
+.openap-mode-switch-card.openap-universal-mode-apply { width: min(420px, 100%); height: 315px; box-sizing: border-box; border-color: rgba(18, 104, 105, .48); }
+.openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-eyebrow,
+.openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-steps .active i { color: #16847f; }
+.openap-universal-mode-visual { position: relative; display: grid; width: 88px; height: 88px; place-items: center; margin: 12px auto 10px; }
+.openap-universal-mode-visual::before { content: ""; position: absolute; inset: 0; border: 4px solid rgba(22, 132, 127, .16); border-top-color: #16847f; border-right-color: #55c3bb; border-radius: 50%; box-shadow: 0 0 20px rgba(22, 132, 127, .14); animation: openapUniversalModeSpin .9s linear infinite; }
+.openap-universal-mode-visual > span { display: grid; width: 58px; height: 58px; place-items: center; border: 1px solid rgba(30, 94, 184, .2); border-radius: 50%; background: linear-gradient(145deg, #fff, #edf6f5); color: #1e5eb8; font-size: 24px; box-shadow: 0 8px 22px rgba(15, 65, 68, .13); }
+.openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-steps .error { color: #b42318; }
+.openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-steps .error i { color: #dc2626; }
+html[data-bs-theme="dark"] .openap-universal-mode-visual::before { border-color: rgba(121, 221, 213, .14); border-top-color: #79ddd5; border-right-color: #16847f; }
+html[data-bs-theme="dark"] .openap-universal-mode-visual > span { border-color: rgba(121, 221, 213, .24); background: linear-gradient(145deg, #173134, #102326); color: #79ddd5; box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+html[data-bs-theme="dark"] .openap-mode-switch-card.openap-universal-mode-apply { border-color: rgba(45, 212, 191, .25); }
+html[data-bs-theme="dark"] .openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-eyebrow,
+html[data-bs-theme="dark"] .openap-mode-switch-card.openap-universal-mode-apply .openap-mode-switch-steps .active i { color: #2dd4bf; }
+.openap-reboot-progress-dialog { max-width: 420px; }
+.openap-reboot-progress-card {
+  width: min(420px, 100%);
+  height: 315px !important;
+  padding: 0;
+  border-color: rgba(18, 104, 105, .58) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif;
+}
+.openap-reboot-progress-body {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 24px !important;
+  text-align: center;
+}
+.openap-reboot-progress-card .openap-mode-switch-title { margin-top: 0; }
+.openap-reboot-progress-card .openap-universal-mode-visual { margin: 18px auto 14px; }
+html:not([data-bs-theme="dark"]) .openap-reboot-progress-card {
+  border-color: #16847f !important;
+}
+html:not([data-bs-theme="dark"]) .openap-reboot-progress-card .openap-mode-switch-title {
+  color: #173233;
+}
+html:not([data-bs-theme="dark"]) .openap-reboot-progress-card .openap-mode-switch-caption {
+  color: var(--openap-text-support-strong, #111820);
+}
+html[data-bs-theme="dark"] .openap-reboot-progress-card {
+  border-color: rgba(121, 221, 213, .48) !important;
+}
+html[data-bs-theme="dark"] .openap-reboot-progress-card .openap-mode-switch-caption {
+  color: #fff !important;
 }
 .openap-mode-switch-eyebrow {
   color: #2dd4bf;
@@ -2238,10 +2859,18 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   0%, 100% { opacity: .2; }
   50% { opacity: 1; }
 }
+@keyframes openapUniversalModeSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .openap-mode-selector-indicator { transition-duration: .01ms; }
   .openap-mode-link span,
   .openap-mode-link i { animation: none; }
+  .openap-universal-mode-visual::before { animation-duration: 1.8s; }
+}
+@media (max-width: 575.98px) {
+  .openap-mode-switch-overlay { padding: 12px; }
+  .openap-mode-switch-card.openap-universal-mode-apply { width: 100%; padding: 18px; }
+  .openap-universal-mode-visual { width: 78px; height: 78px; }
+  .openap-universal-mode-visual > span { width: 52px; height: 52px; font-size: 21px; }
 }
 
 /* Client table */
@@ -2371,6 +3000,251 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
 .btn-icon-ss:hover { border-color: var(--primary); color: var(--primary); }
 .btn-group-ss { display: flex; gap: 3px; }
 .qr-thumb { width: 38px; height: 38px; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface); cursor: pointer; }
+
+
+/* OpenAP WiFi QR modal: shared by Dashboard and AP Configuration. */
+#apConfigurationWifiQrModal .wifi-qr-modal,
+#apConfigurationWifiQrModal .wifi-qr-modal :where(div, span, h2, strong, a, button) {
+  font-family: "Rajdhani", "DejaVu Sans", Arial, sans-serif !important;
+}
+.wifi-qr-dialog {
+  width: min(94vw, 760px);
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.wifi-qr-modal {
+  overflow: hidden;
+  max-height: calc(100svh - 24px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .24);
+}
+.wifi-qr-header {
+  min-height: 76px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, var(--surface)), var(--surface) 70%);
+}
+.wifi-qr-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+.wifi-qr-heading > div { min-width: 0; }
+.wifi-qr-heading-icon {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  color: var(--primary);
+  font-size: 18px;
+}
+.wifi-qr-eyebrow {
+  margin-bottom: 2px;
+  color: var(--primary);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.wifi-qr-title {
+  overflow: hidden;
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(16px, 2.4vw, 21px);
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wifi-qr-subtitle {
+  margin-top: 3px;
+  color: var(--text-light);
+  font-size: 11px;
+  line-height: 1.25;
+}
+.wifi-qr-body {
+  display: grid;
+  overflow: auto;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, .82fr);
+  grid-template-rows: auto 1fr;
+  gap: 14px 18px;
+  align-items: center;
+  padding: 20px;
+}
+.wifi-qr-frame {
+  display: flex;
+  grid-row: 1 / span 2;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  padding: 13px;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, .12);
+}
+.wifi-qr-image {
+  display: block;
+  width: clamp(240px, 34vw, 340px);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  background: #fff;
+}
+.wifi-qr-details {
+  display: grid;
+  align-self: end;
+  gap: 8px;
+}
+.wifi-qr-detail {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-alt, rgba(148, 163, 184, .08));
+}
+.wifi-qr-detail span,
+.wifi-qr-detail strong { display: block; }
+.wifi-qr-detail span {
+  margin-bottom: 4px;
+  color: var(--text-light);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.wifi-qr-detail span i {
+  width: 15px;
+  color: var(--primary);
+}
+.wifi-qr-detail strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.25;
+}
+.wifi-qr-hint {
+  align-self: start;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--primary) 7%, var(--surface));
+  color: var(--text-light);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.wifi-qr-hint i {
+  margin-right: 6px;
+  color: var(--primary);
+}
+.wifi-qr-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 11px 18px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 94%, var(--text) 6%);
+}
+html[data-bs-theme="dark"] .wifi-qr-modal {
+  box-shadow: 0 26px 76px rgba(0, 0, 0, .55);
+}
+html[data-bs-theme="dark"] .wifi-qr-header {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--surface)), var(--surface) 72%);
+}
+html[data-bs-theme="dark"] .wifi-qr-modal .btn-close {
+  filter: invert(1) grayscale(100%) brightness(180%);
+}
+html[data-bs-theme="dark"] #apConfigurationWifiQrModal .wifi-qr-subtitle,
+html[data-bs-theme="dark"] #apConfigurationWifiQrModal .wifi-qr-hint,
+html[data-bs-theme="dark"] #apConfigurationWifiQrModal .wifi-qr-footer .btn-ss:not(.primary) {
+  color: #fff !important;
+}
+html:not([data-bs-theme="dark"]) #apConfigurationWifiQrModal .wifi-qr-subtitle,
+html:not([data-bs-theme="dark"]) #apConfigurationWifiQrModal .wifi-qr-hint,
+html:not([data-bs-theme="dark"]) #apConfigurationWifiQrModal .wifi-qr-footer .btn-ss:not(.primary) {
+  color: var(--openap-text-support-strong, #111820) !important;
+}
+html[data-bs-theme="dark"] .wifi-qr-frame {
+  border-color: rgba(255, 255, 255, .18);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .38);
+}
+@media (max-width: 575.98px) {
+  .wifi-qr-dialog {
+    width: auto;
+    margin: 8px;
+  }
+  .wifi-qr-modal {
+    max-height: calc(100svh - 16px);
+    border-radius: 15px;
+  }
+  .wifi-qr-header {
+    min-height: 66px;
+    padding: 10px 12px;
+  }
+  .wifi-qr-heading { gap: 9px; }
+  .wifi-qr-heading-icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  .wifi-qr-subtitle { font-size: 10px; }
+  .wifi-qr-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    gap: 10px;
+    padding: 12px;
+  }
+  .wifi-qr-frame {
+    grid-row: auto;
+    padding: 9px;
+    border-radius: 13px;
+  }
+  .wifi-qr-image {
+    width: clamp(180px, min(72vw, calc(100svh - 330px)), 300px);
+  }
+  .wifi-qr-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: auto;
+    gap: 7px;
+  }
+  .wifi-qr-detail { padding: 8px 9px; }
+  .wifi-qr-detail strong { font-size: 11px; }
+  .wifi-qr-hint {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .wifi-qr-footer {
+    flex-wrap: wrap;
+    padding: 9px 12px;
+  }
+}
+@media (max-width: 389.98px) {
+  .wifi-qr-title { font-size: 15px; }
+  .wifi-qr-subtitle { display: none; }
+  .wifi-qr-details { grid-template-columns: 1fr; }
+  .wifi-qr-footer .btn-ss {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wifi-qr-modal,
+  .wifi-qr-modal * { scroll-behavior: auto !important; }
+}
+
 .log-preview { background: #1e293b; color: #e2e8f0; border-radius: 6px; padding: 6px 8px; font-family: monospace; font-size: 9px; line-height: 1.5; max-height: 72px; overflow-y: auto; }
 .unsupported-note { font-size: 11px; color: var(--text-light); text-align: center; padding: 10px; background: var(--bg); border-radius: 6px; border: 1px dashed var(--border); }
 
@@ -2582,7 +3456,7 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   }
 }
 
-/* ===== GEMINI DASHBOARD POLISH ===== */
+/* ===== OPENAP LIGHT THEME — AUTHORITATIVE BASELINE ===== */
 :root {
   --bg: #eef3f5;
   --surface: #ffffff;
@@ -2596,7 +3470,7 @@ html[data-bs-theme="dark"] .openap-uplink-scan-label { color: #dff7f4; }
   --accent-soft: rgba(217,119,6,0.09);
   --text: #0f172a;
   --text-muted: #607080;
-  --text-light: #91a1ad;
+  --text-light: #7f919d;
   --success: #059669;
   --danger: #dc2626;
   --radius: 8px;
@@ -2741,7 +3615,7 @@ body {
 }
 
 @view-transition {
-  navigation: auto;
+  navigation: none;
 }
 
 ::view-transition-group(root) {
@@ -2898,7 +3772,6 @@ body {
   max-width: 150px;
   margin: 0 auto;
   color: var(--text)!important;
-  font-size: 12px!important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3869,6 +4742,7 @@ html[data-bs-theme="dark"] .openap-logging-page .openap-logging-body{background:
 .openap-logging-page .openap-log-tabs{align-items:flex-end;gap:4px;padding:6px 10px 0;border-bottom:1px solid #c9d8da;background:#eef4f4}.openap-logging-page .openap-log-tab{position:relative;z-index:1;flex:none;height:31px;min-height:31px;margin:0 0 -1px;padding:0 14px;border:1px solid #c9d8da;border-bottom-color:#c9d8da;border-radius:7px 7px 0 0;background:#e3ecec;color:#587073}.openap-logging-page .openap-log-tab:hover{border-color:#aac6c7;border-bottom-color:#c9d8da;background:#f5f9f9;color:#0b5e5d}.openap-logging-page .openap-log-tab.active{z-index:2;border:1px solid #c9d8da;border-top:2px solid #16847f;border-bottom-color:#fff;border-radius:7px 7px 0 0;background:#fff;color:#0b5e5d}.openap-logging-page .openap-log-panels{border:0;border-radius:0}.openap-logging-page .openap-log-tab:focus-visible{outline:2px solid #1e78c9;outline-offset:-3px}
 html[data-bs-theme="dark"] .openap-logging-page .openap-log-tabs{border-bottom-color:#315054;background:#0d1c1e}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab{border-color:#315054;border-bottom-color:#315054;background:#142b2e;color:#9fb5b8}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab:hover{border-color:#426568;border-bottom-color:#315054;background:#193538;color:#e1f7f4}html[data-bs-theme="dark"] .openap-logging-page .openap-log-tab.active{border-color:#315054;border-top-color:#55c3bb;border-bottom-color:#0d1b1e;background:#0d1b1e;color:#e3fbf8}
 @media(max-width:575.98px){.openap-logging-page .openap-log-tabs{gap:3px;padding:5px 5px 0}.openap-logging-page .openap-log-tab{flex:1;height:30px;min-height:30px;padding:0 4px;border-radius:6px 6px 0 0}.openap-logging-page .openap-log-tab.active{border-radius:6px 6px 0 0}}
+@media(max-width:575.98px){.openap-logging-page .openap-log-tab[data-log-tab="dnscrypt-proxy"]{min-width:0}.openap-logging-page .openap-log-tab[data-log-tab="dnscrypt-proxy"]>span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 
 /* Keep the WiFi Hotspot icon visible and style DHCP Setting as a secondary header. */
 .openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon{background:#fff!important;color:#1e3a8a!important;opacity:1!important}.openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon i{display:block!important;color:#1e3a8a!important;font-size:13px!important;opacity:1!important;visibility:visible!important}.openap-dhcp-setting-heading{min-height:26px;padding:0 6px;border:1px solid rgba(22,132,127,.5);border-radius:10px;background:linear-gradient(90deg,#0b4e50,#16847f);box-shadow:0 7px 18px rgba(11,78,80,.16)}.openap-dhcp-setting-heading .openap-section-heading-icon{width:18px;height:18px;flex-basis:18px;border-radius:5px;font-size:7px}.openap-dhcp-setting-heading>div{display:flex;min-width:0;align-items:center;gap:5px;white-space:nowrap}.openap-dhcp-setting-heading strong{color:#fff;font-size:10px;line-height:10px}.openap-dhcp-setting-heading small{display:inline-flex!important;align-items:center;margin-top:0!important;color:rgba(255,255,255,.72);font-size:8px;line-height:8px}.openap-dhcp-setting-heading small:before{content:"—";margin-right:5px;color:rgba(255,255,255,.5)}
@@ -4024,6 +4898,90 @@ html[data-bs-theme="dark"] .openap-about-release,html[data-bs-theme="dark"] .ope
 
 /* DHCP Setting: optional dnscrypt-proxy upstream protection. */
 .openap-encrypted-dns-heading{margin-top:12px!important}
+.openap-dhcp-dns-panel{overflow:hidden}
+.openap-dhcp-dns-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);
+  align-items:stretch;
+}
+.openap-dhcp-dns-column{min-width:0;background:var(--surface)}
+.openap-dns-column{border-left:1px solid var(--border)}
+.openap-dhcp-column-form{height:100%;display:flex;flex-direction:column}
+.openap-dhcp-column-sections,.openap-dns-column-sections{height:100%}
+.openap-dhcp-column-sections{flex:1}
+.openap-dhcp-dns-panel .openap-config-section{padding:14px 15px}
+.openap-dhcp-dns-panel .openap-config-section:last-child{border-bottom:0}
+.openap-dhcp-dns-panel .openap-column-footer{
+  min-height:48px;
+  margin-top:auto;
+  border-top:1px solid var(--border);
+  background:var(--surface-muted,#f7fafb);
+}
+.openap-dns-column-sections{display:flex;flex-direction:column}
+.openap-standard-dns-section{flex:0 0 auto}
+.openap-encrypted-dns-section{display:flex;flex:1;flex-direction:column}
+.openap-encrypted-dns-form{display:flex;flex:1;flex-direction:column}
+.openap-encrypted-dns-form .openap-column-footer{margin:12px -15px -14px}
+.openap-section-description{margin:-2px 0 11px;color:#647b80;font-size:10px;line-height:1.45}
+.openap-input-with-suffix{display:flex;align-items:stretch;width:100%}
+.openap-input-with-suffix .hfield-input{
+  min-width:0;
+  border-radius:6px 0 0 6px;
+}
+.openap-input-with-suffix .hfield-input:focus{position:relative;z-index:1}
+.openap-input-suffix{
+  min-width:43px;
+  padding:5px 10px;
+  display:grid;
+  flex:0 0 auto;
+  place-items:center;
+  border:1.5px solid var(--border);
+  border-left:0;
+  border-radius:0 6px 6px 0;
+  background:#eaf0f1;
+  color:#526b70;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.openap-dhcp-dns-panel .openap-standard-dns-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px 8px;
+}
+.openap-dhcp-dns-panel .openap-standard-dns-fields .hfield-group,
+.openap-dhcp-dns-panel .openap-standard-dns-fields .hfield-group.wide{width:auto;min-width:0}
+.openap-dhcp-dns-panel .openap-encrypted-dns-fields{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:end;
+  gap:10px 8px;
+}
+.openap-dhcp-dns-panel .openap-encrypted-dns-fields .hfield-group{width:auto;min-width:0}
+.openap-dhcp-dns-panel .openap-encrypted-dns-toggle{grid-column:1 / -1;min-width:0}
+html[data-bs-theme="dark"] .openap-dhcp-dns-column{background:#102326}
+html[data-bs-theme="dark"] .openap-dns-column{border-left-color:#29484c}
+html[data-bs-theme="dark"] .openap-dhcp-dns-panel .openap-column-footer{border-top-color:#29484c;background:#0e2022}
+html[data-bs-theme="dark"] .openap-section-description{color:#9db4b8}
+html[data-bs-theme="dark"] .openap-input-suffix{border-color:#3b555a;background:#1b3236;color:#c6dadd}
+@media(max-width:1199.98px){
+  .openap-dhcp-dns-layout{grid-template-columns:1fr}
+  .openap-dns-column{border-top:1px solid var(--border);border-left:0}
+  html[data-bs-theme="dark"] .openap-dns-column{border-top-color:#29484c}
+}
+@media(max-width:991.98px){
+  .openap-dhcp-dns-panel .openap-config-section{padding:12px 10px}
+  .openap-encrypted-dns-form .openap-column-footer{margin:12px -10px -12px}
+  .openap-dhcp-dns-panel .openap-encrypted-dns-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .openap-dhcp-dns-panel .openap-encrypted-dns-fields .hfield-group:last-child{grid-column:1 / -1}
+  .openap-dhcp-dns-panel .openap-column-footer{align-items:flex-start!important;flex-direction:column}
+  .openap-dhcp-dns-panel .openap-column-footer .btn-ss{width:100%;justify-content:center}
+}
+@media(max-width:340px){
+  .openap-dhcp-dns-panel .openap-standard-dns-fields,
+  .openap-dhcp-dns-panel .openap-encrypted-dns-fields{grid-template-columns:1fr}
+  .openap-dhcp-dns-panel .openap-encrypted-dns-fields .hfield-group:last-child{grid-column:auto}
+}
 .openap-dhcp-managed-fields{min-width:0;margin:0;padding:0;border:0}
 .openap-dhcp-managed-fields:disabled{opacity:.68}
 .openap-bridge-readonly-note{display:flex;align-items:flex-start;gap:9px;margin:0 0 10px;padding:10px 12px;border:1px solid rgba(217,119,6,.22);border-radius:9px;background:rgba(217,119,6,.07);color:#75540b}
@@ -4213,7 +5171,7 @@ html[data-bs-theme="dark"] .openap-advanced-toggle .form-check-input:focus-visib
   border-color:#8fc7ff;
   box-shadow:0 0 0 4px rgba(96,165,250,.3);
 }
-@media(max-width:575.98px){
+@media(max-width:1399.98px){
   .openap-advanced-toggles{
     display:grid;
     grid-template-columns:1fr;
@@ -4289,28 +5247,280 @@ html[data-bs-theme="dark"] .openap-encrypted-dns-note>strong.is-degraded{backgro
   border: 1px solid rgba(18, 104, 105, .48);
   border-top: 3px solid #126869;
   border-radius: 12px;
-  background: var(--surface);
+  background: var(--bg);
   box-shadow: 0 10px 28px rgba(18, 104, 105, .1);
 }
 .openap-network-traffic-section .openap-interface-details > [class*="col-"] {
-  padding-right: 4px;
-  padding-left: 4px;
+  padding-right: 2.5px;
+  padding-left: 2.5px;
+}
+@media (min-width: 768px) {
+  .openap-network-traffic-section .openap-interface-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 5px;
+  }
+  .openap-network-traffic-section .openap-interface-details > [class*="col-"] {
+    width: auto;
+    padding-right: 0;
+    padding-left: 0;
+  }
 }
 .openap-network-traffic-section .iface-card.openap-traffic-card {
-  min-height: 154px;
+  min-height: 224px;
   padding: 10px;
-  border: 1px solid rgba(18, 104, 105, .24);
+  border: 1px solid rgba(18, 104, 105, .48);
   border-radius: 10px;
-  background: #edf4f6;
+  background: #f4f7f8;
   box-shadow: none;
 }
-.openap-network-traffic-section .openap-traffic-card-header {
-  min-height: 40px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(18, 104, 105, .14);
-}
 .openap-network-traffic-section .openap-traffic-live {
-  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+}
+.openap-network-traffic-section .openap-traffic-identity {
+  overflow: hidden;
+  margin: -10px -10px 0;
+  border-radius: 9px 9px 0 0;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-state-corner .openap-hotspot-state-slot {
+  border-radius: 0 9px 0 8px;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-identity-copy {
+  flex: 1 1 auto;
+}
+.openap-traffic-uplink-details {
+  display: grid;
+  width: min(360px, 100%);
+  min-width: 0;
+  margin-top: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 6px;
+  background: #d8ece9;
+}
+html:not([data-bs-theme="dark"]) .openap-network-traffic-section .openap-traffic-uplink-details {
+  background: var(--bg);
+}
+.openap-traffic-uplink-details > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 3px 7px;
+  text-align: left;
+}
+.openap-traffic-uplink-details > div + div {
+  border-left: 1px solid rgba(18, 104, 105, .18);
+}
+.openap-traffic-uplink-details small,
+.openap-traffic-uplink-details strong {
+  display: block;
+  overflow: hidden;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.openap-traffic-uplink-details small {
+  margin: 0;
+  color: #64748b;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+}
+.openap-traffic-uplink-details strong {
+  margin-top: 0;
+  color: #334155;
+  font-size: 10px;
+  font-weight: 750;
+}
+.openap-traffic-connection-slot {
+  margin-top: 0;
+}
+html[data-bs-theme="dark"] .openap-traffic-uplink-details {
+  border-color: rgba(85, 195, 187, .2);
+  background: rgba(85, 195, 187, .055);
+}
+html[data-bs-theme="dark"] .openap-traffic-uplink-details > div + div {
+  border-left-color: rgba(85, 195, 187, .16);
+}
+html[data-bs-theme="dark"] .openap-traffic-uplink-details small {
+  color: var(--text-muted);
+}
+html[data-bs-theme="dark"] .openap-traffic-uplink-details strong {
+  color: var(--text);
+}
+.openap-network-traffic-section .openap-traffic-identity.has-corner-state {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 6px;
+  padding-right: 11px;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-identity-icon {
+  grid-column: 1;
+  grid-row: 1;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-identity-copy {
+  display: contents;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-hotspot-name-row {
+  grid-column: 2;
+  grid-row: 1;
+  padding-right: 100px;
+}
+.openap-network-traffic-section .openap-traffic-identity .openap-traffic-uplink-details {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: calc(100% + 22px);
+  min-width: 0;
+  margin: 0 -11px -9px;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+@media (max-width: 575.98px) {
+  .openap-network-traffic-section .openap-traffic-identity.has-corner-state {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 6px;
+    padding-right: 8px;
+  }
+  .openap-network-traffic-section .openap-traffic-identity .openap-hotspot-identity-icon {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .openap-network-traffic-section .openap-traffic-identity .openap-hotspot-identity-copy {
+    display: contents;
+  }
+  .openap-network-traffic-section .openap-traffic-identity .openap-hotspot-name-row {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 86px;
+  }
+  .openap-network-traffic-section .openap-traffic-identity .openap-hotspot-state-corner,
+  .openap-network-traffic-section .openap-traffic-identity .openap-hotspot-state-slot {
+    width: 78px;
+    min-width: 78px;
+  }
+  .openap-network-traffic-section .openap-traffic-identity .openap-traffic-uplink-details {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: calc(100% + 16px);
+    min-width: 0;
+    margin: 0 -8px -8px;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+  .openap-traffic-uplink-details > div {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 4px;
+    padding-inline: 6px;
+  }
+  .openap-traffic-uplink-details strong {
+    font-size: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+}
+.openap-network-traffic-section .openap-traffic-total-row {
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-radius: 9px;
+  background: var(--bg);
+}
+.openap-traffic-direction-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 0;
+  min-width: 0;
+}
+.openap-network-traffic-section .openap-traffic-direction-row .openap-hotspot-band-cell {
+  min-height: 44px;
+  border: 1px solid rgba(18, 104, 105, .24);
+  border-right: 0;
+  border-radius: 9px 0 0 9px;
+  background: rgba(30, 58, 138, .09);
+}
+.openap-network-traffic-section .openap-traffic-direction-metric {
+  min-height: 44px;
+  padding-block: 6px;
+  border-radius: 0 9px 9px 0;
+}
+.openap-traffic-direction-badge {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #1e3a8a;
+  font-size: 11px;
+}
+.openap-traffic-direction-metric {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+.openap-traffic-metric-heading {
+  min-width: 0;
+}
+.openap-network-traffic-section .openap-traffic-direction-metric .openap-traffic-share {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.openap-traffic-direction-row.download .openap-traffic-share-track span { background: #10b981; }
+.openap-traffic-direction-row.upload .openap-traffic-share-track span { background: #3b82f6; }
+.openap-network-traffic-section .openap-traffic-total-row {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(18, 104, 105, .2);
+}
+html:not([data-bs-theme="dark"]) .openap-network-traffic-section .openap-traffic-total-row {
+  border: 1px solid rgba(18, 104, 105, .48);
+  background: #fff;
+}
+html:not([data-bs-theme="dark"]) .openap-network-traffic-section .openap-traffic-direction-row .openap-hotspot-band-cell,
+html:not([data-bs-theme="dark"]) .openap-network-traffic-section .openap-traffic-direction-metric {
+  border-color: rgba(18, 104, 105, .48);
+}
+html:not([data-bs-theme="dark"]) .openap-network-traffic-section .openap-traffic-direction-metric {
+  border-left-color: rgba(18, 104, 105, .24);
+}
+html[data-bs-theme="dark"] .openap-network-traffic-section .openap-traffic-total-row {
+  background: var(--bg);
+}
+html[data-bs-theme="dark"] .openap-network-traffic-section .openap-traffic-direction-row .openap-hotspot-band-cell {
+  border-color: rgba(85, 195, 187, .4);
+  background: var(--primary-soft);
+}
+html[data-bs-theme="dark"] .openap-network-traffic-section .openap-traffic-direction-badge {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--primary);
 }
 .openap-topology-clients .openap-topology-clients-body {
   overflow-x: auto;
@@ -4660,6 +5870,41 @@ html[data-bs-theme="dark"] body .hs-section.openap-hotspot-summary {
   border: 1px solid rgba(18,104,105,.48)!important;
   border-top: 3px solid #126869!important;
   border-radius: 12px!important;
+}
+html[data-bs-theme="dark"] .openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon {
+  border-color: rgba(85,195,187,.32)!important;
+  background: #182a2d!important;
+  color: var(--primary)!important;
+}
+html[data-bs-theme="dark"] .openap-wifi-hotspot-card .openap-topology-header-title .openap-section-heading-icon i {
+  color: var(--primary)!important;
+}
+html[data-bs-theme="dark"] .openap-hotspot-identity {
+  border-bottom-color: rgba(85,195,187,.22);
+  background: var(--surface);
+}
+html[data-bs-theme="dark"] .openap-hotspot-identity-icon,
+html[data-bs-theme="dark"] .openap-hotspot-metric-icon {
+  border-color: rgba(85,195,187,.32);
+  background: #182a2d;
+  color: var(--primary);
+}
+html[data-bs-theme="dark"] .openap-hotspot-identity-icon.is-running,
+html[data-bs-theme="dark"] .openap-hotspot-security i {
+  color: var(--primary);
+}
+html[data-bs-theme="dark"] .openap-hotspot-dual-band-badge,
+html[data-bs-theme="dark"] .openap-hotspot-band-badge {
+  border-color: rgba(85,195,187,.4);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+html[data-bs-theme="dark"] .openap-hotspot-band-grid {
+  background: var(--surface);
+}
+html[data-bs-theme="dark"] .openap-hotspot-band-metric {
+  border-color: rgba(85,195,187,.26);
+  background: var(--bg);
 }
 /* Operating-mode switch mirrors the mobile bottom-navigation visual language. */
 .openap-mode-selector {

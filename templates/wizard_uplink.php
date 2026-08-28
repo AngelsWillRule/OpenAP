@@ -25,9 +25,9 @@
             <i class="fas fa-check-circle" style="font-size:30px;color:#059669"></i>
           </div>
           <h4 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:4px"><?php echo _("Repeater connected successfully"); ?></h4>
-          <p style="font-size:12px;color:#64748b;margin-bottom:14px"><?php echo _("Hotspot traffic now uses the selected WiFi uplink."); ?></p>
+          <p class="openap-repeater-success-copy" style="font-size:12px;color:#64748b;margin-bottom:14px"><?php echo _("Hotspot traffic now uses the selected WiFi uplink."); ?></p>
 
-          <div class="border rounded text-start mx-auto mb-3" style="max-width:420px;overflow:hidden">
+          <div class="openap-repeater-success-details border rounded text-start mx-auto mb-3" style="max-width:420px;overflow:hidden">
             <?php
             $connectionRows = [
               [_('Uplink network'), $connected['uplink_ssid']],
@@ -38,8 +38,8 @@
             foreach ($connectionRows as $index => [$label, $value]):
             ?>
             <div class="d-flex justify-content-between align-items-center gap-3 px-3 py-2<?php echo $index < count($connectionRows) - 1 ? ' border-bottom' : ''; ?>">
-              <span class="text-muted" style="font-size:11px"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>
-              <strong class="text-end text-break" style="font-size:12px"><?php echo htmlspecialchars((string) $value, ENT_QUOTES); ?></strong>
+              <span class="openap-repeater-success-label text-muted" style="font-size:11px"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>
+              <strong class="openap-repeater-success-value text-end text-break" style="font-size:12px"><?php echo htmlspecialchars((string) $value, ENT_QUOTES); ?></strong>
             </div>
             <?php endforeach; ?>
           </div>
@@ -49,7 +49,7 @@
           </div>
         </div>
         <?php else: ?>
-        <div class="alert openap-repeater-notice d-flex align-items-center gap-2 <?php echo $summary['ready'] ? 'alert-info' : 'alert-warning'; ?>" role="alert">
+        <div class="alert openap-persistent-alert openap-repeater-notice d-flex align-items-center gap-2 <?php echo $summary['ready'] ? 'alert-info' : 'alert-warning'; ?>" role="alert">
           <i class="fas <?php echo $summary['ready'] ? 'fa-info-circle' : 'fa-exclamation-triangle'; ?>"></i>
           <?php if ($summary['ready']) : ?>
             <?php echo _("Select a WiFi network below or click Scan to search."); ?>

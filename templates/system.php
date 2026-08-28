@@ -20,26 +20,45 @@ $openapServiceDescriptions = [
     'lighttpd.service' => _('Web server'),
     'systemd-networkd.service' => _('Network backend'),
 ];
+$systemProfile = function_exists('openapReadRepeaterProfile') ? openapReadRepeaterProfile() : [];
+$systemCurrentMode = str_replace('-', '_', (string) ($systemProfile['mode']['current'] ?? 'ap_ethernet'));
+$systemIsRepeaterWifi = $systemCurrentMode === 'repeater_wifi';
+$systemUplinkHealth = $systemIsRepeaterWifi && function_exists('openapUplinkHealth') ? openapUplinkHealth() : ['ready' => true];
+$systemUplinkConnected = !$systemIsRepeaterWifi || !empty($systemUplinkHealth['ready']);
+$systemHeaderServices = [
+    'hostapd' => function_exists('openapServiceActive') && openapServiceActive('hostapd.service') === 'active',
+    'dnsmasq' => function_exists('openapServiceActive') && openapServiceActive('dnsmasq.service') === 'active',
+    'nftables' => function_exists('openapNatActive') ? openapNatActive() : (function_exists('openapServiceActive') && openapServiceActive('nftables.service') === 'active'),
+    'lighttpd' => function_exists('openapServiceActive') && openapServiceActive('lighttpd.service') === 'active',
+];
+$systemHostapdEnabled = $systemHeaderServices['hostapd'];
+$systemTopologyHealthy = $systemHostapdEnabled
+    && $systemUplinkConnected
+    && $systemHeaderServices['dnsmasq']
+    && $systemHeaderServices['nftables']
+    && $systemHeaderServices['lighttpd'];
+if ($systemCurrentMode === 'ap_ethernet_bridge') {
+    $systemTopologyHealthy = $systemHostapdEnabled && $systemUplinkConnected && $systemHeaderServices['lighttpd'];
+}
+$systemModeIcon = in_array($systemCurrentMode, ['ap_ethernet', 'ap_ethernet_bridge'], true) ? 'fa-network-wired' : 'fa-wifi';
+$systemModeLabel = $systemCurrentMode === 'ap_ethernet_bridge' ? _('Ethernet Bridge') : ($systemCurrentMode === 'ap_ethernet' ? _('Ethernet Mode') : _('Repeater'));
+$systemLiveState = !$systemHostapdEnabled ? 'offline' : ($systemTopologyHealthy ? 'live' : 'degraded');
 ?>
 <div class="container-fluid p-0 openap-system-layout">
   <?php $status->showMessages(); ?>
 
   <div class="row g-3 mb-3">
     <div class="col-xl-9 col-lg-8">
-      <div class="openap-section-heading openap-system-heading">
-        <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-server"></i></span>
-        <div>
-          <strong><?php echo _("System"); ?></strong>
-          <small><?php echo _("Device information and diagnostics"); ?></small>
+      <div class="openap-section-heading openap-topology-header openap-page-main-header openap-dashboard-main-header openap-system-heading">
+        <div class="openap-topology-header-title">
+          <span class="openap-section-heading-icon" aria-hidden="true"><i class="fas fa-server"></i></span>
+          <div><strong><?php echo _("System"); ?></strong></div>
         </div>
-        <div class="openap-system-heading-actions">
-          <button type="button" class="openap-system-action danger" data-bs-toggle="modal" data-bs-target="#system-reboot-modal">
-            <i class="fas fa-power-off"></i><span><?php echo _("Reboot"); ?></span>
-          </button>
-          <button type="button" onClick="window.location.reload();" class="openap-system-action">
-            <i class="fas fa-sync-alt"></i><span><?php echo _("Refresh"); ?></span>
-          </button>
-        </div>
+      </div>
+
+      <div class="openap-system-header-actions-row">
+        <button type="button" class="openap-system-action danger" data-bs-toggle="modal" data-bs-target="#system-reboot-modal"><i class="fas fa-power-off"></i><span><?php echo _("Reboot"); ?></span></button>
+        <button type="button" onClick="window.location.reload();" class="openap-system-action"><i class="fas fa-sync-alt"></i><span><?php echo _("Refresh"); ?></span></button>
       </div>
 
       <div class="card shadow openap-system-shell">
@@ -52,10 +71,6 @@ $openapServiceDescriptions = [
                 <h4><?php echo openapSystemEscape($hostname); ?></h4>
                 <div class="text-muted"><?php echo openapSystemEscape($os); ?> &middot; <?php echo openapSystemEscape($kernel); ?></div>
               </div>
-            </div>
-            <div class="openap-system-mode">
-              <span><?php echo _("Operating mode"); ?></span>
-              <strong><?php echo openapSystemEscape($openapModeLabel); ?></strong>
             </div>
           </div>
 
@@ -105,16 +120,20 @@ $openapServiceDescriptions = [
           <div class="col-xl-6">
             <section class="openap-system-panel">
               <div class="openap-system-panel-title">
-                <i class="fas fa-network-wired"></i>
-                <span><?php echo _("Network Profile"); ?></span>
+                <i class="fas fa-code-branch"></i>
+                <span><?php echo _("Project Software"); ?></span>
               </div>
-              <div class="openap-system-list">
-                <?php foreach ($network as $item) : ?>
-                  <div>
-                    <span><?php echo openapSystemEscape($item['label']); ?></span>
-                    <strong><?php echo openapSystemEscape($item['value']); ?></strong>
-                  </div>
-                <?php endforeach; ?>
+              <div class="table-responsive">
+                <table class="table openap-system-table openap-system-detail-table openap-system-software-table">
+                  <tbody>
+                    <?php foreach ($software as $component) : ?>
+                      <tr>
+                        <td class="openap-system-property"><?php echo openapSystemEscape($component['name']); ?></td>
+                        <td class="openap-system-value"><code><?php echo openapSystemEscape($component['version']); ?></code></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
               </div>
             </section>
           </div>
@@ -126,7 +145,7 @@ $openapServiceDescriptions = [
             <span><?php echo _("Services"); ?></span>
           </div>
           <div class="table-responsive">
-            <table class="table openap-system-table">
+            <table class="table openap-system-table openap-system-detail-table openap-system-services-table">
               <thead>
                 <tr>
                   <th><?php echo _("Service"); ?></th>
@@ -138,10 +157,10 @@ $openapServiceDescriptions = [
               <tbody>
                 <?php foreach ($services as $service) : ?>
                   <tr>
-                    <td><code><?php echo openapSystemEscape($service['name']); ?></code></td>
+                    <td class="openap-system-property"><code><?php echo openapSystemEscape($service['name']); ?></code></td>
                     <td><?php echo openapSystemBadge($service['active'], $service['statusClass']); ?></td>
-                    <td><?php echo openapSystemEscape($service['enabled']); ?></td>
-                    <td><?php echo openapSystemEscape($service['since']); ?></td>
+                    <td class="openap-system-value"><?php echo openapSystemEscape($service['enabled']); ?></td>
+                    <td class="openap-system-value"><?php echo openapSystemEscape($service['since']); ?></td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
@@ -150,42 +169,28 @@ $openapServiceDescriptions = [
         </section>
 
         <div class="row g-3 mt-0">
-          <div class="col-xl-6">
-            <section class="openap-system-panel">
-              <div class="openap-system-panel-title">
-                <i class="fas fa-code-branch"></i>
-                <span><?php echo _("Project Software"); ?></span>
-              </div>
-              <div class="table-responsive">
-                <table class="table openap-system-table">
-                  <tbody>
-                    <?php foreach ($software as $component) : ?>
-                      <tr>
-                        <td><?php echo openapSystemEscape($component['name']); ?></td>
-                        <td><code><?php echo openapSystemEscape($component['version']); ?></code></td>
-                      </tr>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-
-          <div class="col-xl-6">
+          <div class="col-12">
             <section class="openap-system-panel openap-system-config-panel">
               <div class="openap-system-panel-title">
                 <i class="fas fa-file-lines"></i>
                 <span><?php echo _("Configuration Files"); ?></span>
               </div>
               <div class="table-responsive">
-                <table class="table openap-system-table">
+                <table class="table openap-system-table openap-system-detail-table openap-system-files-table">
                   <tbody>
                     <?php foreach ($configFiles as $file) : ?>
                       <tr>
-                        <td><code><?php echo openapSystemEscape($file['path']); ?></code></td>
+                        <td class="openap-system-property openap-system-file-path"><code><?php echo openapSystemEscape($file['path']); ?></code></td>
                         <td>
-                          <?php echo $file['exists'] ? openapSystemBadge(_("Readable"), 'up') : openapSystemBadge(_("Missing"), 'warn'); ?>
-                          <span class="openap-system-file-time"><?php echo openapSystemEscape($file['modified']); ?></span>
+                          <div class="openap-system-file-meta">
+                            <div>
+                              <?php echo $file['exists'] ? openapSystemBadge(_("Readable"), 'up') : openapSystemBadge(_("Missing"), 'warn'); ?>
+                              <span class="openap-system-file-time"><?php echo openapSystemEscape($file['modified']); ?></span>
+                            </div>
+                            <button type="button" class="openap-system-copy-path" data-openap-copy-path="<?php echo openapSystemEscape($file['path']); ?>" aria-label="<?php echo _("Copy path"); ?>">
+                              <i class="far fa-copy" aria-hidden="true"></i><span><?php echo _("Copy path"); ?></span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     <?php endforeach; ?>
@@ -202,81 +207,29 @@ $openapServiceDescriptions = [
       </div>
     </div>
 
-    <aside class="col-xl-3 col-lg-4">
-      <div class="row g-3 openap-system-side-widgets">
-        <div class="col-12">
-          <section class="stat-card border-top-green openap-system-side-card">
-            <div class="stat-top">
-              <div class="openap-widget-heading">
-                <div>
-                  <div class="openap-widget-title"><?php echo _("System health"); ?></div>
-                  <div class="openap-widget-caption"><?php echo _("Live resource usage"); ?></div>
-                </div>
-                <span class="openap-system-side-icon violet"><i class="fas fa-microchip"></i></span>
-              </div>
-              <div class="openap-system-side-grid">
-                <div><span><?php echo _("CPU used"); ?></span><strong><?php echo openapSystemEscape($cpuload); ?>%</strong></div>
-                <div><span><?php echo _("RAM used"); ?></span><strong><?php echo openapSystemEscape($memused); ?>%</strong></div>
-                <div><span><?php echo _("Temperature"); ?></span><strong><?php echo openapSystemEscape($cputemp); ?>&deg;C</strong></div>
-                <div><span><?php echo _("Uptime"); ?></span><strong><?php echo openapSystemEscape($uptime); ?></strong></div>
-              </div>
-            </div>
-            <div class="stat-bottom">
-              <span><i class="fas fa-hdd me-1"></i><?php echo _("Disk"); ?>: <?php echo openapSystemEscape($diskused); ?>%</span>
-              <span><?php echo _("Load"); ?>: <?php echo openapSystemEscape($cpuload); ?>%</span>
-            </div>
-          </section>
-        </div>
-
-        <div class="col-12">
-          <section class="stat-card border-top-green openap-system-side-card">
-            <div class="stat-top">
-              <div class="openap-widget-heading">
-                <div>
-                  <div class="openap-widget-title"><?php echo _("Network profile"); ?></div>
-                  <div class="openap-widget-caption"><?php echo _("Current OpenAP mode"); ?></div>
-                </div>
-                <span class="openap-system-side-icon blue"><i class="fas fa-network-wired"></i></span>
-              </div>
-              <div class="openap-system-side-mode">
-                <span><?php echo _("Active mode"); ?></span>
-                <strong><?php echo openapSystemEscape($openapModeLabel); ?></strong>
-              </div>
-              <div class="openap-system-side-list">
-                <?php foreach (array_slice($network, 0, 3) as $item) : ?>
-                  <div><span><?php echo openapSystemEscape($item['label']); ?></span><strong><?php echo openapSystemEscape($item['value']); ?></strong></div>
-                <?php endforeach; ?>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <div class="col-12">
-          <?php require __DIR__ . '/openap_service_status.php'; ?>
-        </div>
-      </div>
-    </aside>
+    <div class="col-xl-3 col-lg-4"><?php echo openapWidgetArea('system'); ?></div>
   </div>
 </div>
 
-<div class="modal fade" id="system-reboot-modal" tabindex="-1" aria-labelledby="system-reboot-title" aria-hidden="true">
+<div class="modal fade openap-system-modal" id="system-reboot-modal" tabindex="-1" aria-labelledby="system-reboot-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content openap-system-modal-content">
       <div class="modal-header">
-        <div class="modal-title" id="system-reboot-title">
-          <i class="fas fa-power-off me-2"></i><?php echo _("Reboot system"); ?>
+        <div class="modal-title openap-system-modal-title" id="system-reboot-title">
+          <span class="openap-system-modal-icon"><i class="fas fa-power-off"></i></span>
+          <span><strong><?php echo _("Reboot system"); ?></strong><small><?php echo _("System operation"); ?></small></span>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo _("Close"); ?>"></button>
       </div>
       <div class="modal-body">
-        <?php echo _("OpenAP and its network services will be temporarily unavailable while the system restarts."); ?>
+        <div class="openap-system-info"><i class="fas fa-circle-info" aria-hidden="true"></i><span><?php echo _("OpenAP and its network services will be temporarily unavailable while the system restarts."); ?></span></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
+        <button type="button" class="btn-ss openap-system-cancel" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
         <form method="POST" action="system_info" class="m-0">
           <?php echo \OpenAP\Tokens\CSRF::hiddenField(); ?>
           <input type="hidden" name="system_action" value="reboot">
-          <button type="submit" class="btn btn-outline-danger">
+          <button type="submit" class="btn-ss openap-system-reboot-confirm">
             <i class="fas fa-power-off me-1"></i><?php echo _("Reboot"); ?>
           </button>
         </form>

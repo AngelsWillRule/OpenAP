@@ -2,8 +2,28 @@
 set -eu
 
 validate_only=0
+preserve_dns=0
+if [ "${1:-}" = "--scheduled" ]; then
+  shift
+  if "$0" "$@" >>/var/log/openap-dhcp-apply.log 2>&1; then
+    state=success
+    result=0
+  else
+    state=failed
+    result=$?
+  fi
+  printf '%s\n' "$state" > /run/openap/dhcp-apply-status
+  chmod 0644 /run/openap/dhcp-apply-status
+  exit "$result"
+fi
+
 if [ "${1:-}" = "--validate-only" ]; then
   validate_only=1
+  shift
+fi
+
+if [ "${1:-}" = "--preserve-dns" ]; then
+  preserve_dns=1
   shift
 fi
 
@@ -12,7 +32,9 @@ if [ "${1:-}" = "--delayed" ]; then
   mkdir -p /run/openap
   printf '%s\n' applying > /run/openap/dhcp-apply-status
   chmod 0644 /run/openap/dhcp-apply-status
-  (sleep 2; if "$0" "$@"; then printf '%s\n' success > /run/openap/dhcp-apply-status; else printf '%s\n' failed > /run/openap/dhcp-apply-status; fi; chmod 0644 /run/openap/dhcp-apply-status) </dev/null >>/var/log/openap-dhcp-apply.log 2>&1 &
+  unit="openap-dhcp-apply-$(date +%s)-$$"
+  /usr/bin/systemd-run --quiet --collect --unit="$unit" --on-active=2s \
+    "$0" --scheduled "$@"
   echo "DHCP settings scheduled"
   exit 0
 fi
@@ -25,6 +47,23 @@ lease_time="${5:-}"
 dns_policy="${6:-}"
 advertised_dns="${7:-}"
 upstream_dns="${8:-}"
+
+if [ "$preserve_dns" -eq 1 ]; then
+  active_dnsmasq=/etc/dnsmasq.d/openap-repeater.conf
+  [ -r "$active_dnsmasq" ] || { echo 'Active OpenAP DNS configuration not found' >&2; exit 2; }
+  profile=/etc/openap/repeater.ini
+  previous_gateway="$(awk -F ' *= *' '$1 == "gateway" {print $2; exit}' "$profile")"
+  advertised_dns="$(sed -n 's/^dhcp-option=6,//p' "$active_dnsmasq" | head -1)"
+  upstream_dns="$(sed -n 's/^server=//p' "$active_dnsmasq" | paste -sd, -)"
+  [ -n "$advertised_dns" ] || advertised_dns="$previous_gateway"
+  [ -n "$upstream_dns" ] || upstream_dns="$advertised_dns"
+  if [ -n "$previous_gateway" ] && [ "$advertised_dns" = "$previous_gateway" ]; then
+    dns_policy=local
+    advertised_dns="$gateway"
+  else
+    dns_policy=external
+  fi
+fi
 
 validation="$(python3 - "$subnet" "$gateway" "$dhcp_start" "$dhcp_end" "$lease_time" "$dns_policy" "$advertised_dns" "$upstream_dns" <<'PY'
 import ipaddress, re, sys
@@ -64,7 +103,8 @@ $validation
 EOF
 
 profile=/etc/openap/repeater.ini
-ap_iface="$(awk -F ' *= *' '$1 == "ap" {print $2; exit}' "$profile")"
+ap_iface="$(awk -F ' *= *' '$1 == "bridge" {print $2; exit}' "$profile")"
+[ -n "$ap_iface" ] || ap_iface="$(awk -F ' *= *' '$1 == "ap" {print $2; exit}' "$profile")"
 address_backend="$(awk -F ' *= *' '$1 == "address_backend" {print $2; exit}' "$profile")"
 [ -n "$address_backend" ] || address_backend=systemd-networkd
 # NetworkManager deliberately leaves the hotspot interface unmanaged; OpenAP's
@@ -131,6 +171,12 @@ case "$address_backend" in
       echo 'OpenAP AP-address service is not installed' >&2
       exit 2
     }
+    bridge_network_file=/etc/systemd/network/20-openap-hotspot.network
+    if [ -d "/sys/class/net/$ap_iface/bridge" ] \
+      && [ -f "$bridge_network_file" ] \
+      && awk -F ' *= *' -v iface="$ap_iface" '$1 == "Name" && $2 == iface {found=1} END {exit !found}' "$bridge_network_file"; then
+      network_file="$bridge_network_file"
+    fi
     ;;
   systemd-networkd)
     network_file="$(networkctl status "$ap_iface" --no-pager 2>/dev/null | sed -n 's/^[[:space:]]*Network File:[[:space:]]*//p' | head -1)"
@@ -163,10 +209,22 @@ case "$address_backend" in
         fi
       done
     fi
-    [ -n "$network_file" ] && [ -f "$network_file" ] || {
-      echo "No systemd-networkd file matches AP interface $ap_iface" >&2
-      exit 2
-    }
+    if [ -z "$network_file" ] || [ ! -f "$network_file" ]; then
+      # A single-band AP may intentionally be left unmanaged by networkd:
+      # openap-ap-address owns the gateway directly on the radio instead.
+      # Profiles created before that ownership was recorded can still say
+      # systemd-networkd, so determine the effective backend from the live
+      # interface rather than rejecting every later subnet change.
+      if systemctl cat openap-ap-address.service >/dev/null 2>&1 \
+        && LC_ALL=C networkctl status "$ap_iface" --no-pager 2>/dev/null \
+          | grep -q 'Network File:[[:space:]]*n/a'; then
+        address_backend=openap-ap-address
+        network_file=""
+      else
+        echo "No systemd-networkd file matches AP interface $ap_iface" >&2
+        exit 2
+      fi
+    fi
     ;;
   *)
     echo "Unsupported OpenAP address backend: $address_backend" >&2
@@ -200,8 +258,12 @@ finish() {
       networkctl reconfigure "$ap_iface" >/dev/null 2>&1 || true
     fi
     systemctl restart openap-firewall.service >/dev/null 2>&1 || true
-    systemctl restart dnsmasq.service >/dev/null 2>&1 || true
+    # dnsmasq Requires/After hostapd on OpenAP installations.  Starting it
+    # before restarting hostapd makes systemd stop it again and can race the
+    # rollback health check.
     [ "$address_backend" != openap-ap-address ] || systemctl restart hostapd.service >/dev/null 2>&1 || true
+    systemctl reset-failed dnsmasq.service >/dev/null 2>&1 || true
+    systemctl restart dnsmasq.service >/dev/null 2>&1 || true
     echo "Apply failed; previous DHCP configuration restored from $backup_dir" >&2
   fi
   cleanup
@@ -270,9 +332,10 @@ else
   networkctl reconfigure "$ap_iface" >/dev/null 2>&1 || true
 fi
 systemctl restart openap-firewall.service
-systemctl restart dnsmasq.service
 if [ "$address_backend" = openap-ap-address ]; then
   systemctl restart hostapd.service
 fi
+systemctl reset-failed dnsmasq.service >/dev/null 2>&1 || true
+systemctl restart dnsmasq.service
 systemctl is-active --quiet dnsmasq.service
 echo "DHCP settings applied. Backup: $backup_dir"

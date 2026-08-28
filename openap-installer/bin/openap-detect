@@ -9,11 +9,14 @@ It deliberately avoids changing network state.
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
 import re
 import shutil
 import subprocess
+import tempfile
+import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
@@ -82,6 +85,26 @@ def interface_master(iface: str) -> str:
         return ""
 
 
+MAC_PATTERN = re.compile(r"^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$", re.IGNORECASE)
+
+
+def normalize_mac(value: str) -> str:
+    value = value.strip().lower()
+    if not MAC_PATTERN.fullmatch(value) or value == "00:00:00:00:00:00":
+        return ""
+    return value
+
+
+def permanent_mac(iface: str) -> str:
+    if not command_exists("ethtool"):
+        return ""
+    code, out, _ = run(["ethtool", "-P", iface])
+    if code != 0:
+        return ""
+    match = re.search(r"Permanent address:\s*(\S+)", out, re.IGNORECASE)
+    return normalize_mac(match.group(1)) if match else ""
+
+
 @dataclass
 class UsbDevice:
     busdev: str
@@ -95,6 +118,8 @@ class UsbDevice:
 class NetInterface:
     name: str
     mac: str
+    permanent_mac: str
+    identity_mac: str
     iftype: str
     state: str
     operstate: str
@@ -117,6 +142,7 @@ class NetInterface:
     supports_managed: bool = False
     supports_24ghz: bool = False
     supports_5ghz: bool = False
+    channels: list[dict[str, Any]] = field(default_factory=list)
     is_virtual: bool = False
     conflict_hints: list[str] = field(default_factory=list)
 
@@ -204,6 +230,43 @@ def phy_bands(phy: str) -> tuple[bool, bool]:
     return bool(re.search(r"\b24\d{2}(?:\.\d+)?\s+MHz\b", out)), bool(re.search(r"\b5[0-9]{3}(?:\.\d+)?\s+MHz\b", out))
 
 
+def phy_channels(phy: str) -> list[dict[str, Any]]:
+    if not phy:
+        return []
+    code, out, _ = run(["iw", "phy", phy, "info"])
+    if code != 0:
+        return []
+    channels = []
+    pattern = re.compile(
+        r"\*\s+(\d+(?:\.\d+)?)\s+MHz\s+\[(\d+)\]\s+\(([0-9.]+)\s+dBm\)(.*)$"
+    )
+    for line in out.splitlines():
+        match = pattern.search(line)
+        if not match or "disabled" in match.group(4).lower():
+            continue
+        frequency = int(round(float(match.group(1))))
+        flags = match.group(4).lower()
+        channel = int(match.group(2))
+        no_ir = "no ir" in flags or "no-ir" in flags
+        radar = "radar detection" in flags
+        valid_primary = (
+            frequency < 5000
+            or (36 <= channel <= 144 and channel % 4 == 0)
+            or (149 <= channel <= 177 and (channel - 149) % 4 == 0)
+        )
+        allowed_high_primary = frequency < 5500 or channel in {100, 108, 116, 124, 132, 140, 149, 157, 184, 192}
+        channels.append({
+            "channel": channel,
+            "frequency_mhz": frequency,
+            "max_dbm": int(float(match.group(3))),
+            "band": "2.4" if frequency < 3000 else "5",
+            "no_ir": no_ir,
+            "radar": radar,
+            "selectable": not no_ir and not radar and valid_primary and allowed_high_primary,
+        })
+    return channels
+
+
 def udev_props(iface: str) -> dict[str, str]:
     path = Path("/sys/class/net") / iface
     if not path.exists() or not command_exists("udevadm"):
@@ -244,10 +307,14 @@ def detect_interfaces() -> list[NetInterface]:
         phy = iw.get("phy", "")
         modes = phy_modes(phy) if is_wireless else set()
         band24, band5 = phy_bands(phy) if is_wireless else (False, False)
+        current_mac = normalize_mac(read_text(path / "address"))
+        hardware_mac = permanent_mac(iface)
 
         info = NetInterface(
             name=iface,
-            mac=read_text(path / "address"),
+            mac=current_mac,
+            permanent_mac=hardware_mac,
+            identity_mac=hardware_mac or current_mac,
             iftype=read_text(path / "type"),
             state=ip_info.get(iface, {}).get("state", ""),
             operstate=read_text(path / "operstate"),
@@ -270,6 +337,7 @@ def detect_interfaces() -> list[NetInterface]:
             supports_managed="managed" in modes,
             supports_24ghz=band24,
             supports_5ghz=band5,
+            channels=phy_channels(phy) if is_wireless else [],
             is_virtual=not device_path.exists() or iface.startswith(("br-", "docker", "veth", "tap", "tun", "wg", "neko")),
         )
         if info.id_net_link_file.startswith("/etc/"):
@@ -440,6 +508,54 @@ def build_report() -> dict[str, Any]:
     }
 
 
+def build_or_read_cached_report(cache_dir: Path, ttl: float) -> dict[str, Any]:
+    """Share a short-lived detector result between read-only UI requests."""
+    cache_file = cache_dir / "report.json"
+    lock_file = cache_dir / "report.lock"
+    try:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        with lock_file.open("a+", encoding="utf-8") as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            try:
+                age = time.time() - cache_file.stat().st_mtime
+                if age <= ttl:
+                    cached = json.loads(cache_file.read_text(encoding="utf-8"))
+                    if isinstance(cached, dict) and cached.get("schema") == "openap-detect/v1":
+                        return cached
+            except (OSError, ValueError, json.JSONDecodeError):
+                pass
+
+            report = build_report()
+            temp_name = ""
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode="w",
+                    encoding="utf-8",
+                    dir=cache_dir,
+                    prefix="report.",
+                    suffix=".tmp",
+                    delete=False,
+                ) as temporary:
+                    temp_name = temporary.name
+                    json.dump(report, temporary, sort_keys=True)
+                    temporary.flush()
+                    os.fsync(temporary.fileno())
+                os.chmod(temp_name, 0o644)
+                os.replace(temp_name, cache_file)
+            finally:
+                if temp_name:
+                    try:
+                        os.unlink(temp_name)
+                    except FileNotFoundError:
+                        pass
+            return report
+    except OSError:
+        # Installation and maintenance paths do not rely on this cache.  A UI
+        # request still receives fresh data if its cache directory is missing
+        # or temporarily unavailable.
+        return build_report()
+
+
 def build_warnings(interfaces: list[NetInterface], usb: list[UsbDevice]) -> list[str]:
     warnings: list[str] = []
     if any((d.vendor_id, d.product_id) in REALTEK_STORAGE_IDS for d in usb):
@@ -512,9 +628,19 @@ def print_text(report: dict[str, Any]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="OpenAP universal installer preflight detector")
     parser.add_argument("--json", action="store_true", help="print machine-readable JSON")
+    parser.add_argument("--cached", action="store_true", help="reuse a short-lived UI inventory cache")
+    parser.add_argument("--cache-ttl", type=float, default=4.0, help="cached inventory lifetime in seconds")
     args = parser.parse_args()
 
-    report = build_report()
+    if args.cached and not args.json:
+        parser.error("--cached requires --json")
+    if args.cache_ttl < 0 or args.cache_ttl > 30:
+        parser.error("--cache-ttl must be between 0 and 30 seconds")
+    report = (
+        build_or_read_cached_report(Path("/var/cache/openap/detect"), args.cache_ttl)
+        if args.cached
+        else build_report()
+    )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

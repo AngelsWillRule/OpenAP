@@ -133,7 +133,7 @@ class Dashboard {
 
     public function getWirelessDetails(string $interface): array
     {
-        $output = shell_exec('/usr/sbin/iw dev ' . escapeshellarg($interface) . ' info');
+        $output = shell_exec('/usr/sbin/iw dev ' . escapeshellarg($interface) . ' info 2>/dev/null');
         if (!$output) {
             return ['bssid' => '-', 'ssid' => $this->getConfiguredApSsid($interface)];
         }
@@ -194,7 +194,7 @@ class Dashboard {
      */
     public function getWirelessClients($interface): int
     {
-        $cmd = '/usr/sbin/iw dev '. escapeshellarg($interface) .' station dump';
+        $cmd = '/usr/sbin/iw dev '. escapeshellarg($interface) .' station dump 2>/dev/null';
         exec($cmd, $output, $status);
 
         if ($status !== 0) {

@@ -4,6 +4,8 @@ www-data ALL=(ALL) NOPASSWD:/bin/cp /tmp/dnsmasqdata /etc/dnsmasq.d/openap-repea
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl start hostapd.service
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop hostapd.service
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl restart hostapd.service
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl start hostapd.service dnsmasq.service
+www-data ALL=(ALL) NOPASSWD:/bin/systemctl restart hostapd.service dnsmasq.service
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl status hostapd.service
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl start dnsmasq.service
 www-data ALL=(ALL) NOPASSWD:/bin/systemctl stop dnsmasq.service
@@ -32,6 +34,7 @@ www-data ALL=(ALL) NOPASSWD:/usr/local/sbin/openap-forget-uplink-wifi *
 www-data ALL=(ALL) NOPASSWD:/usr/local/sbin/openap-apply-dhcp-settings *
 www-data ALL=(root) NOPASSWD:/usr/local/sbin/openap-switch-interface-roles --delayed *
 www-data ALL=(root) NOPASSWD:/usr/local/sbin/openap-apply-encrypted-dns *
+www-data ALL=(root) NOPASSWD:/usr/local/sbin/openap-apply-dual-hostapd --apply-delayed
 www-data ALL=(root) NOPASSWD:/usr/local/sbin/openap-system-reboot
 www-data ALL=(root) NOPASSWD: /usr/bin/journalctl -u lighttpd.service -n 240 --no-pager --output=short-iso
 www-data ALL=(ALL) NOPASSWD:/usr/local/sbin/openap-apply-ap-ethernet-bridge *

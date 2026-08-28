@@ -19,7 +19,7 @@ class Sidebar {
         $this->addItem(_('AP Configuration'), 'fas fa-broadcast-tower', 'ap_configuration', 20,
             fn() => OPENAP_HOTSPOT_ENABLED
         );
-        $this->addItem(_('DHCP Setting'), 'fas fa-exchange-alt', 'dhcp_setting', 25,
+        $this->addItem(_('DHCP and DNS Setting'), 'fas fa-exchange-alt', 'dhcp_setting', 25,
             fn() => OPENAP_HOTSPOT_ENABLED
         );
         $this->addItem(_('Logging'), 'fas fa-file-alt', 'logging', 27,

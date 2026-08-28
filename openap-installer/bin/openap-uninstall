@@ -21,6 +21,18 @@ removed_web_files=0
 removed_web_dirs=0
 removed_config_entries=0
 removed_config_dir=0
+service_state_file="/etc/openap/preinstall-state/install-state.env"
+dnscrypt_state_backup="/etc/openap/preinstall-state/dnscrypt-proxy.toml"
+managed_services=(
+  hostapd.service
+  dnsmasq.service
+  dnscrypt-proxy.service
+  dnscrypt-proxy.socket
+  dnscrypt-proxy-resolvconf.service
+  lighttpd.service
+  lighttpd-maint.timer
+  phpsessionclean.timer
+)
 
 show_progress() {
   local label="$1"
@@ -117,13 +129,65 @@ valid_iface() {
   esac
 }
 
+state_value() {
+  local key="$1"
+  [ -r "$service_state_file" ] || return 0
+  awk -F= -v wanted="$key" '$1 == wanted {sub(/^[^=]*=/, ""); print; exit}' "$service_state_file"
+}
+
+restore_managed_service_state() {
+  local service key package_preexisting enabled_before active_before
+  if [ ! -r "$service_state_file" ]; then
+    echo "WARNING: pre-install service state is unavailable; disabling hotspot and DNS services conservatively." >&2
+    systemctl disable --now hostapd.service dnsmasq.service \
+      dnscrypt-proxy.service dnscrypt-proxy.socket \
+      dnscrypt-proxy-resolvconf.service >/dev/null 2>&1 || true
+    systemctl try-restart lighttpd.service >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  if [ -f "$dnscrypt_state_backup" ]; then
+    install -o root -g root -m 0644 "$dnscrypt_state_backup" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+  fi
+
+  for service in "${managed_services[@]}"; do
+    key="${service//[.-]/_}"
+    package_preexisting="$(state_value "service_${key}_package_preexisting")"
+    enabled_before="$(state_value "service_${key}_enabled_before")"
+    active_before="$(state_value "service_${key}_active_before")"
+
+    if [ "$package_preexisting" != true ]; then
+      systemctl disable --now "$service" >/dev/null 2>&1 || true
+      continue
+    fi
+
+    case "$enabled_before" in
+      enabled|enabled-runtime|linked|linked-runtime|alias)
+        systemctl enable "$service" >/dev/null 2>&1 || true
+        ;;
+      masked|masked-runtime)
+        systemctl mask "$service" >/dev/null 2>&1 || true
+        ;;
+      *)
+        systemctl disable "$service" >/dev/null 2>&1 || true
+        ;;
+    esac
+    if [ "$active_before" = active ]; then
+      systemctl restart "$service" >/dev/null 2>&1 || true
+    else
+      systemctl stop "$service" >/dev/null 2>&1 || true
+    fi
+  done
+}
+
 ap_iface="$(profile_value ap)"
 uplink_iface="$(profile_value uplink)"
 ethernet_iface="$(profile_value ethernet)"
 gateway="$(profile_value gateway)"
 subnet="$(profile_value subnet)"
+bridge_iface="$(profile_value bridge)"
 
-for iface in "$ap_iface" "$uplink_iface" "$ethernet_iface"; do
+for iface in "$ap_iface" "$uplink_iface" "$ethernet_iface" "$bridge_iface"; do
   [ -z "$iface" ] || valid_iface "$iface" || {
     echo "ERROR: unsafe interface name in $profile: $iface" >&2
     exit 1
@@ -146,19 +210,29 @@ dynamic_paths=()
 )
 
 owned_paths=(
+  /var/cache/openap/detect/report.json
+  /var/cache/openap/detect/report.lock
+  /var/cache/openap/detect/refresh.lock
   /etc/dnsmasq.d/openap-repeater.conf
   /etc/hostapd/hostapd.conf
+  /etc/hostapd/openap-ap-24ghz.conf
+  /etc/hostapd/openap-ap-5ghz.conf
   /etc/lighttpd/conf-available/50-openap-router.conf
   /etc/lighttpd/conf-enabled/50-openap-router.conf
   /etc/sudoers.d/090_openap_universal
   /etc/sudoers.d/091_openap_txpower
   /etc/sysctl.d/90-openap-forward.conf
   /etc/systemd/network/20-openap-ap.network
+  /etc/systemd/network/15-openap-hotspot.netdev
+  /etc/systemd/network/20-openap-hotspot.network
   /etc/systemd/system/dnsmasq.service.d/20-openap-ap-address.conf
   /etc/systemd/system/dnsmasq.service.d/20-openap-wait-ap-address.conf
+  /etc/systemd/system/dnsmasq.service.d/25-openap-dnsmasq-mode.conf
+  /etc/systemd/system/openap-firewall.service.d/25-openap-firewall-mode.conf
   /etc/systemd/system/hostapd.service.d/20-openap-ap-address.conf
   /etc/systemd/system/hostapd.service.d/20-openap-wait-ap-address.conf
   /etc/systemd/system/hostapd.service.d/30-openap-hostapd-config.conf
+  /etc/systemd/system/hostapd.service.d/40-openap-dual-band.conf
   /etc/systemd/system/lighttpd.service.d/20-openap-privileges.conf
   /etc/systemd/system/openap-ap-address.service
   /etc/systemd/system/openap-bridge-neighbors.service
@@ -172,11 +246,13 @@ owned_paths=(
   /usr/local/sbin/openap-apply-ap-ethernet-bridge
   /usr/local/sbin/openap-apply-ap-ethernet-bridge-networkd
   /usr/local/sbin/openap-apply-dhcp-settings
+  /usr/local/sbin/openap-apply-dual-hostapd
   /usr/local/sbin/openap-apply-encrypted-dns
   /usr/local/sbin/openap-apply-repeater-wifi
   /usr/local/sbin/openap-apply-uplink-wifi
   /usr/local/sbin/openap-detect
   /usr/local/sbin/openap-forget-uplink-wifi
+  /usr/local/sbin/openap-generate-dual-hostapd
   /usr/local/sbin/openap-prepare-ap-interface
   /usr/local/sbin/openap-refresh-bridge-neighbors
   /usr/local/sbin/openap-resolve-interfaces
@@ -185,6 +261,8 @@ owned_paths=(
   /usr/local/sbin/openap-set-txpower
   /usr/local/sbin/openap-switch-interface-roles
   /usr/local/sbin/openap-system-reboot
+  /usr/local/sbin/openap-dnsmasq-required
+  /usr/local/sbin/openap-routed-service-required
   /usr/local/sbin/openap-udhcpc-hook
   /usr/local/sbin/openap-uplink-watchdog
   /usr/local/sbin/openap-wait-ap-address
@@ -201,7 +279,8 @@ echo "  - stop and disable only OpenAP-owned services and timers;"
 echo "  - remove only known OpenAP helpers, units and network profiles;"
 echo "  - remove OpenAP web files while preserving unrelated webroot content;"
 echo "  - remove /etc/openap and OpenAP-specific dnsmasq/hostapd configuration;"
-echo "  - keep Lighttpd, dnsmasq, hostapd, OS packages, firmware and drivers."
+echo "  - restore the pre-install state of Lighttpd, dnsmasq, dnscrypt-proxy and hostapd;"
+echo "  - keep installed OS packages, firmware and drivers."
 echo "  - create no uninstall backup."
 
 if [ "$apply" -eq 0 ]; then
@@ -236,23 +315,42 @@ systemctl disable --now \
   openap-regdomain.service \
   openap-uplink.service \
   openap-uplink-watchdog.timer 2>/dev/null || true
-systemctl stop hostapd.service dnsmasq.service 2>/dev/null || true
+systemctl stop "${managed_services[@]}" 2>/dev/null || true
+# openap-uplink.service claims its radio from NetworkManager before launching
+# the dedicated supplicant.  Return that interface to NetworkManager when
+# OpenAP is removed so the retained host networking stack can use it again.
+if valid_iface "$uplink_iface" \
+  && command -v nmcli >/dev/null 2>&1 \
+  && systemctl is-active --quiet NetworkManager.service; then
+  nmcli device set "$uplink_iface" managed yes >/dev/null 2>&1 || true
+fi
 show_progress "OpenAP services stopped"
 
 nft delete table ip openap_nat 2>/dev/null || true
 
-if valid_iface "$ap_iface" && [ -n "$gateway" ] && [ -n "$subnet" ]; then
+if [ -n "$gateway" ] && [ -n "$subnet" ]; then
   prefix="${subnet#*/}"
   case "$gateway/$prefix" in
     *[!0-9./]*) ;;
-    *) ip address del "$gateway/$prefix" dev "$ap_iface" 2>/dev/null || true ;;
+    *)
+      for gateway_iface in "$bridge_iface" "$ap_iface"; do
+        valid_iface "$gateway_iface" || continue
+        ip address del "$gateway/$prefix" dev "$gateway_iface" 2>/dev/null || true
+      done
+      ;;
   esac
 fi
+if [ "$bridge_iface" = openap0 ] && [ -d /sys/class/net/openap0/bridge ]; then
+  ip link set dev openap0 down 2>/dev/null || true
+  ip link delete dev openap0 type bridge
+fi
+[ ! -d /run/openap ] || rm -rf -- /run/openap
 show_progress "Firewall and AP address cleared"
 
 for path in "${owned_paths[@]}" "${dynamic_paths[@]}"; do
   case "$path" in
     /etc/*|/usr/local/sbin/openap-*) ;;
+    /var/cache/openap/detect/report.json|/var/cache/openap/detect/report.lock|/var/cache/openap/detect/refresh.lock) ;;
     *) echo "ERROR: unsafe removal target: $path" >&2; exit 1 ;;
   esac
   [ -e "$path" ] || [ -L "$path" ] || continue
@@ -262,7 +360,10 @@ done
 rmdir -- \
   /etc/systemd/system/dnsmasq.service.d \
   /etc/systemd/system/hostapd.service.d \
-  /etc/systemd/system/lighttpd.service.d 2>/dev/null || true
+  /etc/systemd/system/openap-firewall.service.d \
+  /etc/systemd/system/lighttpd.service.d \
+  /var/cache/openap/detect \
+  /var/cache/openap 2>/dev/null || true
 show_progress "OpenAP helpers and system files removed"
 
 if [ -d "$webroot" ]; then
@@ -327,6 +428,13 @@ if [ -d "$webroot" ]; then
 fi
 show_progress "OpenAP web files removed"
 
+systemctl daemon-reload
+if systemctl is-active --quiet systemd-networkd.service; then
+  networkctl reload || true
+fi
+restore_managed_service_state
+show_progress "System services reloaded"
+
 if [ -d /etc/openap ]; then
   removed_config_entries="$(find /etc/openap -mindepth 1 -printf . 2>/dev/null | wc -c)"
   rm -rf -- /etc/openap
@@ -334,13 +442,6 @@ if [ -d /etc/openap ]; then
 fi
 show_progress "OpenAP configuration removed"
 
-systemctl daemon-reload
-if systemctl is-active --quiet systemd-networkd.service; then
-  networkctl reload || true
-fi
-show_progress "System services reloaded"
-
-systemctl try-restart lighttpd.service 2>/dev/null || true
 show_progress "Uninstall complete"
 
 echo

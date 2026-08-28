@@ -2,6 +2,7 @@
 
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
+require_once 'includes/user_preferences.php';
 
 use OpenAP\System\Sysinfo;
 use OpenAP\UI\Dashboard;
@@ -37,6 +38,54 @@ function openapGetInterfaceTraffic(string $interface): array
         'rx_bytes' => (int) $rxBytes,
         'tx_bytes' => (int) $txBytes,
     ];
+}
+
+function openapGetInterfacesTraffic(array $interfaces): array
+{
+    $total = ['rx_bytes' => 0, 'tx_bytes' => 0];
+    foreach (array_unique($interfaces) as $interface) {
+        if (!is_string($interface)) {
+            continue;
+        }
+        $traffic = openapGetInterfaceTraffic($interface);
+        $total['rx_bytes'] += (int) ($traffic['rx_bytes'] ?? 0);
+        $total['tx_bytes'] += (int) ($traffic['tx_bytes'] ?? 0);
+    }
+    return $total;
+}
+
+/** @return array{interface:string,band:string,channel:string,width:int,txpower:string,ssid:string,active:bool} */
+function openapGetApRadioState(string $interface, string $band): array
+{
+    $state = [
+        'interface' => $interface,
+        'band' => $band,
+        'channel' => '-',
+        'width' => 0,
+        'txpower' => '-',
+        'ssid' => '-',
+        'active' => false,
+    ];
+    if (!preg_match('/^[A-Za-z0-9_.:-]+$/', $interface)) {
+        return $state;
+    }
+    exec('/usr/sbin/iw dev ' . escapeshellarg($interface) . ' info 2>/dev/null', $output, $returnCode);
+    if ($returnCode !== 0) {
+        return $state;
+    }
+    $info = implode("\n", $output);
+    $state['active'] = preg_match('/^[[:space:]]*type[[:space:]]+AP$/m', $info) === 1;
+    if (preg_match('/^[[:space:]]*ssid[[:space:]]+(.+)$/m', $info, $match)) {
+        $state['ssid'] = trim($match[1]);
+    }
+    if (preg_match('/^[[:space:]]*channel[[:space:]]+([0-9]+).*width:[[:space:]]+([0-9]+)[[:space:]]+MHz/m', $info, $match)) {
+        $state['channel'] = $match[1];
+        $state['width'] = (int) $match[2];
+    }
+    if (preg_match('/^[[:space:]]*txpower[[:space:]]+([0-9.]+)[[:space:]]+dBm/m', $info, $match)) {
+        $state['txpower'] = rtrim(rtrim($match[1], '0'), '.') . ' dBm';
+    }
+    return $state;
 }
 
 function openapFormatBytes(int $bytes): string
@@ -91,6 +140,16 @@ function DisplayDashboard(string $template = 'dashboard'): void
         'src' => 'app/js/ui/dashboard.js?v=' . filemtime('app/js/ui/dashboard.js'),
         'defer' => false,
     ];
+    $extraFooterScripts[] = [
+        'src' => 'app/js/ui/hotspot_controls.js?v=' . filemtime('app/js/ui/hotspot_controls.js'),
+        'defer' => false,
+    ];
+    if (in_array($template, ['dashboard', 'ap_configuration', 'dhcp_setting'], true)) {
+        $extraFooterScripts[] = [
+            'src' => 'app/js/ui/widget_layout.js?v=' . filemtime('app/js/ui/widget_layout.js'),
+            'defer' => false,
+        ];
+    }
     if ($template === 'ap_configuration') {
         $extraFooterScripts[] = [
             'src' => 'app/js/ui/ap_configuration.js?v=' . filemtime('app/js/ui/ap_configuration.js'),
@@ -115,21 +174,24 @@ function DisplayDashboard(string $template = 'dashboard'): void
     if ($template === 'dhcp_setting' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SaveDhcpSettings'])) {
         openapHandleDhcpSettings($status);
     }
-    if ($template === 'dhcp_setting' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SaveEncryptedDns'])) {
-        $_SESSION['openap_encrypted_dns_result'] = openapHandleEncryptedDns($status);
+    if ($template === 'dhcp_setting' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SaveDnsSettings'])) {
+        $_SESSION['openap_encrypted_dns_result'] = openapHandleDnsSettings($status);
         header('Location: /dhcp_setting', true, 303);
         exit;
     }
     if (isset($_GET['dhcp_upstream'])) {
         $status->addMessage(_('DHCP settings are managed by the upstream router while Ethernet Bridge mode is active.'), 'info');
     }
-    if (isset($_GET['rebooting'])) {
-        $status->addMessage(_('System reboot requested. OpenAP will be temporarily unavailable.'), 'info');
-    }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_action'])) {
         openapHandleDashboardAction((string) $_POST['dashboard_action'], $status);
-        openapStoreDashboardFlashMessages($status);
-        header('Location: /', true, 303);
+        $returnTo = (string) ($_POST['return_to'] ?? '/');
+        if (!in_array($returnTo, ['/', '/ap_configuration', '/dhcp_setting'], true)) {
+            $returnTo = '/';
+        }
+        if ($returnTo === '/') {
+            openapStoreDashboardFlashMessages($status);
+        }
+        header('Location: ' . $returnTo, true, 303);
         exit;
     }
     $pluginManager = PluginManager::getInstance();
@@ -251,6 +313,8 @@ function DisplayDashboard(string $template = 'dashboard'): void
     $currentMode = str_replace('-', '_', $profile['mode']['current'] ?? 'ap_ethernet');
     $isRepeaterWifi = ($currentMode === 'repeater_wifi');
     $wifiRoleUplinkIface = $profile['interfaces']['uplink'] ?? ($_SESSION['wifi_client_interface'] ?? 'wlan1');
+    $configuredApMac = strtolower((string) ($profile['interfaces']['ap_mac'] ?? ''));
+    $configuredUplinkMac = strtolower((string) ($profile['interfaces']['uplink_mac'] ?? ''));
     $uplinkIface = $isRepeaterWifi
         ? $wifiRoleUplinkIface
         : ($profile['interfaces']['ethernet'] ?? 'eth0');
@@ -259,11 +323,8 @@ function DisplayDashboard(string $template = 'dashboard'): void
     $uplinkKind = $isRepeaterWifi ? 'wireless' : 'ethernet';
     $repeaterWifiInterfaces = function_exists('openapDetectWirelessInterfaces') ? openapDetectWirelessInterfaces() : [];
     $repeaterRoles = function_exists('openapSelectedRepeaterRoles') ? openapSelectedRepeaterRoles($repeaterWifiInterfaces) : ['valid' => false];
-    $repeaterWifiCount = count($repeaterWifiInterfaces);
-    $repeaterModeAvailable = $repeaterWifiCount >= 2 && !empty($repeaterRoles['valid']);
-    $repeaterModeUnavailableReason = $repeaterWifiCount >= 2
-        ? _('Repeater mode requires one AP-capable and one managed-capable WiFi interface.')
-        : sprintf(_('Repeater mode requires at least 2 WiFi interfaces. Detected: %d.'), $repeaterWifiCount);
+    $repeaterModeAvailable = !empty($repeaterRoles['valid']);
+    $repeaterModeUnavailableReason = _((string) ($repeaterRoles['reason'] ?? 'Repeater mode is unavailable.'));
 
     // DHCP pool info
     $dhcpPool = function_exists('openapDhcpPoolInfo') ? openapDhcpPoolInfo() : ['active' => 0, 'total' => 150];
@@ -271,7 +332,83 @@ function DisplayDashboard(string $template = 'dashboard'): void
     // Client list (AP side). Keep counters tied to OpenAP's real AP interface
     // so mode switches do not leave stale generic RaspAP client counts behind.
     $apIface = $profile['interfaces']['ap'] ?? $interface;
-    $clientList = function_exists('openapGetClientList') ? openapGetClientList($apIface) : [];
+    $profileApInterfaces = [
+        'ap_24ghz' => (string) ($profile['interfaces']['ap_24ghz'] ?? ''),
+        'ap_5ghz' => (string) ($profile['interfaces']['ap_5ghz'] ?? ''),
+    ];
+    foreach ([
+        'ap_24ghz' => '/etc/hostapd/openap-ap-24ghz.conf',
+        'ap_5ghz' => '/etc/hostapd/openap-ap-5ghz.conf',
+    ] as $profileKey => $radioConfig) {
+        if ($profileApInterfaces[$profileKey] !== '' || !is_readable($radioConfig)) {
+            continue;
+        }
+        $radioConfigContent = (string) file_get_contents($radioConfig);
+        if (preg_match('/^interface=([A-Za-z0-9_.:-]+)$/m', $radioConfigContent, $radioInterfaceMatch)) {
+            $profileApInterfaces[$profileKey] = $radioInterfaceMatch[1];
+        }
+    }
+    $apInterfaces = array_values(array_unique(array_filter([
+        $profileApInterfaces['ap_24ghz'],
+        $profileApInterfaces['ap_5ghz'],
+        $apIface,
+    ], static fn($value): bool => is_string($value) && $value !== '')));
+    $hotspotInterface = (string) ($profile['interfaces']['bridge'] ?? $profile['network']['bridge'] ?? $apIface);
+    $apRadios = [];
+    $roleSettings = @parse_ini_file('/etc/openap/wifi-roles.ini', true, INI_SCANNER_RAW) ?: [];
+    foreach (['5' => 'ap_5ghz', '2.4' => 'ap_24ghz'] as $band => $profileKey) {
+        $radioInterface = $profileApInterfaces[$profileKey];
+        if ($radioInterface !== '') {
+            $radioState = openapGetApRadioState($radioInterface, $band);
+            $activeSection = $profileKey . '_active';
+            $configuredWidth = (int) ($roleSettings[$activeSection]['width'] ?? 0);
+            $radioState['configured_width'] = $configuredWidth > 0 ? $configuredWidth : $radioState['width'];
+            $apRadios[] = $radioState;
+        }
+    }
+    // Fresh single-band installations keep the AP in the legacy `interfaces.ap`
+    // profile key.  Use it only when no band-specific interface was resolved, so
+    // dual-band profiles remain authoritative and the same radio is not listed
+    // twice.  Prefer the live channel when determining the legacy radio's band.
+    if ($apRadios === [] && $apIface !== '') {
+        $legacyBand = in_array((string) $frequency, ['5', '2.4'], true)
+            ? (string) $frequency
+            : '';
+        $legacyRadioState = openapGetApRadioState($apIface, $legacyBand);
+        $legacyChannel = (string) ($legacyRadioState['channel'] ?? '');
+        if (ctype_digit($legacyChannel)) {
+            $legacyBand = (int) $legacyChannel <= 14 ? '2.4' : '5';
+        }
+        if ($legacyBand !== '') {
+            $legacyRadioState['band'] = $legacyBand;
+            $legacyProfileKey = $legacyBand === '5' ? 'ap_5ghz' : 'ap_24ghz';
+            $legacyActiveSection = $legacyProfileKey . '_active';
+            $legacyConfiguredWidth = (int) ($roleSettings[$legacyActiveSection]['width'] ?? 0);
+            $legacyRadioState['configured_width'] = $legacyConfiguredWidth > 0
+                ? $legacyConfiguredWidth
+                : $legacyRadioState['width'];
+            $apRadios[] = $legacyRadioState;
+        }
+    }
+    foreach ($apRadios as $radioState) {
+        if ($radioState['active'] && $radioState['ssid'] !== '-') {
+            $ssid = $radioState['ssid'];
+            break;
+        }
+    }
+    $activeApBands = array_values(array_unique(array_map(
+        static fn(array $radioState): string => (string) $radioState['band'],
+        array_filter($apRadios, static fn(array $radioState): bool => !empty($radioState['active']))
+    )));
+    if ($activeApBands === [] && $apIface !== '') {
+        $fallbackApState = openapGetApRadioState($apIface, (string) $frequency);
+        if (!empty($fallbackApState['active']) && in_array((string) $frequency, ['5', '2.4'], true)) {
+            $activeApBands[] = (string) $frequency;
+        }
+    }
+    $clientList = function_exists('openapGetClientListForInterfaces')
+        ? openapGetClientListForInterfaces($apInterfaces, $hotspotInterface)
+        : (function_exists('openapGetClientList') ? openapGetClientList($apIface) : []);
     if ($currentMode === 'ap_ethernet_bridge' && function_exists('getInterfaceNeighbors')) {
         $bridgeNeighbors = getInterfaceNeighbors($uplinkIface);
         foreach ($clientList as &$bridgeClient) {
@@ -282,7 +419,7 @@ function DisplayDashboard(string $template = 'dashboard'): void
         unset($bridgeClient);
     }
     usort($clientList, static function (array $left, array $right): int { return ((int) ($right['traffic_bytes'] ?? 0)) <=> ((int) ($left['traffic_bytes'] ?? 0)); });    $topClientTraffic = 0;    foreach ($clientList as $trafficClient) { if (!empty($trafficClient['connected'])) { $topClientTraffic = max($topClientTraffic, (int) ($trafficClient['traffic_bytes'] ?? 0)); } }    foreach ($clientList as &$trafficClient) { $trafficClient['top_usage'] = $topClientTraffic > 0 && (int) ($trafficClient['traffic_bytes'] ?? 0) === $topClientTraffic; }    unset($trafficClient);
-    $clientBreakdown = function_exists('openapGetClientDeviceBreakdown') ? openapGetClientDeviceBreakdown($apIface) : ['total' => 0, 'avg_signal' => 0, 'strong' => 0, 'medium' => 0, 'weak' => 0];
+    $clientBreakdown = function_exists('openapGetClientBreakdownForList') ? openapGetClientBreakdownForList($clientList) : ['total' => 0, 'avg_signal' => 0, 'strong' => 0, 'medium' => 0, 'weak' => 0];
     $wirelessClients = 0;
     foreach ($clientList as $client) {
         if (!empty($client['connected'])) {
@@ -306,7 +443,7 @@ function DisplayDashboard(string $template = 'dashboard'): void
     $totalClientsActive = ($totalClients > 0) ? "active" : "inactive";
 
     // Interface traffic stats
-    $trafficAp  = function_exists('openapGetInterfaceTraffic') ? openapGetInterfaceTraffic($apIface) : [];
+    $trafficAp  = function_exists('openapGetInterfacesTraffic') ? openapGetInterfacesTraffic($apInterfaces) : [];
     $trafficUplink = function_exists('openapGetInterfaceTraffic') ? openapGetInterfaceTraffic($uplinkIface) : [];
 
     // Read repeater uplink details directly from nl80211. Avoid wpa_cli here:
@@ -356,8 +493,8 @@ function DisplayDashboard(string $template = 'dashboard'): void
     }
 
     // Band distribution (if we know total clients, estimate from frequency)
-    $band5Count = $frequency === '5' ? $totalClients : 0;
-    $band24Count = $frequency === '2.4' ? $totalClients : 0;
+    $band5Count = count(array_filter($clientList, static fn(array $client): bool => !empty($client['connected']) && ($client['band'] ?? '') === '5'));
+    $band24Count = count(array_filter($clientList, static fn(array $client): bool => !empty($client['connected']) && ($client['band'] ?? '') === '2.4'));
 
     // Determine available 5GHz channels from iw (filters out NO-IR channels)
     $available5ghzChannels = [];
@@ -408,6 +545,12 @@ function DisplayDashboard(string $template = 'dashboard'): void
     $hostapdConfFile = defined('OPENAP_HOSTAPD_CONFIG')
         ? OPENAP_HOSTAPD_CONFIG
         : '/etc/hostapd/hostapd.conf';
+    foreach (['/etc/hostapd/openap-ap-24ghz.conf', '/etc/hostapd/openap-ap-5ghz.conf'] as $dualHostapdConf) {
+        if (is_readable($dualHostapdConf)) {
+            $hostapdConfFile = $dualHostapdConf;
+            break;
+        }
+    }
     if (is_readable($hostapdConfFile)) {
         $confContent = file_get_contents($hostapdConfFile);
         if (!empty($confContent)) {
@@ -497,10 +640,10 @@ function DisplayDashboard(string $template = 'dashboard'): void
 
     $interfaceRoleRadios = [];
     if (is_executable('/usr/local/sbin/openap-detect')) {
-        $detectOutput = [];
-        exec('/usr/local/sbin/openap-detect --json 2>/dev/null', $detectOutput, $detectReturn);
-        if ($detectReturn === 0) {
-            $detected = json_decode(implode("\n", $detectOutput), true);
+        $detected = function_exists('openapReadCachedDetectorReport')
+            ? openapReadCachedDetectorReport()
+            : null;
+        if (is_array($detected)) {
             foreach (($detected['interfaces'] ?? []) as $radio) {
                 $name = (string) ($radio['name'] ?? '');
                 $mac = strtolower((string) ($radio['mac'] ?? ''));
@@ -524,6 +667,8 @@ function DisplayDashboard(string $template = 'dashboard'): void
             }
         }
     }
+
+    $dashboardWidgetOrder = openapReadDashboardWidgetOrder((string) ($_SESSION['user_id'] ?? ''));
 
     echo renderTemplate(
         $template, compact(
@@ -593,6 +738,7 @@ function DisplayDashboard(string $template = 'dashboard'): void
             "serviceList",
             "band5Count",
             "band24Count",
+            "activeApBands",
             "hostapdEnabled",
             "apChannel",
             "apHwMode",
@@ -611,12 +757,18 @@ function DisplayDashboard(string $template = 'dashboard'): void
             "apWidth",
             "available5ghzChannels",
             "apIface",
+            "apInterfaces",
+            "apRadios",
+            "hotspotInterface",
             "uplinkIface",
             "wifiRoleUplinkIface",
+            "configuredApMac",
+            "configuredUplinkMac",
             "interfaceRoleRadios",
             "uplinkGateway",
             "dashboardServiceLogs",
-            "serviceLogs"
+            "serviceLogs",
+            "dashboardWidgetOrder"
         )
     );
 }
@@ -634,9 +786,11 @@ function openapHandleDhcpSettings(StatusMessage $status): void
         'start' => trim((string) ($_POST['dhcp_start'] ?? '')),
         'end' => trim((string) ($_POST['dhcp_end'] ?? '')),
         'lease' => trim((string) ($_POST['dhcp_lease_time'] ?? '')),
-        'policy' => trim((string) ($_POST['dhcp_dns_policy'] ?? '')),
-        'advertised' => trim((string) ($_POST['dhcp_advertised_dns'] ?? '')),
-        'upstream' => trim((string) ($_POST['dhcp_upstream_dns'] ?? '')),
+        // DNS is preserved by the privileged helper from the active dnsmasq
+        // configuration. These valid placeholders are never authoritative.
+        'policy' => 'local',
+        'advertised' => trim((string) ($_POST['dhcp_gateway'] ?? '')),
+        'upstream' => trim((string) ($_POST['dhcp_gateway'] ?? '')),
     ];
     if (!preg_match('/^([0-9.]+)\/(\d{1,2})$/', $values['subnet'], $subnetMatch)
         || filter_var($subnetMatch[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false
@@ -651,7 +805,7 @@ function openapHandleDhcpSettings(StatusMessage $status): void
         $status->addMessage('The subnet must use its network address.', 'danger');
         return;
     }
-    $apInterface = (string) ($profile['interfaces']['ap'] ?? '');
+    $apInterface = (string) ($profile['interfaces']['bridge'] ?? $profile['interfaces']['ap'] ?? '');
     $uplinkInterface = (string) ($profile['interfaces']['uplink'] ?? '');
     $addressOutput = [];
     exec('/usr/sbin/ip -4 -o address show scope global 2>/dev/null', $addressOutput);
@@ -734,7 +888,7 @@ function openapHandleDhcpSettings(StatusMessage $status): void
         }
         $values[$key] = implode(',', $dnsAddresses);
     }
-    $command = 'sudo /usr/local/sbin/openap-apply-dhcp-settings --delayed';
+    $command = 'sudo /usr/local/sbin/openap-apply-dhcp-settings --delayed --preserve-dns';
     foreach ($values as $value) {
         $command .= ' ' . escapeshellarg($value);
     }
@@ -776,6 +930,109 @@ function openapHandleEncryptedDns(StatusMessage $status): array
     ];
 }
 
+function openapHandleDnsSettings(StatusMessage $status): array
+{
+    $profile = function_exists('openapReadRepeaterProfile') ? openapReadRepeaterProfile() : [];
+    if (($profile['mode']['current'] ?? '') === 'ap_ethernet_bridge') {
+        return ['success' => false, 'message' => _('DNS settings are read-only in Ethernet Bridge mode.')];
+    }
+
+    $enabled = (string) ($_POST['encrypted_dns_enabled'] ?? '0');
+    $provider = trim((string) ($_POST['dns_provider'] ?? ''));
+    $policy = trim((string) ($_POST['dhcp_dns_policy'] ?? 'local'));
+    if (!in_array($enabled, ['0', '1'], true)
+        || !in_array($provider, ['cloudflare', 'quad9', 'google', 'custom'], true)
+        || !in_array($policy, ['local', 'external'], true)) {
+        return ['success' => false, 'message' => _('Invalid DNS settings.')];
+    }
+    if ($enabled === '1' && !in_array($provider, ['cloudflare', 'quad9'], true)) {
+        return ['success' => false, 'message' => _('Encrypted DNS supports Cloudflare or Quad9. Choose one of these providers.')];
+    }
+
+    $providerAddresses = [
+        'cloudflare' => '1.1.1.1,1.0.0.1',
+        'quad9' => '9.9.9.9,149.112.112.112',
+        'google' => '8.8.8.8,8.8.4.4',
+    ];
+    if ($enabled === '1') {
+        $command = 'sudo /usr/local/sbin/openap-apply-encrypted-dns enable ' . escapeshellarg($provider);
+        exec($command . ' 2>&1', $output, $return);
+        if ($return !== 0) {
+            return ['success' => false, 'message' => _('Unable to apply Encrypted DNS settings: ') . implode(' ', $output)];
+        }
+        return ['success' => true, 'message' => sprintf(_('Encrypted DNS enabled with %s.'), $provider === 'quad9' ? 'Quad9 Security' : 'Cloudflare')];
+    }
+
+    $upstream = $providerAddresses[$provider] ?? trim((string) ($_POST['dhcp_upstream_dns'] ?? ''));
+    $advertised = trim((string) ($_POST['dhcp_advertised_dns'] ?? ''));
+    $dnsLists = [];
+    foreach (['upstream' => $upstream, 'advertised' => $advertised] as $key => $value) {
+        $addresses = array_values(array_filter(array_map('trim', explode(',', $value))));
+        if ($addresses === [] || array_filter($addresses, static fn(string $ip): bool => filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false)) {
+            return ['success' => false, 'message' => _('DNS fields must contain comma-separated IPv4 addresses.')];
+        }
+        $dnsLists[$key] = implode(',', $addresses);
+    }
+
+    $gateway = (string) ($profile['network']['gateway'] ?? '');
+    if ($policy === 'local') {
+        $dnsLists['advertised'] = $gateway;
+    } elseif ($provider !== 'custom') {
+        $dnsLists['advertised'] = $upstream;
+    }
+
+    $storedDns = is_readable('/etc/openap/encrypted-dns.ini')
+        ? parse_ini_file('/etc/openap/encrypted-dns.ini', true, INI_SCANNER_RAW)
+        : [];
+    $disableProvider = in_array($provider, ['cloudflare', 'quad9'], true)
+        ? $provider
+        : (in_array(($storedDns['encrypted_dns']['provider'] ?? ''), ['cloudflare', 'quad9'], true)
+            ? (string) $storedDns['encrypted_dns']['provider']
+            : 'cloudflare');
+    exec(
+        'sudo /usr/local/sbin/openap-apply-encrypted-dns disable ' . escapeshellarg($disableProvider) . ' 2>&1',
+        $disableOutput,
+        $disableReturn
+    );
+    if ($disableReturn !== 0) {
+        return ['success' => false, 'message' => _('Unable to disable Encrypted DNS: ') . implode(' ', $disableOutput)];
+    }
+
+    $lease = '12h';
+    foreach (@file('/etc/dnsmasq.d/openap-repeater.conf', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        if (str_starts_with($line, 'dhcp-range=')) {
+            $parts = array_map('trim', explode(',', substr($line, 11)));
+            $candidate = end($parts);
+            if (is_string($candidate) && preg_match('/^[1-9][0-9]*[mhdw]$/i', $candidate)) {
+                $lease = $candidate;
+            }
+            break;
+        }
+    }
+    $network = $profile['network'] ?? [];
+    $values = [
+        (string) ($network['subnet'] ?? ''),
+        $gateway,
+        (string) ($network['dhcp_start'] ?? ''),
+        (string) ($network['dhcp_end'] ?? ''),
+        $lease,
+        $policy,
+        $dnsLists['advertised'],
+        $dnsLists['upstream'],
+    ];
+    $command = 'sudo /usr/local/sbin/openap-apply-dhcp-settings';
+    foreach ($values as $value) {
+        $command .= ' ' . escapeshellarg($value);
+    }
+    exec($command . ' 2>&1', $output, $return);
+    if ($return !== 0) {
+        return ['success' => false, 'message' => _('Unable to apply standard DNS settings: ') . implode(' ', $output)];
+    }
+
+    $label = $provider === 'quad9' ? 'Quad9 Security' : ($provider === 'cloudflare' ? 'Cloudflare' : ($provider === 'google' ? 'Google Public DNS' : _('Custom')));
+    return ['success' => true, 'message' => sprintf(_('Standard DNS enabled with %s.'), $label)];
+}
+
 
 
 function openapLoadDashboardFlashMessages(StatusMessage $status): void
@@ -798,14 +1055,33 @@ function openapStoreDashboardFlashMessages(StatusMessage $status): void
 
 function openapHandleDashboardAction(string $action, StatusMessage $status): void
 {
+    $profile = @parse_ini_file('/etc/openap/repeater.ini', true, INI_SCANNER_RAW);
+    $mode = is_array($profile) ? (string) ($profile['mode']['current'] ?? 'ap_ethernet') : 'ap_ethernet';
+    $hotspotUnits = $mode === 'ap_ethernet_bridge'
+        ? 'hostapd.service'
+        : 'hostapd.service dnsmasq.service';
     $commands = [
+        'start_ap' => [
+            'label' => 'AP service',
+            'verb' => 'Started',
+            'cmd' => 'sudo /bin/systemctl start ' . $hotspotUnits,
+            'wait' => 'ap',
+        ],
+        'stop_ap' => [
+            'label' => 'AP service',
+            'verb' => 'Stopped',
+            'cmd' => 'sudo /bin/systemctl stop hostapd.service',
+            'wait' => '',
+        ],
         'restart_ap' => [
             'label' => 'AP service',
-            'cmd' => 'sudo /bin/systemctl restart hostapd.service',
+            'verb' => 'Restarted',
+            'cmd' => 'sudo /bin/systemctl restart ' . $hotspotUnits,
             'wait' => 'ap',
         ],
         'restart_dhcp' => [
             'label' => 'DHCP/DNS service',
+            'verb' => 'Restarted',
             'cmd' => 'sudo /bin/systemctl restart dnsmasq.service',
             'wait' => 'dhcp',
         ],
@@ -818,7 +1094,7 @@ function openapHandleDashboardAction(string $action, StatusMessage $status): voi
 
     exec($commands[$action]['cmd'] . ' 2>&1', $output, $return);
     if ($return !== 0) {
-        $status->addMessage('Failed to restart ' . $commands[$action]['label'] . ': ' . implode(' ', $output), 'danger');
+        $status->addMessage('Failed to update ' . $commands[$action]['label'] . ': ' . implode(' ', $output), 'danger');
         return;
     }
 
@@ -829,7 +1105,7 @@ function openapHandleDashboardAction(string $action, StatusMessage $status): voi
         $ready = openapWaitAfterRepeaterAction('restart_dhcp');
     }
 
-    $status->addMessage('Restarted ' . $commands[$action]['label'] . '.', 'success');
+    $status->addMessage($commands[$action]['verb'] . ' ' . $commands[$action]['label'] . '.', 'success');
     if (!$ready) {
         $status->addMessage('Service restarted, but status is still settling. Refresh the page in a few seconds.', 'warning');
     }

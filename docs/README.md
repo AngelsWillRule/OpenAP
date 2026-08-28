@@ -14,6 +14,8 @@ drafts until their commands pass the clean-platform release matrix.
   rules.
 - [Feature roadmap](OPENAP_FEATURE_ROADMAP.md): proposed future work, not a
   list of implemented features.
+- [Interface design system](OPENAP_INTERFACE_DESIGN_SYSTEM.md): normative
+  visual and interaction rules for dashboard components, modals and widgets.
 
 Detailed Debian 13, Ubuntu and Raspberry Pi OS validation records will be
 published only after private infrastructure details have been removed and the

@@ -178,7 +178,7 @@ $openapMobileNavIndex = $openapMobilePath === '/ap_configuration'
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal"><?php echo _("Cancel"); ?></button>
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times" aria-hidden="true"></i> <?php echo _("Cancel"); ?></button>
           <?php if (!OPENAP_MONITOR_ENABLED) : ?>
             <button type="submit" class="btn btn-primary openap-admin-save" name="UpdateAdminPassword" value="1">
               <i class="fas fa-save me-1"></i><?php echo _("Save settings"); ?>
